@@ -1,0 +1,28 @@
+language: node_js
+node_js:
+  - "8"
+services:
+  - mysql
+before_install:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+script :
+  - "npm test"
+  # - "npm run build"
+  # - "git add es docs"
+  # - "git commit -m 'rebuild by travis'"
+  # - "git push origin master"
+after_script:
+  - "npm run test-nyc"
+
+cache:
+  directories:
+  - node_modules
+
+deploy:
+  provider: npm
+  email: heifade@126.com
+  api_key: $NPM_TOKEN
+  on:
+    tags: true
+    repo: heifade/mysql-i
+

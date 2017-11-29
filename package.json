@@ -1,0 +1,62 @@
+{
+  "name": "mssql-i",
+  "version": "1.0.0",
+  "description": "mssql interface, base on mssql",
+  "main": "./es/index.js",
+  "module": "./es/index.js",
+  "files": [
+    "es"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heifade/mssql-i.git"
+  },
+  "scripts": {
+    "removeDist": "node ./tools/deleteOutPath.js",
+    "tsBuild": "tsc -p tsconfig.json",
+    "docs": "./node_modules/.bin/typedoc --out docs src --module commonjs --hideGenerator && node ./tools/replaceDocFileUnderline.js",
+    "build": "npm run removeDist && npm run tsBuild && npm run docs",
+    "test": "nyc mocha -t 5000",
+    "test-nyc": "./node_modules/.bin/nyc npm test && nyc report --reporter=text-lcov | coveralls"
+  },
+  "nyc": {
+    "include": [
+      "src/**/*.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "sourceMap": true,
+    "instrument": true
+  },
+  "keywords": [
+    "mssql",
+    "mssql-i",
+    "promise"
+  ],
+  "author": "heifade",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/heifade/mssql-i/issues"
+  },
+  "homepage": "https://github.com/heifade/mssql-i#readme",
+  "dependencies": {
+    "mssql": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/mssql": "^4.0.6",
+    "@types/chai": "^4.0.5",
+    "@types/mocha": "^2.2.44",
+    "chai": "^4.1.2",
+    "coveralls": "^3.0.0",
+    "mocha": "^4.0.1",
+    "nyc": "^11.3.0",
+    "source-map-support": "^0.5.0",
+    "ts-node": "^3.3.0",
+    "typedoc": "^0.9.0",
+    "typescript": "^2.6.1"
+  }
+}
