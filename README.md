@@ -1,31 +1,31 @@
-mysql-i
+mssql-i
 =======
 
 
 
 [![NPM version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][npm-url]
-[![Build](https://travis-ci.org/heifade/mysql-i.svg)](https://travis-ci.org/heifade/mysql-i)
-[![Test Coverage](https://coveralls.io/repos/github/heifade/mysql-i/badge.svg)](https://coveralls.io/github/heifade/mysql-i?branch=master)
+[![Build](https://travis-ci.org/heifade/mssql-i.svg)](https://travis-ci.org/heifade/mssql-i)
+[![Test Coverage](https://coveralls.io/repos/github/heifade/mssql-i/badge.svg)](https://coveralls.io/github/heifade/mssql-i?branch=master)
 
 
 
-[npm-image]: https://img.shields.io/npm/v/mysql-i.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/mysql-i
-[downloads-image]: https://img.shields.io/npm/dm/mysql-i.svg
+[npm-image]: https://img.shields.io/npm/v/mssql-i.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/mssql-i
+[downloads-image]: https://img.shields.io/npm/dm/mssql-i.svg
 
 
 # 源代码及文档
-[源代码](https://github.com/heifade/mysql-i)
-[开发文档](https://heifade.github.io/mysql-i/)
+[源代码](https://github.com/heifade/mssql-i)
+[开发文档](https://heifade.github.io/mssql-i/)
 
 # 安装
 ```bash
-npm install mysql-i
+npm install mssql-i
 ```
 
 # 介绍
-mysql-i的主要特点：
+mssql-i的主要特点：
 * 1.多数据库自由切换
 * 2.提供简单的插入,修改,删除,替换,查询,分页查询等功能
 * 3.事务封装
@@ -115,7 +115,7 @@ mysql-i的主要特点：
 # 例子
 例子1 创建一个数据库test2，创建一张表tbl_test
 ```js
-const mysqli = require("mysql-i");
+const mysqli = require("mssql-i");
 async function run() {
   let conn;
   try {
