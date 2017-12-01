@@ -2,16 +2,45 @@ import { expect } from "chai";
 import "mocha";
 import { connectionConfig } from "./connectionConfig";
 import { initTable } from "./DataInit";
-import { PoolConnection, Connection } from "mysql";
-import { ConnectionHelper, Replace, RowDataModel, Select } from "../src/index";
+import {
+  ConnectionHelper,
+  Replace,
+  RowDataModel,
+  Select,
+  ConnectionPool,
+  Exec,
+  Schema,
+  Transaction
+} from "../src/index";
 
 describe("Replace", function() {
   let tableName = "tbl_test_replace";
-  let conn: Connection;
+  let tableName2 = "tbl_test_replace_noprimarykey";
+  let conn: ConnectionPool;
   before(done => {
     (async function() {
       conn = await ConnectionHelper.create(connectionConfig);
-      await initTable(conn, tableName, false);
+      await initTable(conn, tableName, true);
+
+      await Exec.exec(
+        conn,
+        `if exists (select top 1 1 from sys.tables where name = '${
+          tableName2
+        }') drop table ${tableName2}`
+      );
+
+      await Exec.exec(
+        conn,
+        `
+        create table ${tableName2} (
+          f1 int,
+          f2 int,
+          f3 int
+        )
+      `
+      );
+
+      Schema.clear("djd-test");
     })().then(() => {
       done();
     });
@@ -29,17 +58,96 @@ describe("Replace", function() {
       let insertValue = `value${Math.random()}`;
 
       let result = await Replace.replace(conn, {
-        data: RowDataModel.create({ id: 1, value: insertValue }),
+        data: RowDataModel.create({ value: insertValue }),
         table: tableName
       });
 
       let rowData = await Select.selectTop1(conn, {
         sql: `select value from ${tableName} where id=?`,
-        where: [1]
+        where: [Reflect.get(result, "insertId")]
       });
 
       expect(rowData != null).to.be.true;
       expect(rowData.get("value")).to.equal(insertValue);
+    };
+
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
+
+  it("replace with tran must be success", done => {
+    let asyncFunc = async function() {
+      let insertValue = `value${Math.random()}`;
+
+      let tran;
+      let result;
+      try {
+        tran = await Transaction.begin(conn);
+        result = await Replace.replace(
+          conn,
+          {
+            data: RowDataModel.create({ value: insertValue }),
+            table: tableName
+          },
+          tran
+        );
+
+        await Transaction.commit(tran);
+      } catch (err) {
+        await Transaction.rollback(tran);
+      }
+
+      let rowData = await Select.selectTop1(conn, {
+        sql: `select value from ${tableName} where id=?`,
+        where: [Reflect.get(result, "insertId")]
+      });
+
+      expect(rowData != null).to.be.true;
+      expect(rowData.get("value")).to.equal(insertValue);
+    };
+
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
+
+  // 没有主键的表，replace操作时，会当作insert 处理
+  it("replace table with no primary key", done => {
+    let asyncFunc = async function() {
+      let insertValue = `value${Math.random()}`;
+
+      let result = await Replace.replace(conn, {
+        data: RowDataModel.create({ f1: 1, f2: 1, f3: 1 }),
+        table: tableName2
+      });
+
+      let rowData = await Select.selectCount(conn, {
+        sql: `select * from ${tableName2} where f1=?`,
+        where: [1]
+      });
+
+      expect(rowData).to.equal(1);
+
+      result = await Replace.replace(conn, {
+        data: RowDataModel.create({ f1: 1, f2: 1, f3: 1 }),
+        table: tableName2
+      });
+
+      rowData = await Select.selectCount(conn, {
+        sql: `select * from ${tableName2} where f1=?`,
+        where: [1]
+      });
+
+      expect(rowData).to.equal(2);
     };
 
     asyncFunc()
@@ -130,7 +238,7 @@ describe("Replace", function() {
         table: tableName
       }).catch(err => {
         let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`ER_DATA_TOO_LONG`);
+        expect(errCode).to.equal(`EREQUEST`);
       });
     };
 

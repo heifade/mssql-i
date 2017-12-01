@@ -1,4 +1,5 @@
-import { Connection } from "mysql";
+import { ConnectionPool, ISOLATION_LEVEL } from "mssql";
+import * as mssql from "mssql";
 
 /**
  * 事务
@@ -39,16 +40,10 @@ export class Transaction {
    * @returns
    * @memberof Transaction
    */
-  public static begin(conn: Connection) {
-    return new Promise((resolve, reject) => {
-      conn.beginTransaction(err => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+  public static async begin(conn: ConnectionPool) {
+    let tran = new mssql.Transaction(conn);
+    await tran.begin(ISOLATION_LEVEL.READ_COMMITTED);
+    return tran;
   }
 
   /**
@@ -59,16 +54,8 @@ export class Transaction {
    * @returns
    * @memberof Transaction
    */
-  public static commit(conn: Connection) {
-    return new Promise((resolve, reject) => {
-      conn.commit(err => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+  public static async commit(transaction: mssql.Transaction) {
+    await transaction.commit();
   }
 
   /**
@@ -79,15 +66,7 @@ export class Transaction {
    * @returns
    * @memberof Transaction
    */
-  public static rollback(conn: Connection) {
-    return new Promise((resolve, reject) => {
-      conn.rollback(err => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+  public static async rollback(transaction: mssql.Transaction) {
+    await transaction.rollback();
   }
 }

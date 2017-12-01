@@ -1,141 +1,179 @@
-import { ConnectionHelper } from "../src/index";
+import {
+  ConnectionHelper,
+  Select,
+  Exec,
+  Schema,
+  Insert,
+  RowDataModel,
+  Update,
+  Delete,
+  ConnectionPool
+} from "../src/index";
 import { expect } from "chai";
 import "mocha";
-// import { initTable } from "./DataInit";
-import { ConnectionPool } from "mssql";
+import { initTable } from "./DataInit";
 import { connectionConfig } from "./connectionConfig";
+import { Utils } from "../src/util/Utils";
+import { Replace } from "../src/Replace";
+import { Transaction } from "../src/Transaction";
 
 describe("Delete", function() {
   let tableName = "tbl_test_delete";
   let conn: ConnectionPool;
   before(done => {
     (async function() {
-      let conn = await ConnectionHelper.create(connectionConfig);
-      // await initTable(conn, tableName, false);
+      conn = await ConnectionHelper.create(connectionConfig);
+      await initTable(conn, tableName, false);
+    })()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
 
-
-      // let conn = new ConnectionPool(connectionConfig);
-      // console.log(conn.connect());
-
-      let request = await conn.request();
-
-      let list = await request.query('select * from tbl_test_delete' );
-
-
-
-
-
+  after(done => {
+    (async function() {
+      await ConnectionHelper.close(conn);
     })().then(() => {
       done();
-    }).catch(err => {
-      done(err);
     });
   });
 
+  it("delete must be success", done => {
+    let asyncFunc = async function() {
+      let deleteId = 1;
+      let count = await Select.selectCount(conn, {
+        sql: `select * from ${tableName} where id=?`,
+        where: [deleteId]
+      });
+      expect(count).to.equal(1);
 
-  // after(done => {
-  //   (async function() {
-  //     await ConnectionHelper.close(conn);
-  //   })().then(() => {
-  //     done();
-  //   });
-  // });
+      await Delete.delete(conn, {
+        where: RowDataModel.create({ id: deleteId }),
+        table: tableName
+      });
 
-  it("1", done => {
-    done();
+      count = await Select.selectCount(conn, {
+        sql: `select * from ${tableName} where id=?`,
+        where: [deleteId]
+      });
+      expect(count).to.equal(0);
+    };
+
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
   });
 
-  // it("delete must be success", done => {
-  //   let asyncFunc = async function() {
-  //     let deleteId = 1;
-  //     let count = await Select.selectCount(conn, {
-  //       sql: `select * from ${tableName} where id=?`,
-  //       where: [deleteId]
-  //     });
-  //     expect(count).to.equal(1);
+  it("delete with tran must be success", done => {
+    let asyncFunc = async function() {
+      let deleteId = 2;
 
-  //     await Delete.delete(conn, {
-  //       where: RowDataModel.create({ id: 1 }),
-  //       table: tableName
-  //     });
+      let count = await Select.selectCount(conn, {
+        sql: `select * from ${tableName} where id=?`,
+        where: [deleteId]
+      });
+      expect(count).to.equal(1);
 
-  //     count = await Select.selectCount(conn, {
-  //       sql: `select * from ${tableName} where id=?`,
-  //       where: [deleteId]
-  //     });
-  //     expect(count).to.equal(0);
-  //   };
+      let tran;
+      try {
+        tran = await Transaction.begin(conn);
+        await Delete.delete(
+          conn,
+          {
+            where: RowDataModel.create({ id: deleteId }),
+            table: tableName
+          },
+          tran
+        );
+        await Transaction.commit(tran);
+      } catch (err) {
+        await Transaction.rollback(tran);
+      }
 
-  //   asyncFunc()
-  //     .then(() => {
-  //       done();
-  //     })
-  //     .catch(err => {
-  //       done(err);
-  //     });
-  // });
+      count = await Select.selectCount(conn, {
+        sql: `select * from ${tableName} where id=?`,
+        where: [deleteId]
+      });
+      expect(count).to.equal(0);
+    };
 
-  // it("when pars.table is null", done => {
-  //   let asyncFunc = async function() {
-  //     await Delete.delete(conn, {
-  //       where: RowDataModel.create({ id: 1 }),
-  //       table: null
-  //     }).catch(err => {
-  //       let errMsg = Reflect.get(err, "message");
-  //       expect(errMsg).to.equal("pars.table can not be null or empty!");
-  //     });
-  //   };
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
 
-  //   asyncFunc()
-  //     .then(() => {
-  //       done();
-  //     })
-  //     .catch(err => {
-  //       done(err);
-  //     });
-  // });
+  it("when pars.table is null", done => {
+    let asyncFunc = async function() {
+      await Delete.delete(conn, {
+        where: RowDataModel.create({ id: 1 }),
+        table: null
+      }).catch(err => {
+        let errMsg = Reflect.get(err, "message");
+        expect(errMsg).to.equal("pars.table can not be null or empty!");
+      });
+    };
 
-  // it("when table is not exists", done => {
-  //   let asyncFunc = async function() {
-  //     let insertName = `name${Math.random()}`;
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
 
-  //     let tableName = `tbl_not_exists`;
+  it("when table is not exists", done => {
+    let asyncFunc = async function() {
+      let insertName = `name${Math.random()}`;
 
-  //     await Delete.delete(conn, {
-  //       where: RowDataModel.create({ id: 1 }),
-  //       table: tableName
-  //     }).catch(err => {
-  //       let errMsg = Reflect.get(err, "message");
-  //       expect(errMsg).to.equal(`table '${tableName}' is not exists!`);
-  //     });
-  //   };
+      let tableName = `tbl_not_exists`;
 
-  //   asyncFunc()
-  //     .then(() => {
-  //       done();
-  //     })
-  //     .catch(err => {
-  //       done(err);
-  //     });
-  // });
+      await Delete.delete(conn, {
+        where: RowDataModel.create({ id: 1 }),
+        table: tableName
+      }).catch(err => {
+        let errMsg = Reflect.get(err, "message");
+        expect(errMsg).to.equal(`table '${tableName}' is not exists!`);
+      });
+    };
 
-  // it("when error", done => {
-  //   let asyncFunc = async function() {
-  //     await Delete.delete(conn, {
-  //       where: RowDataModel.create({ id: "Hellow" }),
-  //       table: tableName
-  //     }).catch(err => {
-  //       let errCode = Reflect.get(err, "code");
-  //       expect(errCode).to.equal(`ER_TRUNCATED_WRONG_VALUE`);
-  //     });
-  //   };
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
 
-  //   asyncFunc()
-  //     .then(() => {
-  //       done();
-  //     })
-  //     .catch(err => {
-  //       done(err);
-  //     });
-  // });
+  it("when error", done => {
+    let asyncFunc = async function() {
+      await Delete.delete(conn, {
+        where: RowDataModel.create({ id: "Hellow" }),
+        table: tableName
+      }).catch(err => {
+        let errCode = Reflect.get(err, "code");
+        expect(errCode).to.equal(`EREQUEST`);
+      });
+    };
+
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
 });

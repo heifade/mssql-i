@@ -1,13 +1,18 @@
 import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
-import { PoolConnection, Connection } from "mysql";
-import { ConnectionHelper, Insert, RowDataModel, Select } from "../src/index";
+import {
+  ConnectionHelper,
+  Insert,
+  RowDataModel,
+  Select,
+  ConnectionPool
+} from "../src/index";
 import { connectionConfig } from "./connectionConfig";
 
 describe("Insert", function() {
   let tableName = "tbl_test_insert";
-  let conn: Connection;
+  let conn: ConnectionPool;
 
   before(done => {
     (async function() {

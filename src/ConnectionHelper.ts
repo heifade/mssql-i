@@ -39,7 +39,6 @@ export class ConnectionHelper {
    */
   public static create(connConfig: config): Promise<ConnectionPool> {
     let pool = new ConnectionPool(connConfig);
-    console.log(1, pool);
     return pool.connect();
   }
 

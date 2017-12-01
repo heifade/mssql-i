@@ -1,12 +1,12 @@
-import { Save, Exec, RowDataModel, SaveType, Schema } from "../src/index";
-import { ConnectionPool } from "mssql";
+import { Save, Exec, RowDataModel, SaveType, Schema, Utils, ConnectionPool } from "../src/index";
+
 
 export let initTable = async function(
   conn: ConnectionPool,
   tableName: string,
   autoIncrement: boolean
 ) {
-  await Exec.exec(conn, `drop table ${tableName}`);
+  await Exec.exec(conn, `if exists (select top 1 1 from sys.tables where name = '${tableName}') drop table ${tableName}`);
   await Exec.exec(
     conn,
     `create table ${tableName} (
@@ -16,7 +16,8 @@ export let initTable = async function(
       )`
   );
 
-  // Schema.clear(conn.config.database);
+  Schema.clear(Utils.getDataBaseFromConnection(conn));
+
 
   for (let i = 0; i < 10; i++) {
     let data = autoIncrement

@@ -16,7 +16,7 @@
     "tsBuild": "tsc -p tsconfig.json",
     "docs": "./node_modules/.bin/typedoc --out docs src --module commonjs --hideGenerator && node ./tools/replaceDocFileUnderline.js",
     "build": "npm run removeDist && npm run tsBuild && npm run docs",
-    "test": "nyc mocha -t 5000",
+    "test": "nyc mocha -t 10000",
     "test-nyc": "./node_modules/.bin/nyc npm test && nyc report --reporter=text-lcov | coveralls"
   },
   "nyc": {

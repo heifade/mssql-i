@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import "mocha";
-import { PoolConnection, Connection } from "mysql";
 import { initTable } from "./DataInit";
 import {
   Schema,
@@ -8,19 +7,25 @@ import {
   Utils,
   Exec,
   Where,
-  ConnectionHelper
+  ConnectionHelper,
+  ConnectionPool
 } from "../src/index";
 import { connectionConfig } from "./connectionConfig";
 
 describe("Other", function() {
   let tableName = "tbl_test_where";
-  let conn: Connection;
+  let conn: ConnectionPool;
 
   before(done => {
     let asyncFunc = async function() {
       conn = await ConnectionHelper.create(connectionConfig);
 
-      await Exec.exec(conn, `drop table if exists ${tableName}`);
+      await Exec.exec(
+        conn,
+        `if exists (select top 1 1 from sys.tables where name = '${
+          tableName
+        }') drop table ${tableName}`
+      );
       await Exec.exec(
         conn,
         `create table ${tableName} (
@@ -32,7 +37,7 @@ describe("Other", function() {
           )`
       );
 
-      await Schema.clear(conn.config.database);
+      await Schema.clear(Utils.getDataBaseFromConnection(conn));
     };
 
     asyncFunc()
@@ -66,13 +71,36 @@ describe("Other", function() {
       });
   });
 
+  it("RowDataModel.set", done => {
+    let asyncFunc = async function() {
+      let row = RowDataModel.create({ id: 1 });
+      expect(row.get("id")).to.equals(1);
+      row.set("id", 2);
+      expect(row.get("id")).to.equals(2);
+    };
+
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
+
   it("Utils.getDbObjectName", done => {
     let asyncFunc = async function() {
-      let value = Utils.getDbObjectName("a", "b");
-      expect(value).to.equal("a.b");
+      let value = Utils.getDbObjectName("a", "b", "c");
+      expect(value).to.equal("[a].[b].[c]");
 
-      value = Utils.getDbObjectName("", "b");
-      expect(value).to.equal("b");
+      value = Utils.getDbObjectName("", "b", "c");
+      expect(value).to.equal("[b].[c]");
+
+      value = Utils.getDbObjectName("", "", "c");
+      expect(value).to.equal("[c]");
+
+      value = Utils.getDbObjectName("a", "", "c");
+      expect(value).to.equal("[a]..[c]");
     };
 
     asyncFunc()
@@ -94,7 +122,9 @@ describe("Other", function() {
           tableSchemaModel
         );
 
-        expect(whereSQL1.trim()).to.equal("where id1 = ? and id2 = ?");
+        expect(whereSQL1.trim()).to.equal(
+          "where id1 = @wparid1 and id2 = @wparid2"
+        );
         expect(
           whereList1 != null &&
             whereList1.length == 2 &&
@@ -115,7 +145,9 @@ describe("Other", function() {
           tableSchemaModel
         );
 
-        expect(whereSQL3.trim()).to.equal("where id1 = ? and id2 = ?");
+        expect(whereSQL3.trim()).to.equal(
+          "where id1 = @wparid1 and id2 = @wparid2"
+        );
         expect(
           whereList3 != null &&
             whereList3.length == 2 &&
@@ -133,4 +165,6 @@ describe("Other", function() {
         done(err);
       });
   });
+
+
 });

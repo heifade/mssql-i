@@ -1,4 +1,4 @@
-import { Connection } from "mysql";
+import { ConnectionPool, Transaction as MssqlTransaction } from "mssql";
 import { SaveType } from "./model/SaveType";
 import { Schema } from "./schema/Schema";
 import { RowDataModel } from "./model/RowDataModel";
@@ -65,47 +65,64 @@ export class Save {
    * });
    * </pre>
    */
-  public static save(
-    conn: Connection,
+  public static async save(
+    conn: ConnectionPool,
     pars: {
       data: RowDataModel;
       database?: string;
       table: string;
       saveType: SaveType;
-    }
+    },
+    tran?: MssqlTransaction
   ) {
     switch (pars.saveType) {
       case SaveType.insert: {
         //插入
-        return Insert.insert(conn, {
-          data: pars.data,
-          database: pars.database,
-          table: pars.table
-        });
+        return await Insert.insert(
+          conn,
+          {
+            data: pars.data,
+            database: pars.database,
+            table: pars.table
+          },
+          tran
+        );
       }
       case SaveType.update: {
         //修改
-        return Update.update(conn, {
-          data: pars.data,
-          database: pars.database,
-          table: pars.table
-        });
+        return await Update.update(
+          conn,
+          {
+            data: pars.data,
+            database: pars.database,
+            table: pars.table
+          },
+          tran
+        );
       }
       case SaveType.delete: {
         //删除
-        return Delete.delete(conn, {
-          where: pars.data,
-          database: pars.database,
-          table: pars.table
-        });
+        return await Delete.delete(
+          conn,
+          {
+            where: pars.data,
+            database: pars.database,
+            table: pars.table
+          },
+          tran
+        );
       }
       case SaveType.replace: {
         //替换
-        return Replace.replace(conn, {
-          data: pars.data,
-          database: pars.database,
-          table: pars.table
-        });
+        return await Replace.replace(
+          conn,
+          {
+            data: pars.data,
+            database: pars.database,
+            table: pars.table
+          },
+          tran
+        );
       }
     }
   }
@@ -128,80 +145,73 @@ export class Save {
    * @returns Promise对象
    * @memberof Save
    */
-  public static saves(
-    conn: Connection,
+  public static async saves(
+    conn: ConnectionPool,
     list: Array<{
       data: RowDataModel;
       database?: string;
       table: string;
       saveType: SaveType;
-    }>
+    }>,
+    tran?: MssqlTransaction
   ) {
-    return new Promise((resolve, reject) => {
-      let promiseList = new Array<Promise<any>>();
+    let promiseList = new Array<Promise<any>>();
 
-      list.map(h => {
-        promiseList.push(
-          Save.save(conn, {
+    list.map(h => {
+      promiseList.push(
+        Save.save(
+          conn,
+          {
             data: h.data,
             database: h.database,
             table: h.table,
             saveType: h.saveType
-          })
-        );
-      });
-
-      Promise.all(promiseList)
-        .then(result => {
-          resolve(result);
-        })
-        .catch(err => {
-          reject(err);
-        });
+          },
+          tran
+        )
+      );
     });
+
+    return Promise.all(promiseList);
   }
 
-  /**
-   * <pre>
-   * 保存多条数据，并发执行(事务)
-   * 当所有保存执行成功时，返回Promise为成功，如果其中一个保存执行出错，返回的Promise为失败。
-   * 注意：此方法单独开启事务。如需不开启事务，见 {@link saves}
-   * </pre>
-   *
-   * @static
-   * @param {Connection} conn
-   * @param {Array<{
-   *       data: RowDataModel;
-   *       database?: string;
-   *       table: string;
-   *       saveType: SaveType;
-   *     }>} list
-   * @returns
-   * @memberof Save
-   */
-  public static savesWithTran(
-    conn: Connection,
-    list: Array<{
-      data: RowDataModel;
-      database?: string;
-      table: string;
-      saveType: SaveType;
-    }>
-  ) {
-    return new Promise<boolean>((resolve, reject) => {
-      (async function() {
-        try {
-          await Transaction.begin(conn);
-          await Save.saves(conn, list);
-          await Transaction.commit(conn);
-          resolve();
-        } catch (err) {
-          await Transaction.rollback(conn);
-          reject(err);
-        }
-      })();
-    });
-  }
+  // /**
+  //  * <pre>
+  //  * 保存多条数据，并发执行(事务)
+  //  * 当所有保存执行成功时，返回Promise为成功，如果其中一个保存执行出错，返回的Promise为失败。
+  //  * 注意：此方法单独开启事务。如需不开启事务，见 {@link saves}
+  //  * </pre>
+  //  *
+  //  * @static
+  //  * @param {Connection} conn
+  //  * @param {Array<{
+  //  *       data: RowDataModel;
+  //  *       database?: string;
+  //  *       table: string;
+  //  *       saveType: SaveType;
+  //  *     }>} list
+  //  * @returns
+  //  * @memberof Save
+  //  */
+  // public static async savesWithTran(
+  //   conn: ConnectionPool,
+  //   list: Array<{
+  //     data: RowDataModel;
+  //     database?: string;
+  //     table: string;
+  //     saveType: SaveType;
+  //   }>
+  // ) {
+  //   let tran;
+  //   try {
+  //     tran = await Transaction.begin(conn);
+  //     await Save.saves(conn, list, tran);
+  //     await Transaction.commit(tran);
+  //   } catch (err) {
+  //     await Transaction.rollback(tran);
+  //     return Promise.reject(err);
+  //   }
+  // }
 
   /**
    * <pre>
@@ -221,16 +231,17 @@ export class Save {
    * @memberof Save
    */
   public static async savesSeq(
-    conn: Connection,
+    conn: ConnectionPool,
     list: Array<{
       data: RowDataModel;
       database?: string;
       table: string;
       saveType: SaveType;
-    }>
+    }>,
+    tran?: MssqlTransaction
   ) {
     for (let item of list) {
-      await Save.save(conn, item);
+      await Save.save(conn, item, tran);
     }
   }
 
@@ -252,7 +263,7 @@ export class Save {
    * @memberof Save
    */
   public static async savesSeqWithTran(
-    conn: Connection,
+    conn: ConnectionPool,
     list: Array<{
       data: RowDataModel;
       database?: string;
@@ -260,21 +271,17 @@ export class Save {
       saveType: SaveType;
     }>
   ) {
-    return new Promise((resolve, reject) => {
-      (async function() {
-        try {
-          await Transaction.begin(conn);
+    let tran;
+    try {
+      tran = await Transaction.begin(conn);
 
-          for (let item of list) {
-            await Save.save(conn, item);
-          }
-          await Transaction.commit(conn);
-          resolve();
-        } catch (err) {
-          await Transaction.rollback(conn);
-          reject(err);
-        }
-      })();
-    });
+      for (let item of list) {
+        await Save.save(conn, item, tran);
+      }
+      await Transaction.commit(tran);
+    } catch (err) {
+      await Transaction.rollback(tran);
+      return Promise.reject(err);
+    }
   }
 }

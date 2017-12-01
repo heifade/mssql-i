@@ -1,20 +1,20 @@
 import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
-import { PoolConnection, Connection } from "mysql";
 import {
   ConnectionHelper,
   Save,
   Transaction,
   RowDataModel,
   Select,
-  SaveType
+  SaveType,
+  ConnectionPool
 } from "../src/index";
 import { connectionConfig } from "./connectionConfig";
 
 describe("Transaction", function() {
   let tableName = "tbl_test_transaction";
-  let conn: Connection;
+  let conn: ConnectionPool;
 
   before(done => {
     (async function() {
@@ -34,17 +34,21 @@ describe("Transaction", function() {
 
   it("transaction commit must be success", done => {
     let asyncFunc = async function() {
-      await Transaction.begin(conn);
+      let tran = await Transaction.begin(conn);
 
       let insertValue = `value${Math.random()}`;
 
-      await Save.save(conn, {
-        data: RowDataModel.create({ id: 10, value: insertValue }),
-        table: tableName,
-        saveType: SaveType.insert
-      });
+      await Save.save(
+        conn,
+        {
+          data: RowDataModel.create({ id: 10, value: insertValue }),
+          table: tableName,
+          saveType: SaveType.insert
+        },
+        tran
+      );
 
-      await Transaction.commit(conn);
+      await Transaction.commit(tran);
 
       let rowData = await Select.selectTop1(conn, {
         sql: `select value from ${tableName} where id=?`,
@@ -65,24 +69,32 @@ describe("Transaction", function() {
   it("transaction rollback must be success", done => {
     let asyncFunc = async function() {
       let insertValue = `value${Math.random()}`;
+      let tran;
       try {
-        await Transaction.begin(conn);
+        tran = await Transaction.begin(conn);
 
-        await Save.save(conn, {
-          data: RowDataModel.create({ id: 11, value: insertValue }),
-          table: tableName,
-          saveType: SaveType.insert
-        });
+        await Save.save(
+          conn,
+          {
+            data: RowDataModel.create({ id: 11, value: insertValue }),
+            table: tableName,
+            saveType: SaveType.insert
+          },
+          tran
+        );
 
-        await Save.save(conn, {
-          data: RowDataModel.create({ id: 11, value: insertValue }),
-          table: tableName,
-          saveType: SaveType.insert
-        });
-
-        await Transaction.commit(conn);
+        await Save.save(
+          conn,
+          {
+            data: RowDataModel.create({ id: 11, value: insertValue }),
+            table: tableName,
+            saveType: SaveType.insert
+          },
+          tran
+        );
+        await Transaction.commit(tran);
       } catch (err) {
-        await Transaction.rollback(conn);
+        await Transaction.rollback(tran);
       }
 
       let rowData = await Select.selectTop1(conn, {
@@ -107,17 +119,7 @@ describe("Transaction", function() {
 
       await Transaction.begin(conn).catch(err => {
         let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`PROTOCOL_ENQUEUE_AFTER_QUIT`);
-      });
-
-      await Transaction.commit(conn).catch(err => {
-        let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`PROTOCOL_ENQUEUE_AFTER_QUIT`);
-      });
-
-      await Transaction.rollback(conn).catch(err => {
-        let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`PROTOCOL_ENQUEUE_AFTER_QUIT`);
+        expect(errCode).to.equal(`ENOTOPEN`);
       });
     };
 

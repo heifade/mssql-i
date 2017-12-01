@@ -1,10 +1,11 @@
 import { config } from "mssql";
 
 export let connectionConfig: config = {
-  server: "",
-  user: "",
+  server: "127.0.0.1",
+  user: "travis",
   password: "",
-  database: "",
-  // port: 3306,
-  connectionTimeout: 10000
+  database: "mssql-i-test",
+  port: 1433,
+  connectionTimeout: 60000,
+  requestTimeout: 60000
 };

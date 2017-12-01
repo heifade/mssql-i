@@ -1,4 +1,8 @@
-import { ConnectionPool } from "mssql";
+import {
+  ConnectionPool,
+  Transaction as MssqlTransaction,
+  Request
+} from "mssql";
 import { RowDataModel } from "./model/RowDataModel";
 import { Schema } from "./schema/Schema";
 import { TableSchemaModel } from "./model/SchemaModel";
@@ -56,13 +60,15 @@ export class Delete {
    * });
    * </pre>
    */
-  public static delete(
+  public static async delete(
     conn: ConnectionPool,
     pars: {
       where?: RowDataModel;
       database?: string;
+      chema?: string;
       table: string;
-    }
+    },
+    tran?: MssqlTransaction
   ) {
     let database = pars.database; //|| conn.config.database;
 
@@ -73,39 +79,33 @@ export class Delete {
       return Promise.reject(new Error(`pars.table can not be null or empty!`));
     }
 
-    return new Promise((resolve, reject) => {
-      Schema.getSchema(conn, database).then(schemaModel => {
-        let tableSchemaModel = schemaModel.getTableSchemaModel(table);
+    let schemaModel = await Schema.getSchema(conn, database);
+    let tableSchemaModel = schemaModel.getTableSchemaModel(table);
 
-        if (!tableSchemaModel) {
-          reject(new Error(`table '${table}' is not exists!`));
-          return;
-        }
+    if (!tableSchemaModel) {
+      return Promise.reject(new Error(`table '${table}' is not exists!`));
+    }
 
-        let { whereSQL, whereList, wherePars } = Where.getWhereSQL(
-          where,
-          tableSchemaModel
-        );
+    let { whereSQL, whereList, wherePars } = Where.getWhereSQL(
+      where,
+      tableSchemaModel
+    );
 
-        let tableName = Utils.getDbObjectName(database, table);
+    let tableName = Utils.getDbObjectName(database, pars.chema, table);
 
-        let sql = `delete from ${tableName} ${whereSQL}`;
+    let sql = `delete from ${tableName} ${whereSQL}`;
 
-        let request = conn.request();
+    let request: Request;
+    if (tran) {
+      request = new Request(tran);
+    } else {
+      request = conn.request();
+    }
 
-        Reflect.ownKeys(wherePars).map(m => {
-          request.input(m.toString(), Reflect.get(wherePars, m));
-        });
-
-        request
-          .query(sql)
-          .then(result => {
-            resolve();
-          })
-          .then(err => {
-            reject(err);
-          });
-      });
+    Reflect.ownKeys(wherePars).map(m => {
+      request.input(m.toString(), Reflect.get(wherePars, m));
     });
+
+    return await request.query(sql);
   }
 }

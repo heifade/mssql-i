@@ -1,4 +1,4 @@
-import { Connection } from "mysql";
+import { ConnectionPool } from "mssql";
 
 /**
  * 执行SQL
@@ -35,16 +35,8 @@ export class Exec {
    * );
    * </pre>
    */
-  public static exec(conn: Connection, sql: string) {
-    return new Promise((resolve, reject) => {
-      conn.query(sql, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+  public static async exec(conn: ConnectionPool, sql: string) {
+    return await conn.request().query(sql);
   }
 
   /**
@@ -69,22 +61,14 @@ export class Exec {
    * ]);
    * </pre>
    */
-  public static execs(conn: Connection, sqls: string[]) {
+  public static async execs(conn: ConnectionPool, sqls: string[]) {
     let promiseList = new Array<Promise<{}>>();
 
     sqls.map(sql => {
       promiseList.push(Exec.exec(conn, sql));
     });
 
-    return new Promise((resolve, reject) => {
-      Promise.all(promiseList)
-        .then(() => {
-          resolve();
-        })
-        .catch(err => {
-          reject(err);
-        });
-    });
+    return await Promise.all(promiseList);
   }
 
   /**
@@ -108,18 +92,9 @@ export class Exec {
    *  ]);
    * </pre>
    */
-  public static execsSeq(conn: Connection, sqls: string[]) {
-    return new Promise((resolve, reject) => {
-      for (let sql of sqls) {
-        conn.query(sql, (err, result) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-        });
-      }
-
-      resolve();
-    });
+  public static async execsSeq(conn: ConnectionPool, sqls: string[]) {
+    for (let sql of sqls) {
+      await Exec.exec(conn, sql);
+    }
   }
 }

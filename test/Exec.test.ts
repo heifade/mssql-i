@@ -1,13 +1,18 @@
 import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
-import { PoolConnection, Connection } from "mysql";
-import { ConnectionHelper, RowDataModel, Select, Exec } from "../src/index";
+import {
+  ConnectionHelper,
+  RowDataModel,
+  Select,
+  Exec,
+  ConnectionPool
+} from "../src/index";
 import { connectionConfig } from "./connectionConfig";
 
 describe("Exec", function() {
   let tableName = "tbl_test_exec";
-  let conn: Connection;
+  let conn: ConnectionPool;
 
   before(done => {
     (async function() {
@@ -45,35 +50,26 @@ describe("Exec", function() {
         expect(result).to.be.null;
       });
 
-      await Exec.exec(
-        conn,
-        `delete from ${tableName} where id1=1`
-      ).catch(err => {
-        let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`ER_BAD_FIELD_ERROR`);
-      });
+      await Exec.exec(conn, `delete from ${tableName} where id1=1`).catch(
+        err => {
+          let errCode = Reflect.get(err, "code");
+          expect(errCode).to.equal(`EREQUEST`);
+        }
+      );
 
-      await Exec.execs(conn, [
-        `delete from ${tableName} where id1=1`
-      ]).catch(err => {
-        let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`ER_BAD_FIELD_ERROR`);
-      });
+      await Exec.execs(conn, [`delete from ${tableName} where id1=1`]).catch(
+        err => {
+          let errCode = Reflect.get(err, "code");
+          expect(errCode).to.equal(`EREQUEST`);
+        }
+      );
 
-      await Exec.execsSeq(conn, [
-        `delete from ${tableName} where id1=1`
-      ]).catch(err => {
-        let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`ER_BAD_FIELD_ERROR`);
-      });
-
-
-
-      await Exec.execsSeq(conn, [
-        `drop table if exists tbl1`,
-        `drop table if exists tbl2`,
-        `drop table if exists tbl3`,
-       ]);
+      await Exec.execsSeq(conn, [`delete from ${tableName} where id1=1`]).catch(
+        err => {
+          let errCode = Reflect.get(err, "code");
+          expect(errCode).to.equal(`EREQUEST`);
+        }
+      );
     };
 
     asyncFunc()

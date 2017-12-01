@@ -1,13 +1,13 @@
 import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
-import { PoolConnection, Connection } from "mysql";
+import { ConnectionPool } from "mssql";
 import { ConnectionHelper, RowDataModel, Select } from "../src/index";
 import { connectionConfig } from "./connectionConfig";
 
 describe("Select", function() {
   let tableName = "tbl_test_select";
-  let conn: Connection;
+  let conn: ConnectionPool;
 
   before(done => {
     (async function() {
@@ -33,12 +33,23 @@ describe("Select", function() {
       });
 
       expect(list != null && list.length == 1).to.be.true;
+    };
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
 
+  it("select error", done => {
+    let asyncFunc = async function() {
       await Select.select(conn, {
         sql: `select * from tbl_not_exists`
       }).catch(err => {
         let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`ER_NO_SUCH_TABLE`);
+        expect(errCode).to.equal(`EREQUEST`);
       });
     };
     asyncFunc()
@@ -58,12 +69,23 @@ describe("Select", function() {
       });
 
       expect(count).to.equal(1);
+    };
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
 
+  it("selectCount error", done => {
+    let asyncFunc = async function() {
       await Select.selectCount(conn, {
         sql: `select * from tbl_not_exists`
       }).catch(err => {
         let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`ER_NO_SUCH_TABLE`);
+        expect(errCode).to.equal(`EREQUEST`);
       });
     };
     asyncFunc()
@@ -107,12 +129,23 @@ describe("Select", function() {
         where: [1]
       });
       expect(result != null).to.be.true;
+    };
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
 
+  it("selectTop1 error", done => {
+    let asyncFunc = async function() {
       await Select.selectTop1(conn, {
         sql: `select * from tbl_not_exists`
       }).catch(err => {
         let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`ER_NO_SUCH_TABLE`);
+        expect(errCode).to.equal(`EREQUEST`);
       });
     };
     asyncFunc()
@@ -127,7 +160,7 @@ describe("Select", function() {
   it("selectSplitPage", done => {
     let asyncFunc = async function() {
       let splitResult = await Select.selectSplitPage(conn, {
-        sql: `select * from ${tableName} where id=?`,
+        sql: `select *, ROW_NUMBER() over(order by id) as row_number from ${tableName} where id=?`,
         where: [1],
         pageSize: 10,
         index: 0
@@ -138,7 +171,7 @@ describe("Select", function() {
         .true;
 
       splitResult = await Select.selectSplitPage(conn, {
-        sql: `select * from ${tableName} where id=?`,
+        sql: `select *, ROW_NUMBER() over(order by id) as row_number from ${tableName} where id=?`,
         where: [1],
         pageSize: 10,
         index: 1
@@ -147,15 +180,27 @@ describe("Select", function() {
       expect(splitResult.count).to.equal(1);
       expect(splitResult.list != null && splitResult.list.length == 1).to.be
         .true;
+    };
 
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
+
+  it("selectSplitPage error", done => {
+    let asyncFunc = async function() {
       await Select.selectSplitPage(conn, {
-        sql: `select * from tbl_not_exists where id=?`,
+        sql: `select *, ROW_NUMBER() over(order by id) as row_number from tbl_not_exists where id=?`,
         where: [1],
         pageSize: 10,
         index: 1
       }).catch(err => {
         let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`ER_NO_SUCH_TABLE`);
+        expect(errCode).to.equal(`EREQUEST`);
       });
     };
 

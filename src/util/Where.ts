@@ -1,5 +1,6 @@
 import { RowDataModel } from "../model/RowDataModel";
 import { TableSchemaModel } from "../model/SchemaModel";
+import { Request } from "_debugger";
 
 /**
  * 条件
@@ -32,9 +33,9 @@ export class Where {
           tableSchemaModel.columns.filter(column => column.columnName === k)
             .length
         ) {
-          whereSQL += ` ${k} = @${k} and`;
+          whereSQL += ` ${k} = @wpar${k} and`;
           whereList.push(where.get(k));
-          Reflect.set(wherePars, k, where.get(k));
+          Reflect.set(wherePars, `wpar${k}`, where.get(k));
         }
       });
     }

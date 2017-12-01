@@ -13,11 +13,10 @@ describe("ConnectionHelper", function() {
       o.user = "";
       ConnectionHelper.create(o).catch(err => {
         let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`ER_ACCESS_DENIED_ERROR`);
+        expect(errCode).to.equal(`ELOGIN`);
       });
 
       await ConnectionHelper.close(conn);
-      await ConnectionHelper.close(null);
     };
 
     asyncFunc()

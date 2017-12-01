@@ -1,13 +1,19 @@
 import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
-import { PoolConnection, Connection } from "mysql";
-import { ConnectionHelper, Update, RowDataModel, Select } from "../src/index";
+import {
+  ConnectionHelper,
+  Update,
+  RowDataModel,
+  Select,
+  ConnectionPool,
+  Transaction
+} from "../src/index";
 import { connectionConfig } from "./connectionConfig";
 
 describe("Update", function() {
   let tableName = "tbl_test_update";
-  let conn: Connection;
+  let conn: ConnectionPool;
   before(done => {
     (async function() {
       conn = await ConnectionHelper.create(connectionConfig);
@@ -64,6 +70,72 @@ describe("Update", function() {
 
       rowData = await Select.selectTop1(conn, {
         sql: `select * from ${tableName}`
+      });
+
+      expect(rowData.get("value")).to.equal(newValue);
+    };
+
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
+
+  it("update with tran must be success", done => {
+    let asyncFunc = async function() {
+      let newValue = `value${Math.random()}` + "_newValue11";
+
+      let tran;
+      try {
+        tran = await Transaction.begin(conn);
+
+        let result = await Update.update(
+          conn,
+          {
+            data: RowDataModel.create({ id: 1, value: newValue }),
+            table: tableName
+          },
+          tran
+        );
+
+        await Transaction.commit(tran);
+      } catch (err) {
+        await Transaction.rollback(tran);
+      }
+
+      let rowData = await Select.selectTop1(conn, {
+        sql: `select * from ${tableName} where id=?`,
+        where: [1]
+      });
+
+      expect(rowData.get("value")).to.equal(newValue);
+
+      newValue = `value${Math.random()}` + "_newValue22";
+
+      try {
+        tran = await Transaction.begin(conn);
+
+        let result = await Update.updateByWhere(
+          conn,
+          {
+            data: RowDataModel.create({ value: newValue }),
+            table: tableName,
+            where: RowDataModel.create({ id: 2 })
+          },
+          tran
+        );
+
+        await Transaction.commit(tran);
+      } catch (err) {
+        await Transaction.rollback(tran);
+      }
+
+      rowData = await Select.selectTop1(conn, {
+        sql: `select * from ${tableName} where id=?`,
+        where: [2]
       });
 
       expect(rowData.get("value")).to.equal(newValue);
@@ -250,7 +322,7 @@ describe("Update", function() {
         table: tableName
       }).catch(err => {
         let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`ER_TRUNCATED_WRONG_VALUE`);
+        expect(errCode).to.equal(`EREQUEST`);
       });
     };
 
@@ -277,7 +349,7 @@ describe("Update", function() {
         where: RowDataModel.create({ id: 2 })
       }).catch(err => {
         let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`ER_TRUNCATED_WRONG_VALUE`);
+        expect(errCode).to.equal(`EREQUEST`);
       });
     };
 

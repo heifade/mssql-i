@@ -1,41 +1,59 @@
 import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
-import { PoolConnection, Connection } from "mysql";
 import {
   ConnectionHelper,
   RowDataModel,
   Select,
   Procedure,
   Exec,
-  Schema
+  Schema,
+  ConnectionPool,
+  Utils
 } from "../src/index";
 import { connectionConfig } from "./connectionConfig";
 
 describe("Procedure", function() {
   let tableName = "tbl_test_procedure";
   let procedureName = "p_insert_procedure";
-  let conn: Connection;
+  let conn: ConnectionPool;
 
   before(done => {
     (async function() {
       conn = await ConnectionHelper.create(connectionConfig);
       await initTable(conn, tableName, false);
-      await Exec.exec(conn, `drop PROCEDURE if exists ${procedureName}`);
       await Exec.exec(
         conn,
-        ` CREATE PROCEDURE ${procedureName}(in pId int, in pValue varchar(50), out pOut varchar(50))
+        `if exists(
+            select * from
+            sys.objects
+            where type = 'P' and name ='${procedureName}')
+          drop PROCEDURE ${procedureName}`
+      );
+      await Exec.exec(
+        conn,
+        ` CREATE PROCEDURE ${procedureName}
+            @pId int, @pValue varchar(50), @pOut varchar(50) out
+          as
           BEGIN
-            insert into tbl_test_procedure(id, value) values(pId, pValue);
-            set pOut = 'OK1111';
+            insert into tbl_test_procedure(id, value) values(@pId, @pValue);
+            set @pOut = 'aaaabbbccc'
           END
         `
       );
 
-      await Exec.exec(conn, `drop PROCEDURE if exists ${procedureName}_no_par`);
       await Exec.exec(
         conn,
-        ` CREATE PROCEDURE ${procedureName}_no_par()
+        `if exists(
+            select * from
+            sys.objects
+            where type = 'P' and name='${procedureName}_no_par')
+          drop PROCEDURE ${procedureName}_no_par`
+      );
+      await Exec.exec(
+        conn,
+        ` CREATE PROCEDURE ${procedureName}_no_par
+          as
           BEGIN
             insert into tbl_test_procedure(id, value) values(100, '100');
           END
@@ -43,20 +61,29 @@ describe("Procedure", function() {
       );
       await Exec.exec(
         conn,
-        `drop PROCEDURE if exists ${procedureName}_no_par_2`
+        `if exists(
+            select * from
+            sys.objects
+            where type = 'P' and name='${procedureName}_no_par2')
+          drop PROCEDURE ${procedureName}_no_par2`
       );
       await Exec.exec(
         conn,
-        ` CREATE PROCEDURE ${procedureName}_no_par_2()
+        ` CREATE PROCEDURE ${procedureName}_no_par2
+          as
           BEGIN
             insert into tbl_test_procedure(id, value) values(102, '102');
           END
         `
       );
-      Schema.clear(conn.config.database);
-    })().then(() => {
-      done();
-    });
+      Schema.clear(Utils.getDataBaseFromConnection(conn));
+    })()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
   });
   after(done => {
     (async function() {
@@ -73,6 +100,8 @@ describe("Procedure", function() {
         data: RowDataModel.create({ pId: 11, pValue: insertValue, pOut: "" }),
         procedure: procedureName
       });
+
+      expect(result.output["pOut"]).to.equals("aaaabbbccc");
 
       let row = await Select.selectTop1(conn, {
         sql: `select * from ${tableName} where id=?`,
@@ -186,7 +215,7 @@ describe("Procedure", function() {
     let asyncFunc = async function() {
       await Procedure.exec(conn, {
         data: RowDataModel.create({ p1: 1 }),
-        procedure: `${procedureName}_no_par_2`
+        procedure: `${procedureName}_no_par2`
       });
 
       let row = await Select.selectTop1(conn, {

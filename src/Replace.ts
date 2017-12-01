@@ -1,4 +1,8 @@
-import { Connection } from "mysql";
+import {
+  ConnectionPool,
+  Transaction as MssqlTransaction,
+  Request
+} from "mssql";
 import { Schema } from "./schema/Schema";
 import { RowDataModel } from "./model/RowDataModel";
 import { Utils } from "./util/Utils";
@@ -42,15 +46,17 @@ export class Replace {
    * });
    * </pre>
    */
-  public static replace(
-    conn: Connection,
+  public static async replace(
+    conn: ConnectionPool,
     pars: {
       data: RowDataModel;
+      chema?: string;
       database?: string;
       table: string;
-    }
+    },
+    tran?: MssqlTransaction
   ) {
-    let database = pars.database || conn.config.database;
+    let database = pars.database || Utils.getDataBaseFromConnection(conn);
 
     let data = pars.data;
     if (!data) {
@@ -62,38 +68,94 @@ export class Replace {
       return Promise.reject(new Error(`pars.table can not be null or empty!`));
     }
 
-    return new Promise((resolve, reject) => {
-      Schema.getSchema(conn, database).then(schemaModel => {
-        let tableSchemaModel = schemaModel.getTableSchemaModel(table);
+    let schemaModel = await Schema.getSchema(conn, database);
 
-        if (!tableSchemaModel) {
-          reject(new Error(`table '${table}' is not exists!`));
-          return;
+    let tableSchemaModel = schemaModel.getTableSchemaModel(table);
+
+    if (!tableSchemaModel) {
+      return Promise.reject(new Error(`table '${table}' is not exists!`));
+    }
+
+    let tableName = Utils.getDbObjectName(database, pars.chema, table);
+
+    let request: Request;
+    if (tran) {
+      request = new Request(tran);
+    } else {
+      request = conn.request();
+    }
+
+    let sWhereSQL = "";
+    let uWhereSQL = "";
+    let updateFields = "";
+    let insertFields = "";
+    let insertValues = "";
+
+    data.keys().map((key, index) => {
+      let column = tableSchemaModel.columns.filter(
+        column => column.columnName === key.toString()
+      )[0];
+      if (column) {
+        let colName = column.columnName;
+
+        if (column.primaryKey) {
+          request.input(`wparw${colName}`, data.get(colName));
+          request.input(`wparu${colName}`, data.get(colName));
+
+          sWhereSQL += ` ${colName} = @wparw${colName} and`;
+          uWhereSQL += ` ${colName} = @wparu${colName} and`;
+        } else {
+          request.input(`upar${colName}`, data.get(colName));
+          updateFields += ` ${colName} = @upar${colName},`;
         }
 
-        let tableName = Utils.getDbObjectName(database, table);
-
-        let sql = `replace into ${tableName} set ?`;
-
-        let fieldValues = new RowDataModel();
-
-        data.keys().map((key, index) => {
-          let column = tableSchemaModel.columns.filter(
-            column => column.columnName === key.toString()
-          )[0];
-          if (column) {
-            fieldValues.set(column.columnName, data.get(column.columnName));
-          }
-        });
-
-        conn.query(sql, fieldValues, (err2, result) => {
-          if (err2) {
-            reject(err2);
-          } else {
-            resolve();
-          }
-        });
-      });
+        if (!column.autoIncrement) {
+          request.input(`ipar${colName}`, data.get(colName));
+          insertFields += ` ${colName},`;
+          insertValues += ` @ipar${colName},`;
+        }
+      }
     });
+
+    if (sWhereSQL) {
+      sWhereSQL = ` where ` + sWhereSQL.replace(/and$/, "");
+    } else {
+      sWhereSQL = ` where 1 = 2`; //当没有主键时，为插入操作
+    }
+    if (uWhereSQL) {
+      uWhereSQL = ` where ` + uWhereSQL.replace(/and$/, "");
+    }
+    updateFields = updateFields.trim().replace(/\,$/, ""); //去掉最后面的','
+    insertFields = insertFields.trim().replace(/\,$/, ""); //去掉最后面的','
+    insertValues = insertValues.trim().replace(/\,$/, ""); //去掉最后面的','
+
+    let haveAutoIncrement = false; //是否有自增字段
+
+    tableSchemaModel.columns.map(column => {
+      if (column.autoIncrement) {
+        haveAutoIncrement = true; //有自增字段
+      }
+    });
+
+    let getIdentity = haveAutoIncrement ? "select @@IDENTITY as insertId" : "";
+
+    let sql = `
+    if exists(select 1 from ${tableName} ${sWhereSQL})
+      update ${tableName} set ${updateFields} ${uWhereSQL};
+    else
+      begin
+        insert into ${tableName}(${insertFields}) values(${insertValues});
+        ${getIdentity}
+      end`;
+
+    let result = await request.query(sql);
+
+    let returnValue = {};
+    if (haveAutoIncrement) {
+      //有自增字段
+      Reflect.set(returnValue, "insertId", result.recordset[0]["insertId"]);
+    }
+
+    return returnValue;
   }
 }
