@@ -27,6 +27,7 @@ export class Replace {
    *       database?: string;
    *       table: string;
    *     }} pars
+   * @param {MssqlTransaction} [tran] - 事务对象（可选），当需要事务处理时，必须传入此对象
    * @returns Promise对象
    * @memberof Replace
    * @example

@@ -25,6 +25,7 @@ export class Update {
    *       database?: string;
    *       table: string;
    *     }} pars
+   * @param {MssqlTransaction} [tran] - 事务对象（可选），当需要事务处理时，必须传入此对象
    * @returns Promise对象
    * @memberof Update
    * @example
@@ -123,7 +124,22 @@ export class Update {
     return await request.query(sql);
   }
 
-  // 根据where更新一条数据，可以更新主键
+  /**
+   * 根据where更新一条数据，可以更新主键
+   *
+   * @static
+   * @param {ConnectionPool} conn
+   * @param {{
+   *       data: RowDataModel;
+   *       where?: RowDataModel;
+   *       database?: string;
+   *       chema?: string;
+   *       table: string;
+   *     }} pars
+   * @param {MssqlTransaction} [tran] - 事务对象（可选），当需要事务处理时，必须传入此对象
+   * @returns Promise对象
+   * @memberof Update
+   */
   public static async updateByWhere(
     conn: ConnectionPool,
     pars: {

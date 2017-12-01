@@ -27,6 +27,7 @@ export class Delete {
    *       database?: string;
    *       table: string;
    *     }} pars
+   * @param {MssqlTransaction} [tran] - 事务对象（可选）。当需要事务处理时必需传入此参数
    * @returns Promise 对象
    * @memberof Delete
    * @example

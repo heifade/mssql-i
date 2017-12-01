@@ -30,6 +30,7 @@ export class Save {
    *       table: string;
    *       saveType: SaveType;
    *     }} pars
+   * @param {MssqlTransaction} [tran] - 事务对象（可选），当需要事务处理时，必须传入此对象
    * @returns Promise对象
    * @memberof Save
    * @example
@@ -142,6 +143,7 @@ export class Save {
    *       table: string;
    *       saveType: SaveType;
    *     }>} list
+   * @param {MssqlTransaction} [tran] - 事务对象（可选），当需要事务处理时，必须传入此对象
    * @returns Promise对象
    * @memberof Save
    */
@@ -228,6 +230,7 @@ export class Save {
    *       table: string;
    *       saveType: SaveType;
    *     }>} list
+   * @param {MssqlTransaction} [tran] - 事务对象（可选），当需要事务处理时，必须传入此对象
    * @memberof Save
    */
   public static async savesSeq(

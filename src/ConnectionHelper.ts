@@ -12,28 +12,27 @@ export class ConnectionHelper {
    *
    * @static
    * @param {config} config - 数据库连接配置
+   * @returns {Promise<ConnectionPool>} - 数据库连接对象
    * <pre>
    * {
-   *    host: "", // 数据库服务器地址
+   *    server: "", // 数据库服务器地址
    *    user: "", // 用户名
    *    password: "", // 密码
    *    database: "", // 数据库名称
-   *    port: 3306,   // 端口号
-   *    charset: 'utf8_general_ci', // 字符集 默认：'UTF8_GENERAL_CI'
-   *    timezone: 'local', // 时区配置MySQL服务器。这可以是"local"，"Z"偏移量+HH:MM或-HH:MM。默认"local"
-   *    connectTimeout：6000, // 数据库连接超时时间（毫秒），默认1000
+   *    port: 1433,   // 端口号
+   *    connectionTimeout：6000, // 数据库连接超时时间（毫秒），默认1000
+   *    requestTimeout: // 数据库处理超时时间（毫秒），默认1000
    * }
    * </pre>
-   * @returns 返回一个包含Connection对象的Promise
    * @memberof ConnectionHelper
    * @example
    * <pre>
    *  let conn = await ConnectionHelper.create({
-   *    host: "", // 数据库服务器地址
+   *    server: "", // 数据库服务器地址
    *    user: "", // 用户名
    *    password: "", // 密码
    *    database: "", // 数据库名称
-   *    port: 3306,   // 端口号
+   *    port: 1433,   // 端口号
    *  });
    * </pre>
    */
@@ -51,6 +50,8 @@ export class ConnectionHelper {
    * @memberof ConnectionHelper
    */
   public static close(conn: ConnectionPool) {
-    return conn.close();
+    if (conn && (conn.connected || conn.connecting)) {
+      return conn.close();
+    }
   }
 }
