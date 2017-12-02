@@ -3,10 +3,10 @@ import "mocha";
 import { initTable } from "./DataInit";
 import {
   ConnectionHelper,
-  RowDataModel,
   Select,
   Exec,
-  ConnectionPool
+  ConnectionPool,
+  Transaction
 } from "../src/index";
 import { connectionConfig } from "./connectionConfig";
 
@@ -70,6 +70,64 @@ describe("Exec", function() {
           expect(errCode).to.equal(`EREQUEST`);
         }
       );
+    };
+
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
+
+  it("exec with tran must be success", done => {
+    let asyncFunc = async function() {
+      let tran;
+      try {
+        tran = await Transaction.begin(conn);
+
+        await Exec.exec(conn, `delete from ${tableName} where id=6`, tran);
+
+        await Exec.execsSeq(
+          conn,
+          [
+            `delete from ${tableName} where id=7`,
+            `delete from ${tableName} where id=8`
+          ],
+          tran
+        );
+
+        await Transaction.commit(tran);
+      } catch (err) {
+        await Transaction.rollback(tran);
+      }
+
+      let result = await Select.selectTop1(conn, {
+        sql: `select * from ${tableName} where id=?`,
+        where: [6]
+      });
+      expect(result).to.be.null;
+
+      try {
+        tran = await Transaction.begin(conn);
+
+        await Exec.exec(conn, `delete from ${tableName} where id=9`, tran);
+
+        await Exec.exec(conn, `delete from ${tableName} where id1=1`, tran);
+
+        await Transaction.commit(tran);
+      } catch (err) {
+        await Transaction.rollback(tran);
+      }
+
+      let result2 = await Select.selectTop1(conn, {
+        sql: `select * from ${tableName} where id=?`,
+        where: [9]
+      });
+
+
+      expect(result2).not.to.be.null;
     };
 
     asyncFunc()

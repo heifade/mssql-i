@@ -44,14 +44,14 @@ class Insert {
                     haveAutoIncrement = true;
                 }
             });
-            data.keys().map((key, index) => {
+            Reflect.ownKeys(data).map((key, index) => {
                 let column = tableSchemaModel.columns.filter(column => column.columnName === key.toString())[0];
                 if (column) {
                     if (!column.autoIncrement) {
                         fields += `${column.columnName},`;
                         values += `@${column.columnName},`;
                     }
-                    request.input(column.columnName, data.get(column.columnName));
+                    request.input(column.columnName, Reflect.get(data, column.columnName));
                 }
             });
             fields = fields.replace(/\,$/, "");

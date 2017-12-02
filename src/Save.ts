@@ -1,7 +1,6 @@
 import { ConnectionPool, Transaction as MssqlTransaction } from "mssql";
 import { SaveType } from "./model/SaveType";
 import { Schema } from "./schema/Schema";
-import { RowDataModel } from "./model/RowDataModel";
 import { Insert } from "./Insert";
 import { Update } from "./Update";
 import { Delete } from "./Delete";
@@ -25,7 +24,7 @@ export class Save {
    * @static
    * @param {Connection} conn - 数据库连接对象
    * @param {{
-   *       data: RowDataModel;
+   *       data: {};
    *       database?: string;
    *       table: string;
    *       saveType: SaveType;
@@ -42,25 +41,25 @@ export class Save {
    * )
    * 例1： 以下相当于SQL： insert into tbl1(f1, f2, f3) values(1, 2, 3);
    * await Save.save(conn, {
-   *   data: RowDataModel.create({ f1: 1, f2: 2, f3: 3 }),
+   *   data: { f1: 1, f2: 2, f3: 3 },
    *   table: 'tbl1',
    *   saveType: SaveType.insert
    * });
    * 例2： 以下相当于SQL： update tbl1 set f2=2, f3=3 where f1=1;
    * await Save.save(conn, {
-   *   data: RowDataModel.create({ f1: 1, f2: 2, f3: 3 }),
+   *   data: { f1: 1, f2: 2, f3: 3 },
    *   table: 'tbl1',
    *   saveType: SaveType.update
    * });
    * 例3： 以下相当于SQL： delete from tbl1 where f1=1;
    * await Save.save(conn, {
-   *   data: RowDataModel.create({ f1: 1 }),
+   *   data: { f1: 1 },
    *   table: 'tbl1',
    *   saveType: SaveType.delete
    * });
    * 例4： 以下相当于SQL： replace into tbl1(f1, f2, f3) values(1,2,3);
    * await Save.save(conn, {
-   *   data: RowDataModel.create({ f1: 1 }),
+   *   data: { f1: 1 },
    *   table: 'tbl1',
    *   saveType: SaveType.replace
    * });
@@ -69,7 +68,7 @@ export class Save {
   public static async save(
     conn: ConnectionPool,
     pars: {
-      data: RowDataModel;
+      data: {};
       database?: string;
       table: string;
       saveType: SaveType;
@@ -138,7 +137,7 @@ export class Save {
    * @static
    * @param {Connection} conn
    * @param {Array<{
-   *       data: RowDataModel;
+   *       data: {};
    *       database?: string;
    *       table: string;
    *       saveType: SaveType;
@@ -150,7 +149,7 @@ export class Save {
   public static async saves(
     conn: ConnectionPool,
     list: Array<{
-      data: RowDataModel;
+      data: {};
       database?: string;
       table: string;
       saveType: SaveType;
@@ -187,7 +186,7 @@ export class Save {
   //  * @static
   //  * @param {Connection} conn
   //  * @param {Array<{
-  //  *       data: RowDataModel;
+  //  *       data: {};
   //  *       database?: string;
   //  *       table: string;
   //  *       saveType: SaveType;
@@ -198,7 +197,7 @@ export class Save {
   // public static async savesWithTran(
   //   conn: ConnectionPool,
   //   list: Array<{
-  //     data: RowDataModel;
+  //     data: {};
   //     database?: string;
   //     table: string;
   //     saveType: SaveType;
@@ -225,7 +224,7 @@ export class Save {
    * @static
    * @param {Connection} conn
    * @param {Array<{
-   *       data: RowDataModel;
+   *       data: {};
    *       database?: string;
    *       table: string;
    *       saveType: SaveType;
@@ -236,7 +235,7 @@ export class Save {
   public static async savesSeq(
     conn: ConnectionPool,
     list: Array<{
-      data: RowDataModel;
+      data: {};
       database?: string;
       table: string;
       saveType: SaveType;
@@ -258,7 +257,7 @@ export class Save {
    * @static
    * @param {Connection} conn
    * @param {Array<{
-   *       data: RowDataModel;
+   *       data: {};
    *       database?: string;
    *       table: string;
    *       saveType: SaveType;
@@ -268,7 +267,7 @@ export class Save {
   public static async savesSeqWithTran(
     conn: ConnectionPool,
     list: Array<{
-      data: RowDataModel;
+      data: {};
       database?: string;
       table: string;
       saveType: SaveType;

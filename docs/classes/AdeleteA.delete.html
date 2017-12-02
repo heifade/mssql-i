@@ -116,7 +116,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/b0a4036/src/Delete.ts#L63">Delete.ts:63</a></li>
+									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/988ea91/src/Delete.ts#L63">Delete.ts:63</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -142,22 +142,22 @@ create table tbl1 (
 where 条件会根据表中字段进行过滤
 例1，以下相当于SQL： delete from tbl1 where f1=1 and f2=2
 await Delete.delete(conn, {
-  where: RowDataModel.create({ f1: 1, f2: 2 }),
+  where: { f1: 1, f2: 2 },
   table: 'tbl1'
 });
 例2，以下相当于SQL： delete from tbl1 where f1=1 and f2=2 and f3=3
 await Delete.delete(conn, {
-  where: RowDataModel.create({ f1: 1, f2: 2, f3: 3, f4: 4 }), // f4不是字段，不起作用
+  where: { f1: 1, f2: 2, f3: 3, f4: 4 }, // f4不是字段，不起作用
   table: 'tbl1'
 });
 例3，以下相当于SQL： delete from tbl1
 await Delete.delete(conn, {
-  where: RowDataModel.create({ f5: 5 }), // f5不是字段，不起作用
+  where: { f5: 5 }, // f5不是字段，不起作用
   table: 'tbl1'
 });
 例4，以下相当于SQL： delete from tbl1
 await Delete.delete(conn, {
-  where: RowDataModel.create({ }),
+  where: { },
   table: 'tbl1'
 });
 </pre>
@@ -185,7 +185,7 @@ await Delete.delete(conn, {
 											<h5>table<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
 										</li>
 										<li class="tsd-parameter">
-											<h5><span class="tsd-flag ts-flagOptional">Optional</span> where<span class="tsd-signature-symbol">?: </span><a href="AmodelArowdatamodelA.rowdatamodel.html" class="tsd-signature-type">RowDataModel</a></h5>
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> where<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">__type</span></h5>
 										</li>
 									</ul>
 								</li>
@@ -208,9 +208,6 @@ await Delete.delete(conn, {
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AconnectionhelperA.html">"<wbr>Connection<wbr>Helper"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/AconnectionpoolA.html">"<wbr>Connection<wbr>Pool"</a>
 					</li>
 					<li class="current tsd-kind-external-module">
 						<a href="../modules/AdeleteA.html">"<wbr>Delete"</a>
@@ -244,9 +241,6 @@ await Delete.delete(conn, {
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AindexA.html">"index"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/AmodelArowdatamodelA.html">"model/<wbr>Row<wbr>Data<wbr>Model"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AmodelAsavetypeA.html">"model/<wbr>Save<wbr>Type"</a>

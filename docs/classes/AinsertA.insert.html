@@ -116,7 +116,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/b0a4036/src/Insert.ts#L51">Insert.ts:51</a></li>
+									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/988ea91/src/Insert.ts#L51">Insert.ts:51</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -141,12 +141,12 @@ create table tbl1 (
 )
 例1，以下相当于SQL： insert into tbl1(f1, f2, f3) values(1, 2, 3);
 let result = await Insert.insert(conn, {
-  data: RowDataModel.create({ f1: 1, f2: 2, f3: 3, f4: 4 }), // f4 不是字段，插入成功
+  data: { f1: 1, f2: 2, f3: 3, f4: 4 }, // f4 不是字段，插入成功
   table: 'tbl1'
 });
 例2，以下相当于SQL： insert into tbl1(f1, f2) values(1, 2);
 let result = await Insert.insert(conn, {
-  data: RowDataModel.create({ f1: 1, f2: 2 }), // 少一个字段f3，插入成功
+  data: { f1: 1, f2: 2 }, // 少一个字段f3，插入成功
   table: 'tbl1'
 });
 </pre>
@@ -168,7 +168,7 @@ let result = await Insert.insert(conn, {
 											<h5><span class="tsd-flag ts-flagOptional">Optional</span> chema<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
 										</li>
 										<li class="tsd-parameter">
-											<h5>data<span class="tsd-signature-symbol">: </span><a href="AmodelArowdatamodelA.rowdatamodel.html" class="tsd-signature-type">RowDataModel</a></h5>
+											<h5>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">__type</span></h5>
 										</li>
 										<li class="tsd-parameter">
 											<h5><span class="tsd-flag ts-flagOptional">Optional</span> database<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
@@ -197,9 +197,6 @@ let result = await Insert.insert(conn, {
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AconnectionhelperA.html">"<wbr>Connection<wbr>Helper"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/AconnectionpoolA.html">"<wbr>Connection<wbr>Pool"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AdeleteA.html">"<wbr>Delete"</a>
@@ -233,9 +230,6 @@ let result = await Insert.insert(conn, {
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AindexA.html">"index"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/AmodelArowdatamodelA.html">"model/<wbr>Row<wbr>Data<wbr>Model"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AmodelAsavetypeA.html">"model/<wbr>Save<wbr>Type"</a>

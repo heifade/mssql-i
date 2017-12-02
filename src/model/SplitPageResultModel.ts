@@ -1,4 +1,4 @@
-import { RowDataModel } from "./RowDataModel";
+
 /**
  * 分页查询返回结果
  *
@@ -9,10 +9,9 @@ export class SplitPageResultModel {
   /**
    * 数据集列表
    *
-   * @type {RowDataModel[]}
    * @memberof SplitPageResultModel
    */
-  public list: RowDataModel[];
+  public list: Array<{}>;
   /**
    * 总行数
    *

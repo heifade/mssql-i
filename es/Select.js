@@ -8,12 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const RowDataModel_1 = require("./model/RowDataModel");
 const SelectParamsModel_1 = require("./model/SelectParamsModel");
 const SplitPageResultModel_1 = require("./model/SplitPageResultModel");
 let readListFromResult = (result) => {
     return result.map((h) => {
-        let item = new RowDataModel_1.RowDataModel();
+        let item = {};
         return Object.assign(item, h);
     });
 };
@@ -62,7 +61,7 @@ class Select {
             param2.where = param.where;
             let restul = yield Select.selectBase(conn, param2);
             let list = readListFromResult(restul.recordset);
-            return Number(list[0].get("value"));
+            return Number(Reflect.get(list[0], "value"));
         });
     }
     static selectSplitPage(conn, param) {

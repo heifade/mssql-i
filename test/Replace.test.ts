@@ -5,7 +5,6 @@ import { initTable } from "./DataInit";
 import {
   ConnectionHelper,
   Replace,
-  RowDataModel,
   Select,
   ConnectionPool,
   Exec,
@@ -58,7 +57,7 @@ describe("Replace", function() {
       let insertValue = `value${Math.random()}`;
 
       let result = await Replace.replace(conn, {
-        data: RowDataModel.create({ value: insertValue }),
+        data: { value: insertValue },
         table: tableName
       });
 
@@ -68,7 +67,7 @@ describe("Replace", function() {
       });
 
       expect(rowData != null).to.be.true;
-      expect(rowData.get("value")).to.equal(insertValue);
+      expect(Reflect.get(rowData, "value")).to.equal(insertValue);
     };
 
     asyncFunc()
@@ -91,7 +90,7 @@ describe("Replace", function() {
         result = await Replace.replace(
           conn,
           {
-            data: RowDataModel.create({ value: insertValue }),
+            data: { value: insertValue },
             table: tableName
           },
           tran
@@ -108,7 +107,7 @@ describe("Replace", function() {
       });
 
       expect(rowData != null).to.be.true;
-      expect(rowData.get("value")).to.equal(insertValue);
+      expect(Reflect.get(rowData, "value")).to.equal(insertValue);
     };
 
     asyncFunc()
@@ -126,7 +125,7 @@ describe("Replace", function() {
       let insertValue = `value${Math.random()}`;
 
       let result = await Replace.replace(conn, {
-        data: RowDataModel.create({ f1: 1, f2: 1, f3: 1 }),
+        data: { f1: 1, f2: 1, f3: 1 },
         table: tableName2
       });
 
@@ -138,7 +137,7 @@ describe("Replace", function() {
       expect(rowData).to.equal(1);
 
       result = await Replace.replace(conn, {
-        data: RowDataModel.create({ f1: 1, f2: 1, f3: 1 }),
+        data: { f1: 1, f2: 1, f3: 1 },
         table: tableName2
       });
 
@@ -184,7 +183,7 @@ describe("Replace", function() {
       let insertValue = `value${Math.random()}`;
 
       await Replace.replace(conn, {
-        data: RowDataModel.create({ value: insertValue }),
+        data: { value: insertValue },
         table: null
       }).catch(err => {
         let errMsg = Reflect.get(err, "message");
@@ -208,7 +207,7 @@ describe("Replace", function() {
       let tableName = `tbl_not_exists`;
 
       await Replace.replace(conn, {
-        data: RowDataModel.create({ value: insertValue }),
+        data: { value: insertValue },
         table: tableName
       }).catch(err => {
         let errMsg = Reflect.get(err, "message");
@@ -230,11 +229,11 @@ describe("Replace", function() {
       let insertValue = `123456789012345678901234567890123456789012345678901234567890`;
 
       await Replace.replace(conn, {
-        data: RowDataModel.create({
+        data: {
           id: 1,
           value: insertValue,
           value2: "aaa"
-        }),
+        },
         table: tableName
       }).catch(err => {
         let errCode = Reflect.get(err, "code");

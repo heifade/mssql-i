@@ -3,7 +3,6 @@ import "mocha";
 import { initTable } from "./DataInit";
 import {
   ConnectionHelper,
-  RowDataModel,
   Select,
   Procedure,
   Exec,
@@ -97,7 +96,7 @@ describe("Procedure", function() {
     let asyncFunc = async function() {
       let insertValue = `value${Math.random()}`;
       let result = await Procedure.exec(conn, {
-        data: RowDataModel.create({ pId: 11, pValue: insertValue, pOut: "" }),
+        data: { pId: 11, pValue: insertValue, pOut: "" },
         procedure: procedureName
       });
 
@@ -107,7 +106,7 @@ describe("Procedure", function() {
         sql: `select * from ${tableName} where id=?`,
         where: [11]
       });
-      expect(row.get("value")).to.equals(insertValue);
+      expect(Reflect.get(row, "value")).to.equals(insertValue);
     };
 
     asyncFunc()
@@ -122,7 +121,7 @@ describe("Procedure", function() {
   it("when pars.procedure is null", done => {
     let asyncFunc = async function() {
       await Procedure.exec(conn, {
-        data: RowDataModel.create({ pId: 11, pValue: "111111", pOut: "" }),
+        data: { pId: 11, pValue: "111111", pOut: "" },
         procedure: null
       }).catch(err => {
         let errMsg = Reflect.get(err, "message");
@@ -146,7 +145,7 @@ describe("Procedure", function() {
       let procedureName = `p_not_exists`;
 
       await Procedure.exec(conn, {
-        data: RowDataModel.create({ pId: 11, pValue: "111111", pOut: "" }),
+        data: { pId: 11, pValue: "111111", pOut: "" },
         procedure: procedureName
       }).catch(err => {
         let errMsg = Reflect.get(err, "message");
@@ -168,11 +167,11 @@ describe("Procedure", function() {
       let insertValue = `123456789012345678901234567890123456789012345678901234567890`;
 
       await Procedure.exec(conn, {
-        data: RowDataModel.create({
+        data: {
           pId: 15,
           pValue: insertValue,
           pOut: ""
-        }),
+        },
         procedure: procedureName
       }).catch(err => {
         let errCode = Reflect.get(err, "code");
@@ -199,7 +198,7 @@ describe("Procedure", function() {
         sql: `select * from ${tableName} where id=?`,
         where: [100]
       });
-      expect(row.get("value")).to.equals("100");
+      expect(Reflect.get(row, "value")).to.equals("100");
     };
 
     asyncFunc()
@@ -214,7 +213,7 @@ describe("Procedure", function() {
   it("procedure with other par should success", done => {
     let asyncFunc = async function() {
       await Procedure.exec(conn, {
-        data: RowDataModel.create({ p1: 1 }),
+        data: { p1: 1 },
         procedure: `${procedureName}_no_par2`
       });
 
@@ -222,7 +221,7 @@ describe("Procedure", function() {
         sql: `select * from ${tableName} where id=?`,
         where: [102]
       });
-      expect(row.get("value")).to.equals("102");
+      expect(Reflect.get(row, "value")).to.equals("102");
     };
 
     asyncFunc()

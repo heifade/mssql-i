@@ -7,7 +7,9 @@ class ConnectionHelper {
         return pool.connect();
     }
     static close(conn) {
-        return conn.close();
+        if (conn && (conn.connected || conn.connecting)) {
+            return conn.close();
+        }
     }
 }
 exports.ConnectionHelper = ConnectionHelper;

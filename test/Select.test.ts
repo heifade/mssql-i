@@ -2,7 +2,7 @@ import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
 import { ConnectionPool } from "mssql";
-import { ConnectionHelper, RowDataModel, Select } from "../src/index";
+import { ConnectionHelper, Select } from "../src/index";
 import { connectionConfig } from "./connectionConfig";
 
 describe("Select", function() {

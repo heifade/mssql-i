@@ -9,7 +9,6 @@ import { Exec } from "./Exec";
 import { ConnectionPool } from "mssql";
 
 import { SaveType } from "./model/SaveType";
-import { RowDataModel } from "./model/RowDataModel";
 import { Procedure } from "./Procedure";
 import { ConnectionHelper } from "./ConnectionHelper";
 import { Schema } from "./schema/Schema";
@@ -28,7 +27,6 @@ export {
   ConnectionPool,
   ConnectionHelper,
   SaveType,
-  RowDataModel,
   Procedure,
   Schema,
   Where,

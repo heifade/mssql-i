@@ -4,7 +4,6 @@ import { initTable } from "./DataInit";
 import {
   ConnectionHelper,
   Update,
-  RowDataModel,
   Select,
   ConnectionPool,
   Transaction
@@ -35,7 +34,7 @@ describe("Update", function() {
       let newValue = `value${Math.random()}` + "_newValue1";
 
       let result = await Update.update(conn, {
-        data: RowDataModel.create({ id: 1, value: newValue }),
+        data: { id: 1, value: newValue },
         table: tableName
       });
 
@@ -44,14 +43,14 @@ describe("Update", function() {
         where: [1]
       });
 
-      expect(rowData.get("value")).to.equal(newValue);
+      expect(Reflect.get(rowData, "value")).to.equal(newValue);
 
       newValue = `value${Math.random()}` + "_newValue2";
 
       result = await Update.updateByWhere(conn, {
-        data: RowDataModel.create({ value: newValue }),
+        data: { value: newValue },
         table: tableName,
-        where: RowDataModel.create({ id: 2 })
+        where: { id: 2 }
       });
 
       rowData = await Select.selectTop1(conn, {
@@ -59,12 +58,12 @@ describe("Update", function() {
         where: [2]
       });
 
-      expect(rowData.get("value")).to.equal(newValue);
+      expect(Reflect.get(rowData, "value")).to.equal(newValue);
 
       newValue = `value${Math.random()}` + "_newValue3";
 
       await Update.update(conn, {
-        data: RowDataModel.create({ value: newValue }),
+        data: { value: newValue },
         table: tableName
       });
 
@@ -72,7 +71,7 @@ describe("Update", function() {
         sql: `select * from ${tableName}`
       });
 
-      expect(rowData.get("value")).to.equal(newValue);
+      expect(Reflect.get(rowData, "value")).to.equal(newValue);
     };
 
     asyncFunc()
@@ -95,7 +94,7 @@ describe("Update", function() {
         let result = await Update.update(
           conn,
           {
-            data: RowDataModel.create({ id: 1, value: newValue }),
+            data: { id: 1, value: newValue },
             table: tableName
           },
           tran
@@ -111,7 +110,7 @@ describe("Update", function() {
         where: [1]
       });
 
-      expect(rowData.get("value")).to.equal(newValue);
+      expect(Reflect.get(rowData, "value")).to.equal(newValue);
 
       newValue = `value${Math.random()}` + "_newValue22";
 
@@ -121,9 +120,9 @@ describe("Update", function() {
         let result = await Update.updateByWhere(
           conn,
           {
-            data: RowDataModel.create({ value: newValue }),
+            data: { value: newValue },
             table: tableName,
-            where: RowDataModel.create({ id: 2 })
+            where: { id: 2 }
           },
           tran
         );
@@ -138,7 +137,7 @@ describe("Update", function() {
         where: [2]
       });
 
-      expect(rowData.get("value")).to.equal(newValue);
+      expect(Reflect.get(rowData, "value")).to.equal(newValue);
     };
 
     asyncFunc()
@@ -195,7 +194,7 @@ describe("Update", function() {
       let insertValue = `value${Math.random()}`;
 
       await Update.update(conn, {
-        data: RowDataModel.create({ value: insertValue }),
+        data: { value: insertValue },
         table: null
       }).catch(err => {
         let errMsg = Reflect.get(err, "message");
@@ -217,7 +216,7 @@ describe("Update", function() {
       let insertValue = `value${Math.random()}`;
 
       await Update.updateByWhere(conn, {
-        data: RowDataModel.create({ value: insertValue }),
+        data: { value: insertValue },
         table: null
       }).catch(err => {
         let errMsg = Reflect.get(err, "message");
@@ -241,7 +240,7 @@ describe("Update", function() {
       let tableName = `tbl_not_exists`;
 
       await Update.update(conn, {
-        data: RowDataModel.create({ value: insertValue }),
+        data: { value: insertValue },
         table: tableName
       }).catch(err => {
         let errMsg = Reflect.get(err, "message");
@@ -265,7 +264,7 @@ describe("Update", function() {
       let tableName = `tbl_not_exists`;
 
       await Update.updateByWhere(conn, {
-        data: RowDataModel.create({ value: insertValue }),
+        data: { value: insertValue },
         table: tableName
       }).catch(err => {
         let errMsg = Reflect.get(err, "message");
@@ -287,9 +286,9 @@ describe("Update", function() {
       let insertValue = `value${Math.random()}_update5`;
 
       await Update.update(conn, {
-        data: RowDataModel.create({
+        data: {
           value: insertValue
-        }),
+        },
         table: tableName
       });
 
@@ -297,7 +296,7 @@ describe("Update", function() {
         sql: `select * from ${tableName}`
       });
 
-      expect(rowData.get("value")).to.equal(insertValue);
+      expect(Reflect.get(rowData, "value")).to.equal(insertValue);
     };
 
     asyncFunc()
@@ -314,11 +313,11 @@ describe("Update", function() {
       let insertValue = `123456789012345678901234567890123456789012345678901234567890`;
 
       await Update.update(conn, {
-        data: RowDataModel.create({
+        data: {
           id: 1,
           dateValue: insertValue,
           value2: "aaa"
-        }),
+        },
         table: tableName
       }).catch(err => {
         let errCode = Reflect.get(err, "code");
@@ -340,13 +339,13 @@ describe("Update", function() {
       let insertValue = `123456789012345678901234567890123456789012345678901234567890`;
 
       await Update.updateByWhere(conn, {
-        data: RowDataModel.create({
+        data: {
           id: 2,
           dateValue: insertValue,
           value2: "aaa"
-        }),
+        },
         table: tableName,
-        where: RowDataModel.create({ id: 2 })
+        where: { id: 2 }
       }).catch(err => {
         let errCode = Reflect.get(err, "code");
         expect(errCode).to.equal(`EREQUEST`);

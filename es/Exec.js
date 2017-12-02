@@ -8,10 +8,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const mssql_1 = require("mssql");
 class Exec {
-    static exec(conn, sql) {
+    static exec(conn, sql, tran) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield conn.request().query(sql);
+            let request;
+            if (tran) {
+                request = new mssql_1.Request(tran);
+            }
+            else {
+                request = conn.request();
+            }
+            return yield request.query(sql);
         });
     }
     static execs(conn, sqls) {
@@ -23,10 +31,10 @@ class Exec {
             return yield Promise.all(promiseList);
         });
     }
-    static execsSeq(conn, sqls) {
+    static execsSeq(conn, sqls, tran) {
         return __awaiter(this, void 0, void 0, function* () {
             for (let sql of sqls) {
-                yield Exec.exec(conn, sql);
+                yield Exec.exec(conn, sql, tran);
             }
         });
     }

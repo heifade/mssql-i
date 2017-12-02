@@ -41,22 +41,22 @@ class Replace {
             let updateFields = "";
             let insertFields = "";
             let insertValues = "";
-            data.keys().map((key, index) => {
+            Reflect.ownKeys(data).map((key, index) => {
                 let column = tableSchemaModel.columns.filter(column => column.columnName === key.toString())[0];
                 if (column) {
                     let colName = column.columnName;
                     if (column.primaryKey) {
-                        request.input(`wparw${colName}`, data.get(colName));
-                        request.input(`wparu${colName}`, data.get(colName));
+                        request.input(`wparw${colName}`, Reflect.get(data, colName));
+                        request.input(`wparu${colName}`, Reflect.get(data, colName));
                         sWhereSQL += ` ${colName} = @wparw${colName} and`;
                         uWhereSQL += ` ${colName} = @wparu${colName} and`;
                     }
                     else {
-                        request.input(`upar${colName}`, data.get(colName));
+                        request.input(`upar${colName}`, Reflect.get(data, colName));
                         updateFields += ` ${colName} = @upar${colName},`;
                     }
                     if (!column.autoIncrement) {
-                        request.input(`ipar${colName}`, data.get(colName));
+                        request.input(`ipar${colName}`, Reflect.get(data, colName));
                         insertFields += ` ${colName},`;
                         insertValues += ` @ipar${colName},`;
                     }

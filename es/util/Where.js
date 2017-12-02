@@ -6,13 +6,13 @@ class Where {
         let whereList = new Array();
         let wherePars = {};
         if (where != null) {
-            where.keys().map((key, index) => {
+            Reflect.ownKeys(where).map((key, index) => {
                 let k = key.toString();
                 if (tableSchemaModel.columns.filter(column => column.columnName === k)
                     .length) {
                     whereSQL += ` ${k} = @wpar${k} and`;
-                    whereList.push(where.get(k));
-                    Reflect.set(wherePars, `wpar${k}`, where.get(k));
+                    whereList.push(Reflect.get(where, k));
+                    Reflect.set(wherePars, `wpar${k}`, Reflect.get(where, k));
                 }
             });
         }

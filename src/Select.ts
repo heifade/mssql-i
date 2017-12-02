@@ -1,12 +1,11 @@
 import { ConnectionPool } from "mssql";
-import { RowDataModel } from "./model/RowDataModel";
 import { SelectParamsModel } from "./model/SelectParamsModel";
 import { SplitPageParamsModel } from "./model/SplitPageParamsModel";
 import { SplitPageResultModel } from "./model/SplitPageResultModel";
 
 let readListFromResult = (result: any) => {
   return result.map((h: any) => {
-    let item = new RowDataModel();
+    let item = {};
     return Object.assign(item, h);
   });
 };
@@ -93,7 +92,7 @@ export class Select {
     conn: ConnectionPool,
     params: SelectParamsModel[]
   ) {
-    let promises = new Array<Promise<RowDataModel[]>>();
+    let promises = new Array<Promise<{}[]>>();
 
     params.map(param => {
       promises.push(Select.select(conn, param));
@@ -163,7 +162,7 @@ export class Select {
 
     let restul = await Select.selectBase(conn, param2);
     let list = readListFromResult(restul.recordset);
-    return Number(list[0].get("value"));
+    return Number(Reflect.get(list[0], "value"));
   }
 
   /**

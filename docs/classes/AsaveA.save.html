@@ -119,7 +119,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/b0a4036/src/Save.ts#L68">Save.ts:68</a></li>
+									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/988ea91/src/Save.ts#L68">Save.ts:68</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -144,25 +144,25 @@ create table tbl1 (
 )
 例1： 以下相当于SQL： insert into tbl1(f1, f2, f3) values(1, 2, 3);
 await Save.save(conn, {
-  data: RowDataModel.create({ f1: 1, f2: 2, f3: 3 }),
+  data: { f1: 1, f2: 2, f3: 3 },
   table: 'tbl1',
   saveType: SaveType.insert
 });
 例2： 以下相当于SQL： update tbl1 set f2=2, f3=3 where f1=1;
 await Save.save(conn, {
-  data: RowDataModel.create({ f1: 1, f2: 2, f3: 3 }),
+  data: { f1: 1, f2: 2, f3: 3 },
   table: 'tbl1',
   saveType: SaveType.update
 });
 例3： 以下相当于SQL： delete from tbl1 where f1=1;
 await Save.save(conn, {
-  data: RowDataModel.create({ f1: 1 }),
+  data: { f1: 1 },
   table: 'tbl1',
   saveType: SaveType.delete
 });
 例4： 以下相当于SQL： replace into tbl1(f1, f2, f3) values(1,2,3);
 await Save.save(conn, {
-  data: RowDataModel.create({ f1: 1 }),
+  data: { f1: 1 },
   table: 'tbl1',
   saveType: SaveType.replace
 });
@@ -182,7 +182,7 @@ await Save.save(conn, {
 									<h5>pars: <span class="tsd-signature-type">object</span></h5>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter">
-											<h5>data<span class="tsd-signature-symbol">: </span><a href="AmodelArowdatamodelA.rowdatamodel.html" class="tsd-signature-type">RowDataModel</a></h5>
+											<h5>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">__type</span></h5>
 										</li>
 										<li class="tsd-parameter">
 											<h5><span class="tsd-flag ts-flagOptional">Optional</span> database<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
@@ -214,7 +214,7 @@ await Save.save(conn, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/b0a4036/src/Save.ts#L148">Save.ts:148</a></li>
+									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/988ea91/src/Save.ts#L149">Save.ts:149</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -260,7 +260,7 @@ await Save.save(conn, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/b0a4036/src/Save.ts#L233">Save.ts:233</a></li>
+									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/988ea91/src/Save.ts#L235">Save.ts:235</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -305,7 +305,7 @@ await Save.save(conn, {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/b0a4036/src/Save.ts#L265">Save.ts:265</a></li>
+									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/988ea91/src/Save.ts#L267">Save.ts:267</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -349,9 +349,6 @@ await Save.save(conn, {
 						<a href="../modules/AconnectionhelperA.html">"<wbr>Connection<wbr>Helper"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="../modules/AconnectionpoolA.html">"<wbr>Connection<wbr>Pool"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
 						<a href="../modules/AdeleteA.html">"<wbr>Delete"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -383,9 +380,6 @@ await Save.save(conn, {
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AindexA.html">"index"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/AmodelArowdatamodelA.html">"model/<wbr>Row<wbr>Data<wbr>Model"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AmodelAsavetypeA.html">"model/<wbr>Save<wbr>Type"</a>

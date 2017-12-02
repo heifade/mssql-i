@@ -3,7 +3,6 @@ import "mocha";
 import { initTable } from "./DataInit";
 import {
   Schema,
-  RowDataModel,
   Utils,
   Exec,
   Where,
@@ -56,27 +55,49 @@ describe("Other", function() {
     });
   });
 
-  it("RowDataModel.has", done => {
+  it("Where.getWhereSQL", done => {
     let asyncFunc = async function() {
-      let row = RowDataModel.create({ id: 1 });
-      expect(row.has("id")).to.be.true;
-    };
+      await Schema.getSchema(conn, "test").then(schemaModel => {
+        let tableSchemaModel = schemaModel.getTableSchemaModel(tableName);
 
-    asyncFunc()
-      .then(() => {
-        done();
-      })
-      .catch(err => {
-        done(err);
+        let { whereSQL: whereSQL1, whereList: whereList1 } = Where.getWhereSQL(
+          { id1: 1, id2: 2 },
+          tableSchemaModel
+        );
+
+        expect(whereSQL1.trim()).to.equal(
+          "where id1 = @wparid1 and id2 = @wparid2"
+        );
+        expect(
+          whereList1 != null &&
+            whereList1.length == 2 &&
+            whereList1[0] == 1 &&
+            whereList1[1] == 2
+        ).to.be.true;
+
+        let { whereSQL: whereSQL2, whereList: whereList2 } = Where.getWhereSQL(
+          null,
+          tableSchemaModel
+        );
+
+        expect(whereSQL2.trim()).to.equal("");
+        expect(whereList2 != null && whereList2.length == 0).to.be.true;
+
+        let { whereSQL: whereSQL3, whereList: whereList3 } = Where.getWhereSQL(
+          { id1: 1, id2: 2, id3: 3 },
+          tableSchemaModel
+        );
+
+        expect(whereSQL3.trim()).to.equal(
+          "where id1 = @wparid1 and id2 = @wparid2"
+        );
+        expect(
+          whereList3 != null &&
+            whereList3.length == 2 &&
+            whereList3[0] == 1 &&
+            whereList3[1] == 2
+        ).to.be.true;
       });
-  });
-
-  it("RowDataModel.set", done => {
-    let asyncFunc = async function() {
-      let row = RowDataModel.create({ id: 1 });
-      expect(row.get("id")).to.equals(1);
-      row.set("id", 2);
-      expect(row.get("id")).to.equals(2);
     };
 
     asyncFunc()
@@ -111,60 +132,4 @@ describe("Other", function() {
         done(err);
       });
   });
-
-  it("Where.getWhereSQL", done => {
-    let asyncFunc = async function() {
-      await Schema.getSchema(conn, "test").then(schemaModel => {
-        let tableSchemaModel = schemaModel.getTableSchemaModel(tableName);
-
-        let { whereSQL: whereSQL1, whereList: whereList1 } = Where.getWhereSQL(
-          RowDataModel.create({ id1: 1, id2: 2 }),
-          tableSchemaModel
-        );
-
-        expect(whereSQL1.trim()).to.equal(
-          "where id1 = @wparid1 and id2 = @wparid2"
-        );
-        expect(
-          whereList1 != null &&
-            whereList1.length == 2 &&
-            whereList1[0] == 1 &&
-            whereList1[1] == 2
-        ).to.be.true;
-
-        let { whereSQL: whereSQL2, whereList: whereList2 } = Where.getWhereSQL(
-          null,
-          tableSchemaModel
-        );
-
-        expect(whereSQL2.trim()).to.equal("");
-        expect(whereList2 != null && whereList2.length == 0).to.be.true;
-
-        let { whereSQL: whereSQL3, whereList: whereList3 } = Where.getWhereSQL(
-          RowDataModel.create({ id1: 1, id2: 2, id3: 3 }),
-          tableSchemaModel
-        );
-
-        expect(whereSQL3.trim()).to.equal(
-          "where id1 = @wparid1 and id2 = @wparid2"
-        );
-        expect(
-          whereList3 != null &&
-            whereList3.length == 2 &&
-            whereList3[0] == 1 &&
-            whereList3[1] == 2
-        ).to.be.true;
-      });
-    };
-
-    asyncFunc()
-      .then(() => {
-        done();
-      })
-      .catch(err => {
-        done(err);
-      });
-  });
-
-
 });

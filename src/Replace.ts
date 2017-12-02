@@ -4,7 +4,6 @@ import {
   Request
 } from "mssql";
 import { Schema } from "./schema/Schema";
-import { RowDataModel } from "./model/RowDataModel";
 import { Utils } from "./util/Utils";
 
 /**
@@ -23,7 +22,7 @@ export class Replace {
    * @static
    * @param {Connection} conn - 数据库连接对象
    * @param {{
-   *       data: RowDataModel;
+   *       data: {};
    *       database?: string;
    *       table: string;
    *     }} pars
@@ -42,7 +41,7 @@ export class Replace {
    * 当存在 f1 = 1的数据时，相当于update tbl1 set f2=2,f3=3 where f1=1
    * 当不存在f1= 1的数据时，相当于insert into tbl1(f1,f2,f3) values(1,2,3)
    * let result = await Replace.replace(conn, {
-   *   data: RowDataModel.create({ f1: 1, f2: 2, f3: 3 }),
+   *   data: { f1: 1, f2: 2, f3: 3 },
    *   table: 'tbl1'
    * });
    * </pre>
@@ -50,7 +49,7 @@ export class Replace {
   public static async replace(
     conn: ConnectionPool,
     pars: {
-      data: RowDataModel;
+      data: {};
       chema?: string;
       database?: string;
       table: string;
@@ -92,7 +91,7 @@ export class Replace {
     let insertFields = "";
     let insertValues = "";
 
-    data.keys().map((key, index) => {
+    Reflect.ownKeys(data).map((key, index) => {
       let column = tableSchemaModel.columns.filter(
         column => column.columnName === key.toString()
       )[0];
@@ -100,18 +99,18 @@ export class Replace {
         let colName = column.columnName;
 
         if (column.primaryKey) {
-          request.input(`wparw${colName}`, data.get(colName));
-          request.input(`wparu${colName}`, data.get(colName));
+          request.input(`wparw${colName}`, Reflect.get(data, colName));
+          request.input(`wparu${colName}`, Reflect.get(data, colName));
 
           sWhereSQL += ` ${colName} = @wparw${colName} and`;
           uWhereSQL += ` ${colName} = @wparu${colName} and`;
         } else {
-          request.input(`upar${colName}`, data.get(colName));
+          request.input(`upar${colName}`, Reflect.get(data, colName));
           updateFields += ` ${colName} = @upar${colName},`;
         }
 
         if (!column.autoIncrement) {
-          request.input(`ipar${colName}`, data.get(colName));
+          request.input(`ipar${colName}`, Reflect.get(data, colName));
           insertFields += ` ${colName},`;
           insertValues += ` @ipar${colName},`;
         }

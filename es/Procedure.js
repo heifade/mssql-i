@@ -29,7 +29,7 @@ class Procedure {
             let parSQL = "";
             let request = conn.request();
             if (data) {
-                data.keys().map((key, index) => {
+                Reflect.ownKeys(data).map((key, index) => {
                     let par = procedureSchemaModel.pars.filter(par => par.name === key.toString().replace(/^@/, ""))[0];
                     if (par) {
                         if (par.parameterMode === "out") {
@@ -38,7 +38,7 @@ class Procedure {
                         }
                         else {
                             parSQL += `${par.name},`;
-                            request.input(`${par.name}`, data.get(par.name));
+                            request.input(`${par.name}`, Reflect.get(data, par.name));
                         }
                     }
                 });

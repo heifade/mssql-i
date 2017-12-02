@@ -5,7 +5,6 @@ import {
   ConnectionHelper,
   Save,
   Transaction,
-  RowDataModel,
   Select,
   SaveType,
   ConnectionPool
@@ -41,7 +40,7 @@ describe("Transaction", function() {
       await Save.save(
         conn,
         {
-          data: RowDataModel.create({ id: 10, value: insertValue }),
+          data: { id: 10, value: insertValue },
           table: tableName,
           saveType: SaveType.insert
         },
@@ -54,7 +53,7 @@ describe("Transaction", function() {
         sql: `select value from ${tableName} where id=?`,
         where: [10]
       });
-      expect(rowData.get("value")).to.equal(insertValue);
+      expect(Reflect.get(rowData, "value")).to.equal(insertValue);
     };
 
     asyncFunc()
@@ -76,7 +75,7 @@ describe("Transaction", function() {
         await Save.save(
           conn,
           {
-            data: RowDataModel.create({ id: 11, value: insertValue }),
+            data: { id: 11, value: insertValue },
             table: tableName,
             saveType: SaveType.insert
           },
@@ -86,7 +85,7 @@ describe("Transaction", function() {
         await Save.save(
           conn,
           {
-            data: RowDataModel.create({ id: 11, value: insertValue }),
+            data: { id: 11, value: insertValue },
             table: tableName,
             saveType: SaveType.insert
           },

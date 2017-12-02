@@ -4,7 +4,6 @@ import {
   Exec,
   Schema,
   Insert,
-  RowDataModel,
   Update,
   Delete,
   ConnectionPool
@@ -51,7 +50,7 @@ describe("Delete", function() {
       expect(count).to.equal(1);
 
       await Delete.delete(conn, {
-        where: RowDataModel.create({ id: deleteId }),
+        where: { id: deleteId },
         table: tableName
       });
 
@@ -87,7 +86,7 @@ describe("Delete", function() {
         await Delete.delete(
           conn,
           {
-            where: RowDataModel.create({ id: deleteId }),
+            where: { id: deleteId },
             table: tableName
           },
           tran
@@ -116,7 +115,7 @@ describe("Delete", function() {
   it("when pars.table is null", done => {
     let asyncFunc = async function() {
       await Delete.delete(conn, {
-        where: RowDataModel.create({ id: 1 }),
+        where: { id: 1 },
         table: null
       }).catch(err => {
         let errMsg = Reflect.get(err, "message");
@@ -140,7 +139,7 @@ describe("Delete", function() {
       let tableName = `tbl_not_exists`;
 
       await Delete.delete(conn, {
-        where: RowDataModel.create({ id: 1 }),
+        where: { id: 1 },
         table: tableName
       }).catch(err => {
         let errMsg = Reflect.get(err, "message");
@@ -160,7 +159,7 @@ describe("Delete", function() {
   it("when error", done => {
     let asyncFunc = async function() {
       await Delete.delete(conn, {
-        where: RowDataModel.create({ id: "Hellow" }),
+        where: { id: "Hellow" },
         table: tableName
       }).catch(err => {
         let errCode = Reflect.get(err, "code");

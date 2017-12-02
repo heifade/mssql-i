@@ -1,4 +1,8 @@
-import { ConnectionPool } from "mssql";
+import {
+  ConnectionPool,
+  Transaction as MssqlTransaction,
+  Request
+} from "mssql";
 
 /**
  * 执行SQL
@@ -21,6 +25,7 @@ export class Exec {
    * @static
    * @param {Connection} conn - 数据库连接对象
    * @param {string} sql - SQL语句
+   * @param {MssqlTransaction} [tran] - 事务对象（可选），当需要事务处理时，必须传入此对象
    * @returns Promise对象
    * @memberof Exec
    * @example
@@ -35,8 +40,19 @@ export class Exec {
    * );
    * </pre>
    */
-  public static async exec(conn: ConnectionPool, sql: string) {
-    return await conn.request().query(sql);
+  public static async exec(
+    conn: ConnectionPool,
+    sql: string,
+    tran?: MssqlTransaction
+  ) {
+    let request: Request;
+    if (tran) {
+      request = new Request(tran);
+    } else {
+      request = conn.request();
+    }
+
+    return await request.query(sql);
   }
 
   /**
@@ -81,6 +97,7 @@ export class Exec {
    * @static
    * @param {Connection} conn - 数据库连接对象
    * @param {string[]} sqls - SQL语句数组
+   * @param {MssqlTransaction} [tran] - 事务对象（可选），当需要事务处理时，必须传入此对象
    * @returns Promise对象
    * @memberof Exec
    * @example
@@ -92,9 +109,13 @@ export class Exec {
    *  ]);
    * </pre>
    */
-  public static async execsSeq(conn: ConnectionPool, sqls: string[]) {
+  public static async execsSeq(
+    conn: ConnectionPool,
+    sqls: string[],
+    tran?: MssqlTransaction
+  ) {
     for (let sql of sqls) {
-      await Exec.exec(conn, sql);
+      await Exec.exec(conn, sql, tran);
     }
   }
 }

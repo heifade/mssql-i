@@ -3,7 +3,6 @@ import {
   Transaction as MssqlTransaction,
   Request
 } from "mssql";
-import { RowDataModel } from "./model/RowDataModel";
 import { Schema } from "./schema/Schema";
 import { TableSchemaModel } from "./model/SchemaModel";
 import { Where } from "./util/Where";
@@ -23,7 +22,7 @@ export class Delete {
    * @static
    * @param {Connection} conn - 数据库连接
    * @param {{
-   *       where?: RowDataModel;
+   *       where?: {};
    *       database?: string;
    *       table: string;
    *     }} pars
@@ -41,22 +40,22 @@ export class Delete {
    * where 条件会根据表中字段进行过滤
    * 例1，以下相当于SQL： delete from tbl1 where f1=1 and f2=2
    * await Delete.delete(conn, {
-   *   where: RowDataModel.create({ f1: 1, f2: 2 }),
+   *   where: { f1: 1, f2: 2 },
    *   table: 'tbl1'
    * });
    * 例2，以下相当于SQL： delete from tbl1 where f1=1 and f2=2 and f3=3
    * await Delete.delete(conn, {
-   *   where: RowDataModel.create({ f1: 1, f2: 2, f3: 3, f4: 4 }), // f4不是字段，不起作用
+   *   where: { f1: 1, f2: 2, f3: 3, f4: 4 }, // f4不是字段，不起作用
    *   table: 'tbl1'
    * });
    * 例3，以下相当于SQL： delete from tbl1
    * await Delete.delete(conn, {
-   *   where: RowDataModel.create({ f5: 5 }), // f5不是字段，不起作用
+   *   where: { f5: 5 }, // f5不是字段，不起作用
    *   table: 'tbl1'
    * });
    * 例4，以下相当于SQL： delete from tbl1
    * await Delete.delete(conn, {
-   *   where: RowDataModel.create({ }),
+   *   where: { },
    *   table: 'tbl1'
    * });
    * </pre>
@@ -64,7 +63,7 @@ export class Delete {
   public static async delete(
     conn: ConnectionPool,
     pars: {
-      where?: RowDataModel;
+      where?: {};
       database?: string;
       chema?: string;
       table: string;

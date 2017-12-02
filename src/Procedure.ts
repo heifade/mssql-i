@@ -1,6 +1,5 @@
 import { ConnectionPool, VarChar } from "mssql";
 import { Schema } from "./schema/Schema";
-import { RowDataModel } from "./model/RowDataModel";
 import { Utils } from "./util/Utils";
 import { Select } from "./Select";
 
@@ -17,7 +16,7 @@ export class Procedure {
    * @static
    * @param {Connection} conn - 数据库连接对象
    * @param {{
-   *       data?: RowDataModel;
+   *       data?: {};
    *       database?: string;
    *       procedure: string;
    *     }} pars
@@ -27,7 +26,7 @@ export class Procedure {
   public static async exec(
     conn: ConnectionPool,
     pars: {
-      data?: RowDataModel;
+      data?: {};
       database?: string;
       chema?: string;
       procedure: string;
@@ -58,7 +57,7 @@ export class Procedure {
     let request = conn.request();
 
     if (data) {
-      data.keys().map((key, index) => {
+      Reflect.ownKeys(data).map((key, index) => {
         let par = procedureSchemaModel.pars.filter(
           par => par.name === key.toString().replace(/^@/, "")
         )[0];
@@ -69,7 +68,7 @@ export class Procedure {
             request.output(`${par.name}`, VarChar);
           } else {
             parSQL += `${par.name},`;
-            request.input(`${par.name}`, data.get(par.name));
+            request.input(`${par.name}`, Reflect.get(data, par.name));
           }
         }
       });

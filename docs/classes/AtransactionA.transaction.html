@@ -90,12 +90,12 @@ create table tbl1 (
 try {
   await Transaction.begin(conn);
   await Save.save(conn, {
-    data: RowDataModel.create({ f1: 1, f2: 2 }),
+    data: { f1: 1, f2: 2 },
     table: tableName,
     saveType: SaveType.insert
   });
   await Save.save(conn, {
-    data: RowDataModel.create({ f2: 2, f2: 2 }),
+    data: { f2: 2, f2: 2 },
     table: tableName,
     saveType: SaveType.insert
   });
@@ -143,7 +143,7 @@ try {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/b0a4036/src/Transaction.ts#L43">Transaction.ts:43</a></li>
+									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/988ea91/src/Transaction.ts#L43">Transaction.ts:43</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -178,7 +178,7 @@ try {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/b0a4036/src/Transaction.ts#L57">Transaction.ts:57</a></li>
+									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/988ea91/src/Transaction.ts#L57">Transaction.ts:57</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -213,7 +213,7 @@ try {
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/b0a4036/src/Transaction.ts#L69">Transaction.ts:69</a></li>
+									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/988ea91/src/Transaction.ts#L69">Transaction.ts:69</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -250,9 +250,6 @@ try {
 						<a href="../modules/AconnectionhelperA.html">"<wbr>Connection<wbr>Helper"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="../modules/AconnectionpoolA.html">"<wbr>Connection<wbr>Pool"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
 						<a href="../modules/AdeleteA.html">"<wbr>Delete"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
@@ -284,9 +281,6 @@ try {
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AindexA.html">"index"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/AmodelArowdatamodelA.html">"model/<wbr>Row<wbr>Data<wbr>Model"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AmodelAsavetypeA.html">"model/<wbr>Save<wbr>Type"</a>

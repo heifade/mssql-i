@@ -186,17 +186,17 @@ export class Schema {
       schemaModel.tables = new Array<TableSchemaModel>();
       tableList.map(table => {
         let tableModel = new TableSchemaModel();
-        tableModel.name = table.get("tableName");
+        tableModel.name = Reflect.get(table, "tableName");
         tableModel.columns = [];
         schemaModel.tables.push(tableModel);
 
         columnList
-          .filter(column => column.get("tableName") === table.get("tableName"))
+          .filter(column => Reflect.get(column, "tableName") === Reflect.get(table, "tableName"))
           .map(column => {
             let columnModel = new ColumnSchemaModel();
-            columnModel.columnName = column.get("columnName");
-            columnModel.primaryKey = column.get("primaryKey") === 1;
-            columnModel.autoIncrement = column.get("isIdentity") === 1;
+            columnModel.columnName = Reflect.get(column, "columnName");
+            columnModel.primaryKey = Reflect.get(column, "primaryKey") === 1;
+            columnModel.autoIncrement = Reflect.get(column, "isIdentity") === 1;
 
             tableModel.columns.push(columnModel);
           });
@@ -207,16 +207,16 @@ export class Schema {
       schemaModel.procedures = new Array<ProcedureSchemaModel>();
       procedureList.map(procedure => {
         let procedureModel = new ProcedureSchemaModel();
-        procedureModel.name = procedure.get("procedureName");
+        procedureModel.name = Reflect.get(procedure, "procedureName");
         procedureModel.pars = [];
         schemaModel.procedures.push(procedureModel);
 
         procedureParsList
-          .filter(par => par.get("objId") === procedure.get("objId"))
+          .filter(par => Reflect.get(par, "objId") === Reflect.get(procedure, "objId"))
           .map(par => {
             let parModel = new ProcedureParSchemaModel();
-            parModel.name = par.get("parameterName");
-            parModel.parameterMode = par.get("parameterMode");
+            parModel.name = Reflect.get(par, "parameterName");
+            parModel.parameterMode = Reflect.get(par, "parameterMode");
             procedureModel.pars.push(parModel);
           });
       });

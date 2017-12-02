@@ -117,7 +117,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/b0a4036/src/ConnectionHelper.ts#L53">ConnectionHelper.ts:53</a></li>
+									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/988ea91/src/ConnectionHelper.ts#L52">ConnectionHelper.ts:52</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -157,7 +157,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/b0a4036/src/ConnectionHelper.ts#L40">ConnectionHelper.ts:40</a></li>
+									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/988ea91/src/ConnectionHelper.ts#L39">ConnectionHelper.ts:39</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -173,11 +173,11 @@
 									<dt>example</dt>
 									<dd><pre>
  let conn = await ConnectionHelper.create({
-   host: "", // 数据库服务器地址
+   server: "", // 数据库服务器地址
    user: "", // 用户名
    password: "", // 密码
    database: "", // 数据库名称
-   port: 3306,   // 端口号
+   port: 1433,   // 端口号
  });
 </pre>
 									</dd>
@@ -190,7 +190,19 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ConnectionPool</span><span class="tsd-signature-symbol">&gt;</span></h4>
-							<p>返回一个包含Connection对象的Promise</p>
+							<ul>
+								<li>数据库连接对象<pre>
+{
+ server: "", // 数据库服务器地址
+ user: "", // 用户名
+ password: "", // 密码
+ database: "", // 数据库名称
+ port: 1433,   // 端口号
+ connectionTimeout：6000, // 数据库连接超时时间（毫秒），默认1000
+ requestTimeout: // 数据库处理超时时间（毫秒），默认1000
+}
+</pre></li>
+							</ul>
 						</li>
 					</ul>
 				</section>
@@ -204,9 +216,6 @@
 					</li>
 					<li class="current tsd-kind-external-module">
 						<a href="../modules/AconnectionhelperA.html">"<wbr>Connection<wbr>Helper"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/AconnectionpoolA.html">"<wbr>Connection<wbr>Pool"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AdeleteA.html">"<wbr>Delete"</a>
@@ -240,9 +249,6 @@
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AindexA.html">"index"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/AmodelArowdatamodelA.html">"model/<wbr>Row<wbr>Data<wbr>Model"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AmodelAsavetypeA.html">"model/<wbr>Save<wbr>Type"</a>

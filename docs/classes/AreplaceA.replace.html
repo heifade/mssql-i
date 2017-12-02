@@ -116,7 +116,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/b0a4036/src/Replace.ts#L49">Replace.ts:49</a></li>
+									<li>Defined in <a href="https://github.com/heifade/mssql-i/blob/988ea91/src/Replace.ts#L49">Replace.ts:49</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -144,7 +144,7 @@ create table tbl1 (
 当存在 f1 = 1的数据时，相当于update tbl1 set f2=2,f3=3 where f1=1
 当不存在f1= 1的数据时，相当于insert into tbl1(f1,f2,f3) values(1,2,3)
 let result = await Replace.replace(conn, {
-  data: RowDataModel.create({ f1: 1, f2: 2, f3: 3 }),
+  data: { f1: 1, f2: 2, f3: 3 },
   table: 'tbl1'
 });
 </pre>
@@ -166,7 +166,7 @@ let result = await Replace.replace(conn, {
 											<h5><span class="tsd-flag ts-flagOptional">Optional</span> chema<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
 										</li>
 										<li class="tsd-parameter">
-											<h5>data<span class="tsd-signature-symbol">: </span><a href="AmodelArowdatamodelA.rowdatamodel.html" class="tsd-signature-type">RowDataModel</a></h5>
+											<h5>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">__type</span></h5>
 										</li>
 										<li class="tsd-parameter">
 											<h5><span class="tsd-flag ts-flagOptional">Optional</span> database<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span></h5>
@@ -195,9 +195,6 @@ let result = await Replace.replace(conn, {
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AconnectionhelperA.html">"<wbr>Connection<wbr>Helper"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/AconnectionpoolA.html">"<wbr>Connection<wbr>Pool"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AdeleteA.html">"<wbr>Delete"</a>
@@ -231,9 +228,6 @@ let result = await Replace.replace(conn, {
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AindexA.html">"index"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/AmodelArowdatamodelA.html">"model/<wbr>Row<wbr>Data<wbr>Model"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/AmodelAsavetypeA.html">"model/<wbr>Save<wbr>Type"</a>
