@@ -1,24 +1,32 @@
 language: node_js
+sudo: enabled
 node_js:
   - "8"
 # services:
 #   - mssql
 # before_install:
 #   - mssql -e 'CREATE DATABASE mssql-i-test;'
-# script :
-#   - "npm test"
-# after_script:
-#   - "npm run test-nyc"
+script :
+  # - "npm test"
+  - "npm run build"
+after_script:
+  - "npm run test-nyc"
 
 cache:
   directories:
   - node_modules
 
 deploy:
-  provider: npm
-  email: heifade@126.com
-  api_key: $NPM_TOKEN
-  on:
-    tags: true
-    repo: heifade/mssql-i
-
+  - provider: npm
+    skip_cleanup: true
+    email: heifade@126.com
+    api_key: $NPM_TOKEN
+    on:
+      tags: true
+      repo: heifade/mssql-i
+  - provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    local_dir: docs
+    on:
+      branch: master
