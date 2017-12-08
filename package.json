@@ -1,7 +1,7 @@
 {
   "name": "mssql-i",
-  "version": "1.0.12",
-  "description": "mssql interface, base on mssql",
+  "version": "1.0.13",
+  "description": "sqlserver interface, base on mssql",
   "main": "./es/index.js",
   "module": "./es/index.js",
   "files": [
@@ -33,6 +33,7 @@
     "instrument": true
   },
   "keywords": [
+    "sqlserver",
     "mssql",
     "mssql-i",
     "promise"
