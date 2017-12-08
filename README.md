@@ -110,10 +110,10 @@ async function run() {
   try {
     // 第一步：创建连接
     conn = await ConnectionHelper.create({
-      server: "123.206.217.34",
-      user: "travis",
+      server: "localhost",
+      user: "",
       password: "",
-      database: "djd-test",
+      database: "",
       port: 1433
     });
 
