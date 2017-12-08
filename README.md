@@ -128,7 +128,7 @@ async function run() {
   } catch (err) {
     throw err;
   } finally {
-    // 第四步：关闭连接
+    // 第三步：关闭连接
     await ConnectionHelper.close(conn); // conn 可以为空，空时不报错
   }
 }
