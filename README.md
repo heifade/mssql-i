@@ -5,8 +5,8 @@ mssql-i
 
 [![NPM version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][npm-url]
-[![Build](https://travis-ci.org/heifade/mssql-i.svg)](https://travis-ci.org/heifade/mssql-i)
-[![Test Coverage](https://coveralls.io/repos/github/heifade/mssql-i/badge.svg)](https://coveralls.io/github/heifade/mssql-i?branch=master)
+[![Build](https://travis-ci.org/heifade/mssql-i.svg?branch=master)](https://travis-ci.org/heifade/mssql-i?branch=master)
+[![Test Coverage](https://coveralls.io/repos/github/heifade/mssql-i/badge.svg?branch=master)](https://coveralls.io/github/heifade/mssql-i?branch=master)
 
 
 
