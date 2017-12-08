@@ -1,7 +1,17 @@
-import { ConnectionPool, VarChar } from "mssql";
+import {
+  ConnectionPool,
+  VarChar,
+  Transaction as MssqlTransaction,
+  Request,
+  IProcedureResult
+} from "mssql";
 import { Schema } from "./schema/Schema";
 import { Utils } from "./util/Utils";
 import { Select } from "./Select";
+
+export interface ProcedureResult extends IProcedureResult<any> {
+
+}
 
 /**
  * 存储过程
@@ -12,6 +22,7 @@ import { Select } from "./Select";
 export class Procedure {
   /**
    * 执行一个存储过程
+   * 注意：如需事务处理，请传入tran参数。
    *
    * @static
    * @param {Connection} conn - 数据库连接对象
@@ -20,6 +31,7 @@ export class Procedure {
    *       database?: string;
    *       procedure: string;
    *     }} pars
+   * @param {MssqlTransaction} [tran] - 事务对象（可选），当需要事务处理时，必须传入此对象
    * @returns Promise对象
    * @memberof Procedure
    */
@@ -30,7 +42,8 @@ export class Procedure {
       database?: string;
       chema?: string;
       procedure: string;
-    }
+    },
+    tran?: MssqlTransaction
   ) {
     let database = pars.database || Utils.getDataBaseFromConnection(conn);
 
@@ -54,7 +67,12 @@ export class Procedure {
 
     let parSQL = "";
 
-    let request = conn.request();
+    let request: Request;
+    if (tran) {
+      request = new Request(tran);
+    } else {
+      request = conn.request();
+    }
 
     if (data) {
       Reflect.ownKeys(data).map((key, index) => {
@@ -77,6 +95,7 @@ export class Procedure {
 
     let sql = `${procedureName}`;
 
-    return await request.execute(sql);
+    let result: ProcedureResult = await request.execute(sql);
+    return result;
   }
 }

@@ -11,6 +11,7 @@ import {
   Utils
 } from "../src/index";
 import { connectionConfig } from "./connectionConfig";
+import { Transaction } from "../src/Transaction";
 
 describe("Procedure", function() {
   let tableName = "tbl_test_procedure";
@@ -105,6 +106,45 @@ describe("Procedure", function() {
       let row = await Select.selectTop1(conn, {
         sql: `select * from ${tableName} where id=?`,
         where: [11]
+      });
+      expect(Reflect.get(row, "value")).to.equals(insertValue);
+    };
+
+    asyncFunc()
+      .then(() => {
+        done();
+      })
+      .catch(err => {
+        done(err);
+      });
+  });
+
+  it("procedure with tran must be success", done => {
+    let asyncFunc = async function() {
+      let insertValue = `value${Math.random()}`;
+
+      let tran;
+      let result;
+      try {
+        tran = await Transaction.begin(conn);
+        result = await Procedure.exec(
+          conn,
+          {
+            data: { pId: 111, pValue: insertValue, pOut: "" },
+            procedure: procedureName
+          },
+          tran
+        );
+        await Transaction.commit(tran);
+      } catch (err) {
+        await Transaction.rollback(tran);
+      }
+
+      expect(result && result.output["pOut"] == "aaaabbbccc").to.be.true;
+
+      let row = await Select.selectTop1(conn, {
+        sql: `select * from ${tableName} where id=?`,
+        where: [111]
       });
       expect(Reflect.get(row, "value")).to.equals(insertValue);
     };

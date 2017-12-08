@@ -12,14 +12,14 @@ import {
  * @description
  * <pre>
  * 此类提供了执行SQL语句的方法。比如创建修改对象。
- * 如果想处理一些插入，修改，删除，查询操作，请查看{@link Save} {@link Insert} {@link  Update} {@link Delete} {@link Select}
+ * 如果想处理一些插入，修改，删除，查询操作，请查看{@link Save} {@link Insert} {@link  Update} {@link Delete} {@link Select}+
  * </pre>
  */
 export class Exec {
   /**
    * <pre>
    * 执行单个SQL语句
-   * 注意：此方法没有开启事务。如需开启事务，见 {@link Transaction}
+   * 注意：如需事务处理，请传入tran参数。
    * </pre>
    *
    * @static
@@ -52,14 +52,15 @@ export class Exec {
       request = conn.request();
     }
 
-    return await request.query(sql);
+    await request.query(sql);
+    return true;
   }
 
   /**
    * <pre>
    * 并发执行多个SQL语句。
    * 所有SQL执行成功时，返回Promise为成功，如果其中一个SQL执行出错，返回的Promise为失败。
-   * 注意：此方法没有开启事务。如需开启事务，见 {@link Transaction}
+   * 注意：此方法不提供事务。如需开启事务，见 {@link execsSeq}
    * </pre>
    *
    * @static
@@ -91,7 +92,7 @@ export class Exec {
    * <pre>
    * 顺序执行多个SQL语句
    * 所有SQL执行成功时，返回Promise为成功，如果其中一个SQL执行出错，返回的Promise为失败。
-   * 注意：此方法没有开启事务。如需开启事务，见 {@link Transaction}
+   * 注意：如需事务处理，请传入tran参数。
    * </pre>
    *
    * @static

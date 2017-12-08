@@ -15,8 +15,10 @@ import { Utils } from "./util/Utils";
  */
 export class Update {
   /**
+   * <pre>
    * 根据主键更新一条数据，主键不能更新。如需更新主键，见{@link Update.updateByWhere}
-   *
+   * 注意：如需事务处理，请传入tran参数。
+   * </pre>
    * @static
    * @param {Connection} conn - 数据库连接对象
    * @param {{
@@ -120,12 +122,15 @@ export class Update {
 
     let sql = `update ${tableName} set ${fieldSQL} ${whereSQL}`;
 
-    return await request.query(sql);
+    await request.query(sql);
+    return true;
   }
 
   /**
+   * <pre>
    * 根据where更新一条数据，可以更新主键
-   *
+   * 注意：如需事务处理，请传入tran参数。
+   * </pre>
    * @static
    * @param {ConnectionPool} conn
    * @param {{
@@ -203,6 +208,7 @@ export class Update {
 
     let sql = `update ${tableName} set ${fieldSQL} ${whereSQL}`;
 
-    return await request.query(sql);
+    await request.query(sql);
+    return true;
   }
 }

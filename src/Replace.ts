@@ -16,7 +16,7 @@ export class Replace {
   /**
    * <pre>
    * 根据主键替换数据
-   * 注意：此方法没有开启事务。如需开启事务，见 {@link Transaction}
+   * 注意：如需事务处理，请传入tran参数。
    * </pre>
    *
    * @static

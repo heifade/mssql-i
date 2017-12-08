@@ -17,7 +17,7 @@ import { Utils } from "./util/Utils";
 export class Delete {
   /**
    * 根据条件删除一条数据。
-   * 注意：此方法没有开启事务。如需开启事务，见 {@link Transaction}
+   * 注意：如需事务处理，请传入tran参数。
    * 注意：条件会根据pars.where参数与table表中实际字段进行匹配，只有实际存在的字段才起作用。见下面例子。
    * @static
    * @param {Connection} conn - 数据库连接
@@ -70,7 +70,7 @@ export class Delete {
     },
     tran?: MssqlTransaction
   ) {
-    let database = pars.database; //|| conn.config.database;
+    let database = pars.database || Utils.getDataBaseFromConnection(conn);
 
     let where = pars.where;
 
@@ -106,6 +106,7 @@ export class Delete {
       request.input(m.toString(), Reflect.get(wherePars, m));
     });
 
-    return await request.query(sql);
+    await request.query(sql);
+    
   }
 }

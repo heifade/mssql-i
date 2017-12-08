@@ -14,10 +14,11 @@ import { Utils } from "./util/Utils";
  */
 export class Insert {
   /**
+   * <pre>
    * 插入一条数据
    * 注意：插入字段会根据table表中实际字段进行匹配，只有实际存在的字段才会插入。见下面例子。
-   * 注意：此方法没有开启事务。如需开启事务，见 {@link Transaction}
-   *
+   * 注意：如需事务处理，请传入tran参数。
+   * </pre>
    * @static
    * @param {Connection} conn - 数据库连接对象
    * @param {{
