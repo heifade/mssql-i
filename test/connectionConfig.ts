@@ -4,6 +4,7 @@ import * as program from "commander";
 
 program
   .option("--server <n>", "please input sqlserver ip")
+  .option("--password <n>", "please input sqlserver password")
   .option("--require", "")
   .parse(process.argv);
 
@@ -11,7 +12,8 @@ if (!program.server) {
   let configFile = "./test/config.json";
   if (!fs.existsSync(configFile)) {
     let content = `{
-      "server": "127.0.0.1"
+      "server": "127.0.0.1",
+      "password": ""
     }`;
 
     fs.writeFileSync(configFile, content);
@@ -21,12 +23,13 @@ if (!program.server) {
 
   let config = JSON.parse(fs.readFileSync(configFile, { encoding: "utf-8" }));
   program.server = config.server;
+  program.password = config.password;
 }
 
 export let connectionConfig: config = {
   server: program.server || ".",
   user: "travis",
-  password: "",
+  password: program.password || "",
   database: "djd-test",
   port: 1433,
   connectionTimeout: 60000,
