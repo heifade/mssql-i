@@ -1,6 +1,6 @@
 {
   "name": "mssql-i",
-  "version": "1.0.13",
+  "version": "1.0.15",
   "description": "sqlserver interface, base on mssql",
   "main": "./es/index.js",
   "module": "./es/index.js",
@@ -16,7 +16,7 @@
     "tsBuild": "tsc -p tsconfig.json",
     "docs": "typedoc --out docs src --module commonjs --hideGenerator && node ./tools/replaceDocFileUnderline.js",
     "build": "npm run removeDist && npm run tsBuild && npm run docs",
-    "test": "nyc mocha -t 60000",
+    "test": "nyc mocha -t 120000",
     "test-nyc": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
   },
   "nyc": {
