@@ -8,11 +8,11 @@ node_js:
 #   - mssql -e 'CREATE DATABASE mssql-i-test;'
 script :
   # - npm run test
-  - nyc mocha -t 60000 --server $SQLSERVER_IP
+  - nyc mocha -t 120000 --server $SQLSERVER_IP
   - npm run build
 after_script:
   # - npm run test-nyc 
-  - nyc mocha -t 60000 --server $SQLSERVER_IP && nyc report --reporter=text-lcov | coveralls
+  - nyc mocha -t 120000 --server $SQLSERVER_IP && nyc report --reporter=text-lcov | coveralls
 
 cache:
   directories:

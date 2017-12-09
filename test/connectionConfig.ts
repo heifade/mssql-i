@@ -8,9 +8,18 @@ program
   .parse(process.argv);
 
 if (!program.server) {
-  let config = JSON.parse(
-    fs.readFileSync("./test/config.json", { encoding: "utf-8" })
-  );
+  let configFile = "./test/config.json";
+  if (!fs.existsSync(configFile)) {
+    let content = `{
+      "server": "127.0.0.1"
+    }`;
+
+    fs.writeFileSync(configFile, content);
+
+    console.error(`文件${configFile}不存在，已自动创建，请修改配置！`);
+  }
+
+  let config = JSON.parse(fs.readFileSync(configFile, { encoding: "utf-8" }));
   program.server = config.server;
 }
 
