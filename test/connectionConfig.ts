@@ -9,7 +9,7 @@ program
   .option("--require", "")
   .parse(process.argv);
 
-if (!program.ip || !program.user || !program.database) {
+if (!program.server || !program.user || !program.database) {
   let config = JSON.parse(
     fs.readFileSync("./test/config.json", { encoding: "utf-8" })
   );
