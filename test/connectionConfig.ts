@@ -18,4 +18,5 @@ export let connectionConfig: config = {
   requestTimeout: 60000
 };
 
+
 console.log(connectionConfig);
