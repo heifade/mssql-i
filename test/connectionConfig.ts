@@ -1,22 +1,31 @@
 import { config } from "mssql";
+import * as fs from "fs";
 import * as program from "commander";
 
 program
-  .version("0.0.1")
-  .option("-p, --ip <n>", "please input sqlserver ip")
-  .option("-u, --user <n>", "please input sqlserver user")
+  .option("--server <n>", "please input sqlserver ip")
+  .option("--user <n>", "please input sqlserver user")
+  .option("--database <n>", "please input sqlserver database")
   .option("--require", "")
   .parse(process.argv);
 
+if (!program.ip || !program.user || !program.database) {
+  let config = JSON.parse(
+    fs.readFileSync("./test/config.json", { encoding: "utf-8" })
+  );
+  program.server = config.server;
+  program.user = config.user;
+  program.database = config.database;
+}
+
 export let connectionConfig: config = {
-  server: program.ip || '127.0.0.1',
-  user: program.user || 'travis',
+  server: program.server,
+  user: program.user,
   password: "",
-  database: "djd-test",
+  database: program.database,
   port: 1433,
   connectionTimeout: 60000,
   requestTimeout: 60000
 };
-
 
 console.log(connectionConfig);

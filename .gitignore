@@ -12,3 +12,5 @@
 npm-debug.log*
 
 /.nyc_output
+
+/test/config.json
