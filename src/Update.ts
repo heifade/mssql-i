@@ -1,8 +1,4 @@
-import {
-  ConnectionPool,
-  Transaction as MssqlTransaction,
-  Request
-} from "mssql";
+import { ConnectionPool, Transaction as MssqlTransaction, Request } from "mssql";
 import { Schema } from "./schema/Schema";
 import { Where } from "./util/Where";
 import { Utils } from "./util/Utils";
@@ -82,7 +78,7 @@ export class Update {
     let tableSchemaModel = schemaModel.getTableSchemaModel(table);
 
     if (!tableSchemaModel) {
-      return Promise.reject(new Error(`table '${table}' is not exists!`));
+      return Promise.reject(new Error(`Table '${table}' is not exists!`));
     }
 
     let request: Request;
@@ -96,9 +92,7 @@ export class Update {
     let fieldSQL = ` `;
     let whereSQL = ``;
     Reflect.ownKeys(data).map((key, index) => {
-      let column = tableSchemaModel.columns.filter(
-        column => column.columnName === key.toString()
-      )[0];
+      let column = tableSchemaModel.columns.filter(column => column.columnName === key.toString())[0];
       if (column) {
         let colName = column.columnName;
         if (column.primaryKey) {
@@ -173,7 +167,7 @@ export class Update {
     let tableSchemaModel = schemaModel.getTableSchemaModel(table);
 
     if (!tableSchemaModel) {
-      return Promise.reject(new Error(`table '${table}' is not exists!`));
+      return Promise.reject(new Error(`Table '${table}' is not exists!`));
     }
 
     let request: Request;
@@ -184,10 +178,8 @@ export class Update {
     }
 
     let fieldSQL = ` `;
-     Reflect.ownKeys(data).map((key, index) => {
-      let column = tableSchemaModel.columns.filter(
-        column => column.columnName === key.toString()
-      )[0];
+    Reflect.ownKeys(data).map((key, index) => {
+      let column = tableSchemaModel.columns.filter(column => column.columnName === key.toString())[0];
       if (column) {
         let colName = column.columnName;
         fieldSQL += ` ${colName} = @fpar${colName},`;

@@ -1,8 +1,4 @@
-import {
-  ConnectionPool,
-  Transaction as MssqlTransaction,
-  Request
-} from "mssql";
+import { ConnectionPool, Transaction as MssqlTransaction, Request } from "mssql";
 
 /**
  * 执行SQL
@@ -40,11 +36,7 @@ export class Exec {
    * );
    * </pre>
    */
-  public static async exec(
-    conn: ConnectionPool,
-    sql: string,
-    tran?: MssqlTransaction
-  ) {
+  public static async exec(conn: ConnectionPool, sql: string, tran?: MssqlTransaction) {
     let request: Request;
     if (tran) {
       request = new Request(tran);
@@ -110,11 +102,7 @@ export class Exec {
    *  ]);
    * </pre>
    */
-  public static async execsSeq(
-    conn: ConnectionPool,
-    sqls: string[],
-    tran?: MssqlTransaction
-  ) {
+  public static async execsSeq(conn: ConnectionPool, sqls: string[], tran?: MssqlTransaction) {
     for (let sql of sqls) {
       await Exec.exec(conn, sql, tran);
     }

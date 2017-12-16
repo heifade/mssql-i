@@ -122,10 +122,14 @@ describe("Procedure", function() {
     await Procedure.exec(conn, {
       data: { pId: 11, pValue: "111111", pOut: "" },
       procedure: null
-    }).catch(err => {
-      let errMsg = Reflect.get(err, "message");
-      expect(errMsg).to.equal("pars.procedure can not be null or empty!");
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errMsg = Reflect.get(err, "message");
+        expect(errMsg).to.equal("pars.procedure can not be null or empty!");
+      });
   });
 
   it("when procedure is not exists", async () => {
@@ -136,26 +140,32 @@ describe("Procedure", function() {
     await Procedure.exec(conn, {
       data: { pId: 11, pValue: "111111", pOut: "" },
       procedure: procedureName
-    }).catch(err => {
-      let errMsg = Reflect.get(err, "message");
-      expect(errMsg).to.equal(`procedure '${procedureName}' is not exists!`);
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errMsg = Reflect.get(err, "message");
+        expect(errMsg).to.equal(`Procedure '${procedureName}' is not exists!`);
+      });
   });
 
   it("when error", async () => {
-    let insertValue = `123456789012345678901234567890123456789012345678901234567890`;
-
     await Procedure.exec(conn, {
       data: {
-        pId: 15,
-        pValue: insertValue,
+        pId: 'aa15',
+        pValue: 123,
         pOut: ""
       },
       procedure: procedureName
-    }).catch(err => {
-      let errCode = Reflect.get(err, "code");
-      expect(errCode).to.equal(`ER_DATA_TOO_LONG`);
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errCode = Reflect.get(err, "code");
+        expect(errCode).to.equal(`EREQUEST`);
+      });
   });
 
   it("procedure with no par should success", async () => {

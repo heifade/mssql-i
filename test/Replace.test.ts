@@ -111,10 +111,14 @@ describe("Replace", function() {
     await Replace.replace(conn, {
       data: null,
       table: tableName
-    }).catch(err => {
-      let errMsg = Reflect.get(err, "message");
-      expect(errMsg).to.equal("pars.data can not be null or empty!");
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errMsg = Reflect.get(err, "message");
+        expect(errMsg).to.equal("pars.data can not be null or empty!");
+      });
   });
 
   it("when pars.table is null", async () => {
@@ -123,10 +127,14 @@ describe("Replace", function() {
     await Replace.replace(conn, {
       data: { value: insertValue },
       table: null
-    }).catch(err => {
-      let errMsg = Reflect.get(err, "message");
-      expect(errMsg).to.equal("pars.table can not be null or empty!");
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errMsg = Reflect.get(err, "message");
+        expect(errMsg).to.equal("pars.table can not be null or empty!");
+      });
   });
 
   it("when table is not exists", async () => {
@@ -137,10 +145,14 @@ describe("Replace", function() {
     await Replace.replace(conn, {
       data: { value: insertValue },
       table: tableName
-    }).catch(err => {
-      let errMsg = Reflect.get(err, "message");
-      expect(errMsg).to.equal(`table '${tableName}' is not exists!`);
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errMsg = Reflect.get(err, "message");
+        expect(errMsg).to.equal(`Table '${tableName}' is not exists!`);
+      });
   });
 
   it("when error", async () => {
@@ -153,9 +165,13 @@ describe("Replace", function() {
         value2: "aaa"
       },
       table: tableName
-    }).catch(err => {
-      let errCode = Reflect.get(err, "code");
-      expect(errCode).to.equal(`EREQUEST`);
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errCode = Reflect.get(err, "code");
+        expect(errCode).to.equal(`EREQUEST`);
+      });
   });
 });

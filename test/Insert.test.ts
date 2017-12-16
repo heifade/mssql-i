@@ -20,7 +20,7 @@ describe("Insert", function() {
     let insertValue = `value${Math.random()}`;
 
     let result = await Insert.insert(conn, {
-      data: { value: insertValue },
+      data: { value: insertValue, value2: 1, id: 1 },
       table: tableName
     });
 
@@ -39,10 +39,14 @@ describe("Insert", function() {
     await Insert.insert(conn, {
       data: null,
       table: tableName
-    }).catch(err => {
-      let errMsg = Reflect.get(err, "message");
-      expect(errMsg).to.equal("pars.data can not be null or empty!");
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errMsg = Reflect.get(err, "message");
+        expect(errMsg).to.equal("pars.data can not be null or empty!");
+      });
   });
 
   it("when pars.table is null", async () => {
@@ -51,10 +55,14 @@ describe("Insert", function() {
     await Insert.insert(conn, {
       data: { value: insertValue },
       table: null
-    }).catch(err => {
-      let errMsg = Reflect.get(err, "message");
-      expect(errMsg).to.equal("pars.table can not be null or empty!");
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errMsg = Reflect.get(err, "message");
+        expect(errMsg).to.equal("pars.table can not be null or empty!");
+      });
   });
 
   it("when table is not exists", async () => {
@@ -65,10 +73,14 @@ describe("Insert", function() {
     await Insert.insert(conn, {
       data: { value: insertValue },
       table: tableName
-    }).catch(err => {
-      let errMsg = Reflect.get(err, "message");
-      expect(errMsg).to.equal(`table '${tableName}' is not exists!`);
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errMsg = Reflect.get(err, "message");
+        expect(errMsg).to.equal(`Table '${tableName}' is not exists!`);
+      });
   });
 
   it("when error", async () => {
@@ -76,14 +88,17 @@ describe("Insert", function() {
 
     await Insert.insert(conn, {
       data: {
-        id: 1,
         value: insertValue,
-        value2: "aaa"
-      }, // Duplicate entry '1' for key 'PRIMARY'
+        dateValue: "aaa"
+      },
       table: tableName
-    }).catch(err => {
-      let errCode = Reflect.get(err, "code");
-      expect(errCode).to.equal(`ER_DUP_ENTRY`);
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errCode = Reflect.get(err, "code");
+        expect(errCode).to.equal(`EREQUEST`);
+      });
   });
 });

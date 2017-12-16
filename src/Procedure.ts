@@ -1,17 +1,9 @@
-import {
-  ConnectionPool,
-  VarChar,
-  Transaction as MssqlTransaction,
-  Request,
-  IProcedureResult
-} from "mssql";
+import { ConnectionPool, VarChar, Transaction as MssqlTransaction, Request, IProcedureResult } from "mssql";
 import { Schema } from "./schema/Schema";
 import { Utils } from "./util/Utils";
 import { Select } from "./Select";
 
-export interface ProcedureResult extends IProcedureResult<any> {
-
-}
+export interface ProcedureResult extends IProcedureResult<any> {}
 
 /**
  * 存储过程
@@ -49,18 +41,14 @@ export class Procedure {
 
     let procedure = pars.procedure;
     if (!procedure) {
-      return Promise.reject(
-        new Error(`pars.procedure can not be null or empty!`)
-      );
+      return Promise.reject(new Error(`pars.procedure can not be null or empty!`));
     }
     let data = pars.data;
 
     let schemaModel = await Schema.getSchema(conn, database);
     let procedureSchemaModel = schemaModel.getProcedureSchemaModel(procedure);
     if (!procedureSchemaModel) {
-      return Promise.reject(
-        new Error(`procedure '${procedure}' is not exists!`)
-      );
+      return Promise.reject(new Error(`Procedure '${procedure}' is not exists!`));
     }
 
     let procedureName = Utils.getDbObjectName(database, pars.chema, procedure);
@@ -76,9 +64,7 @@ export class Procedure {
 
     if (data) {
       Reflect.ownKeys(data).map((key, index) => {
-        let par = procedureSchemaModel.pars.filter(
-          par => par.name === key.toString().replace(/^@/, "")
-        )[0];
+        let par = procedureSchemaModel.pars.filter(par => par.name === key.toString().replace(/^@/, ""))[0];
 
         if (par) {
           if (par.parameterMode === "out") {

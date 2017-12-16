@@ -29,10 +29,14 @@ describe("Select", function() {
   it("select error", async () => {
     await Select.select(conn, {
       sql: `select * from tbl_not_exists`
-    }).catch(err => {
-      let errCode = Reflect.get(err, "code");
-      expect(errCode).to.equal(`EREQUEST`);
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errCode = Reflect.get(err, "code");
+        expect(errCode).to.equal(`EREQUEST`);
+      });
   });
 
   it("selectCount", async () => {
@@ -47,10 +51,14 @@ describe("Select", function() {
   it("selectCount error", async () => {
     await Select.selectCount(conn, {
       sql: `select * from tbl_not_exists`
-    }).catch(err => {
-      let errCode = Reflect.get(err, "code");
-      expect(errCode).to.equal(`EREQUEST`);
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errCode = Reflect.get(err, "code");
+        expect(errCode).to.equal(`EREQUEST`);
+      });
   });
 
   it("selects", async () => {
@@ -70,10 +78,14 @@ describe("Select", function() {
   it("selectTop1 error", async () => {
     await Select.selectTop1(conn, {
       sql: `select * from tbl_not_exists`
-    }).catch(err => {
-      let errCode = Reflect.get(err, "code");
-      expect(errCode).to.equal(`EREQUEST`);
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errCode = Reflect.get(err, "code");
+        expect(errCode).to.equal(`EREQUEST`);
+      });
   });
 
   it("selectSplitPage", async () => {
@@ -104,9 +116,13 @@ describe("Select", function() {
       where: [1],
       pageSize: 10,
       index: 1
-    }).catch(err => {
-      let errCode = Reflect.get(err, "code");
-      expect(errCode).to.equal(`EREQUEST`);
-    });
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errCode = Reflect.get(err, "code");
+        expect(errCode).to.equal(`EREQUEST`);
+      });
   });
 });

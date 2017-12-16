@@ -39,7 +39,9 @@ mssql-i的主要特点：
 >
 > Delete 删除
 >
-> > delete 根据条件删除一条或多条数据
+> > delete 根据主键删除一条数据
+>
+> > deleteByWhere 根据条件删除一条或多条数据
 >
 > Replace 替换
 >

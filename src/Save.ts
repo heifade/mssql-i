@@ -105,7 +105,7 @@ export class Save {
         return await Delete.delete(
           conn,
           {
-            where: pars.data,
+            data: pars.data,
             database: pars.database,
             table: pars.table
           },

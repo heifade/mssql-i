@@ -149,10 +149,14 @@ describe("Save", function() {
         table: tableName,
         saveType: SaveType.insert
       }
-    ]).catch(err => {
-      let errCode = Reflect.get(err, "code");
-      expect(errCode).to.equal(`EREQUEST`);
-    });
+    ])
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch(err => {
+        let errCode = Reflect.get(err, "code");
+        expect(errCode).to.equal(`EREQUEST`);
+      });
   });
 
   it("savesSeq must be success", async () => {

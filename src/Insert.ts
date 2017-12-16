@@ -1,8 +1,4 @@
-import {
-  ConnectionPool,
-  Transaction as MssqlTransaction,
-  Request
-} from "mssql";
+import { ConnectionPool, Transaction as MssqlTransaction, Request } from "mssql";
 import { Schema } from "./schema/Schema";
 import { Utils } from "./util/Utils";
 
@@ -76,7 +72,7 @@ export class Insert {
     let tableSchemaModel = schemaModel.getTableSchemaModel(table);
 
     if (!tableSchemaModel) {
-      return Promise.reject(new Error(`table '${table}' is not exists!`));
+      return Promise.reject(new Error(`Table '${table}' is not exists!`));
     }
 
     let tableName = Utils.getDbObjectName(database, pars.chema, table);
@@ -100,9 +96,7 @@ export class Insert {
     });
 
     Reflect.ownKeys(data).map((key, index) => {
-      let column = tableSchemaModel.columns.filter(
-        column => column.columnName === key.toString()
-      )[0];
+      let column = tableSchemaModel.columns.filter(column => column.columnName === key.toString())[0];
       if (column) {
         if (!column.autoIncrement) {
           //跳过自增字段
