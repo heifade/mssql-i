@@ -1,9 +1,10 @@
 {
   "name": "mssql-i",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "sqlserver interface, base on mssql",
   "main": "./es/index.js",
   "module": "./es/index.js",
+  "typings": "./es/index",
   "files": [
     "es"
   ],
