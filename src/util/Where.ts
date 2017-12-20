@@ -1,5 +1,4 @@
 import { TableSchemaModel } from "../model/SchemaModel";
-import { Request } from "_debugger";
 
 /**
  * 条件
@@ -17,10 +16,7 @@ export class Where {
    * @returns
    * @memberof Where
    */
-  public static getWhereSQL(
-    where: {},
-    tableSchemaModel: TableSchemaModel
-  ) {
+  public static getWhereSQL(where: {}, tableSchemaModel: TableSchemaModel) {
     let whereSQL = ``;
     let whereList = new Array<any>();
     let wherePars = {};
@@ -28,10 +24,7 @@ export class Where {
     if (where != null) {
       Reflect.ownKeys(where).map((key, index) => {
         let k = key.toString();
-        if (
-          tableSchemaModel.columns.filter(column => column.columnName === k)
-            .length
-        ) {
+        if (tableSchemaModel.columns.filter(column => column.columnName === k).length) {
           whereSQL += ` ${k} = @wpar${k} and`;
           whereList.push(Reflect.get(where, k));
           Reflect.set(wherePars, `wpar${k}`, Reflect.get(where, k));
