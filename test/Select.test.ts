@@ -88,7 +88,7 @@ describe("Select", function() {
 
   it("getGUID", async () => {
     let guid = await Select.selectGUID(conn);
-    expect(guid).not.to.be.null;
+    expect(guid !== undefined && guid !== null && guid !== '' && guid.length > 0).to.be.true;
   });
 
   it("selectOneValue", async () => {
