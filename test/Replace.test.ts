@@ -41,11 +41,11 @@ describe("Replace", function() {
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [Reflect.get(result, "insertId")]
+      where: [result.insertId]
     });
 
     expect(rowData != null).to.be.true;
-    expect(Reflect.get(rowData, "value")).to.equal(insertValue);
+    expect(rowData.value).to.equal(insertValue);
   });
 
   it("replace with tran must be success", async () => {
@@ -71,11 +71,11 @@ describe("Replace", function() {
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [Reflect.get(result, "insertId")]
+      where: [result.insertId]
     });
 
     expect(rowData != null).to.be.true;
-    expect(Reflect.get(rowData, "value")).to.equal(insertValue);
+    expect(rowData.value).to.equal(insertValue);
   });
 
   // 没有主键的表，replace操作时，会当作insert 处理
@@ -116,8 +116,7 @@ describe("Replace", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errMsg = Reflect.get(err, "message");
-        expect(errMsg).to.equal("pars.data can not be null or empty!");
+        expect(err.message).to.equal("pars.data can not be null or empty!");
       });
   });
 
@@ -132,8 +131,7 @@ describe("Replace", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errMsg = Reflect.get(err, "message");
-        expect(errMsg).to.equal("pars.table can not be null or empty!");
+        expect(err.message).to.equal("pars.table can not be null or empty!");
       });
   });
 
@@ -150,8 +148,7 @@ describe("Replace", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errMsg = Reflect.get(err, "message");
-        expect(errMsg).to.equal(`Table '${tableName}' is not exists!`);
+        expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
       });
   });
 
@@ -170,8 +167,7 @@ describe("Replace", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`EREQUEST`);
+        expect(err.code).to.equal(`EREQUEST`);
       });
   });
 });

@@ -34,8 +34,7 @@ describe("Select", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`EREQUEST`);
+        expect(err.code).to.equal(`EREQUEST`);
       });
   });
 
@@ -56,8 +55,7 @@ describe("Select", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`EREQUEST`);
+        expect(err.code).to.equal(`EREQUEST`);
       });
   });
 
@@ -83,8 +81,7 @@ describe("Select", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`EREQUEST`);
+        expect(err.code).to.equal(`EREQUEST`);
       });
   });
 
@@ -116,8 +113,7 @@ describe("Select", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errCode = Reflect.get(err, "code");
-        expect(errCode).to.be.equal("EREQUEST");
+        expect(err.code).to.be.equal("EREQUEST");
       });
   });
 
@@ -158,8 +154,7 @@ describe("Select", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`EREQUEST`);
+        expect(err.code).to.equal(`EREQUEST`);
       });
   });
 });

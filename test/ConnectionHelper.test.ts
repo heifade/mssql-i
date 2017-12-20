@@ -11,8 +11,7 @@ describe("ConnectionHelper", function() {
     let o = Object.assign({}, connectionConfig);
     o.user = "";
     ConnectionHelper.create(o).catch(err => {
-      let errCode = Reflect.get(err, "code");
-      expect(errCode).to.equal(`ELOGIN`);
+      expect(err.code).to.equal(`ELOGIN`);
     });
 
     await ConnectionHelper.close(conn);

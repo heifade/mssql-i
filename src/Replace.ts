@@ -144,10 +144,10 @@ export class Replace {
 
     let result = await request.query(sql);
 
-    let returnValue = {};
+    let returnValue: any = {};
     if (haveAutoIncrement) {
       //有自增字段
-      Reflect.set(returnValue, "insertId", result.recordset[0]["insertId"]);
+      returnValue.insertId = result.recordset[0]["insertId"];
     }
 
     return returnValue;

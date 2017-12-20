@@ -30,18 +30,15 @@ describe("Exec", function() {
     });
 
     await Exec.exec(conn, `delete from ${tableName} where id1=1`).catch(err => {
-      let errCode = Reflect.get(err, "code");
-      expect(errCode).to.equal(`EREQUEST`);
+      expect(err.code).to.equal(`EREQUEST`);
     });
 
     await Exec.execs(conn, [`delete from ${tableName} where id1=1`]).catch(err => {
-      let errCode = Reflect.get(err, "code");
-      expect(errCode).to.equal(`EREQUEST`);
+      expect(err.code).to.equal(`EREQUEST`);
     });
 
     await Exec.execsSeq(conn, [`delete from ${tableName} where id1=1`]).catch(err => {
-      let errCode = Reflect.get(err, "code");
-      expect(errCode).to.equal(`EREQUEST`);
+      expect(err.code).to.equal(`EREQUEST`);
     });
   });
 

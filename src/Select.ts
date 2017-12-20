@@ -150,7 +150,8 @@ export class Select {
 
     let restul = await Select.selectBase(conn, param2);
     let list = readListFromResult(restul.recordset);
-    return Number(Reflect.get(list[0], "value"));
+    let row = list[0];
+    return Number(row.value);
   }
 
   /**
@@ -251,6 +252,6 @@ export class Select {
     let result = await Select.select(conn, {
       sql: `select upper(newid()) as GUID`
     });
-    return Reflect.get(result, "GUID") as string;
+    return result.GUID as string;
   }
 }

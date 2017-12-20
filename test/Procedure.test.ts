@@ -86,7 +86,7 @@ describe("Procedure", function() {
       sql: `select * from ${tableName} where id=?`,
       where: [11]
     });
-    expect(Reflect.get(row, "value")).to.equals(insertValue);
+    expect(row.value).to.equals(insertValue);
   });
 
   it("procedure with tran must be success", async () => {
@@ -115,7 +115,7 @@ describe("Procedure", function() {
       sql: `select * from ${tableName} where id=?`,
       where: [111]
     });
-    expect(Reflect.get(row, "value")).to.equals(insertValue);
+    expect(row.value).to.equals(insertValue);
   });
 
   it("when pars.procedure is null", async () => {
@@ -127,8 +127,7 @@ describe("Procedure", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errMsg = Reflect.get(err, "message");
-        expect(errMsg).to.equal("pars.procedure can not be null or empty!");
+        expect(err.message).to.equal("pars.procedure can not be null or empty!");
       });
   });
 
@@ -145,8 +144,7 @@ describe("Procedure", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errMsg = Reflect.get(err, "message");
-        expect(errMsg).to.equal(`Procedure '${procedureName}' is not exists!`);
+        expect(err.message).to.equal(`Procedure '${procedureName}' is not exists!`);
       });
   });
 
@@ -163,8 +161,7 @@ describe("Procedure", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`EREQUEST`);
+        expect(err.code).to.equal(`EREQUEST`);
       });
   });
 
@@ -177,7 +174,7 @@ describe("Procedure", function() {
       sql: `select * from ${tableName} where id=?`,
       where: [100]
     });
-    expect(Reflect.get(row, "value")).to.equals("100");
+    expect(row.value).to.equals("100");
   });
 
   it("procedure with other par should success", async () => {
@@ -190,6 +187,6 @@ describe("Procedure", function() {
       sql: `select * from ${tableName} where id=?`,
       where: [102]
     });
-    expect(Reflect.get(row, "value")).to.equals("102");
+    expect(row.value).to.equals("102");
   });
 });

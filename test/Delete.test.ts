@@ -122,8 +122,7 @@ describe("Delete", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errMsg = Reflect.get(err, "message");
-        expect(errMsg).to.equal("pars.table can not be null or empty!");
+        expect(err.message).to.equal("pars.table can not be null or empty!");
       });
 
     await Delete.delete(conn, {
@@ -134,8 +133,7 @@ describe("Delete", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errMsg = Reflect.get(err, "message");
-        expect(errMsg).to.equal("pars.table can not be null or empty!");
+        expect(err.message).to.equal("pars.table can not be null or empty!");
       });
   });
 
@@ -152,8 +150,7 @@ describe("Delete", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errMsg = Reflect.get(err, "message");
-        expect(errMsg).to.equal(`Table '${tableName}' is not exists!`);
+        expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
       });
 
     await Delete.delete(conn, {
@@ -164,8 +161,7 @@ describe("Delete", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errMsg = Reflect.get(err, "message");
-        expect(errMsg).to.equal(`Table '${tableName}' is not exists!`);
+        expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
       });
   });
 
@@ -180,8 +176,7 @@ describe("Delete", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errMsg = Reflect.get(err, "message");
-        expect(errMsg).to.equal(`pars.data can not be null or empty!`);
+        expect(err.message).to.equal(`pars.data can not be null or empty!`);
       });
   });
 
@@ -196,8 +191,7 @@ describe("Delete", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errMsg = Reflect.get(err, "message");
-        expect(errMsg).to.equal(`Key id is not provided!`);
+        expect(err.message).to.equal(`Key id is not provided!`);
       });
   });
 
@@ -212,8 +206,7 @@ describe("Delete", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errMsg = Reflect.get(err, "message");
-        expect(errMsg).to.equal(`Table '${tableNoPrimaryKey}' has no primary key, you can not call this function. Please try function 'deleteByWhere'!`);
+        expect(err.message).to.equal(`Table '${tableNoPrimaryKey}' has no primary key, you can not call this function. Please try function 'deleteByWhere'!`);
       });
   });
 
@@ -226,8 +219,7 @@ describe("Delete", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`EREQUEST`);
+        expect(err.code).to.equal(`EREQUEST`);
       });
 
     await Delete.delete(conn, {
@@ -238,8 +230,7 @@ describe("Delete", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        let errCode = Reflect.get(err, "code");
-        expect(errCode).to.equal(`EREQUEST`);
+        expect(err.code).to.equal(`EREQUEST`);
       });
   });
 });
