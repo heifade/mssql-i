@@ -86,7 +86,7 @@ export class Select {
    * </pre>
    */
   public static async selects(conn: ConnectionPool, params: SelectParamsModel[]) {
-    let promises = new Array<Promise<{}[]>>();
+    let promises = new Array<Promise<any[]>>();
 
     params.map(param => {
       promises.push(Select.select(conn, param));
