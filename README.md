@@ -77,9 +77,13 @@ mssql-i的主要特点：
 >
 > > selectTop1 查询一个SQL语句，取返回的第一行数据
 >
+> > selectOneValue 查询一个SQL语句，取返回的第一行的第一个字段值
+>
 > > selectCount 查询一个SQL语句，取返回的行数。相当于select count(*) from (sql)
 >
 > > selectSplitPage 分页查询，返回总行数与指定页的数据集
+>
+> > selectGUID 获取一个GUID
 >
 > Transaction 事务
 >

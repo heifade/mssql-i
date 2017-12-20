@@ -17,10 +17,7 @@ let readListFromResult = (result: any) => {
  * @class Select
  */
 export class Select {
-  private static async selectBase(
-    conn: ConnectionPool,
-    param: SelectParamsModel
-  ) {
+  private static async selectBase(conn: ConnectionPool, param: SelectParamsModel) {
     let sql = param.sql;
     let request = conn.request();
     if (param.where) {
@@ -88,10 +85,7 @@ export class Select {
    * }]);
    * </pre>
    */
-  public static async selects(
-    conn: ConnectionPool,
-    params: SelectParamsModel[]
-  ) {
+  public static async selects(conn: ConnectionPool, params: SelectParamsModel[]) {
     let promises = new Array<Promise<{}[]>>();
 
     params.map(param => {
@@ -122,10 +116,7 @@ export class Select {
    * });
    * </pre>
    */
-  public static async selectTop1(
-    conn: ConnectionPool,
-    param: SelectParamsModel
-  ) {
+  public static async selectTop1(conn: ConnectionPool, param: SelectParamsModel) {
     let result = await Select.selectBase(conn, param);
     if (result.recordset.length > 0) {
       return readListFromResult([result.recordset[0]])[0];
@@ -152,10 +143,7 @@ export class Select {
    * });
    * </pre>
    */
-  public static async selectCount(
-    conn: ConnectionPool,
-    param: SelectParamsModel
-  ) {
+  public static async selectCount(conn: ConnectionPool, param: SelectParamsModel) {
     let param2 = new SelectParamsModel();
     param2.sql = `select count(*) as value from (${param.sql}) tCount`;
     param2.where = param.where;
@@ -187,10 +175,7 @@ export class Select {
    * });
    * </pre>
    */
-  public static async selectSplitPage(
-    conn: ConnectionPool,
-    param: SplitPageParamsModel
-  ) {
+  public static async selectSplitPage(conn: ConnectionPool, param: SplitPageParamsModel) {
     let countPromise = await Select.selectCount(conn, param);
 
     let index;
@@ -221,5 +206,51 @@ export class Select {
     result.list = list[1];
 
     return result;
+  }
+
+  /**
+   * 查询第一条数据的第一个字段
+   *
+   * @static
+   * @param {Connection} conn - 数据库连接对象
+   * @param {SelectParamsModel} param - 查询参数
+   * @returns Promise对象
+   * @memberof Select
+   * <pre>
+   * create table tbl1 (
+   *  f1 int,
+   *  f2 int,
+   *  f3 int
+   * )
+   * let result = await Select.selectOneValue(conn, {
+   *   sql: `select * from tbl1 where f1=?`,
+   *   where: [1]
+   * });
+   * 结果，返回值为满足条件的第一条数据的f1字段值
+   * </pre>
+   */
+  public static async selectOneValue(conn: ConnectionPool, param: SelectParamsModel) {
+    let result = await Select.selectBase(conn, param);
+    let v = result.recordset[0];
+    if (v) {
+      let keys = Reflect.ownKeys(v);
+      return v[keys[0]];
+    }
+    return null;
+  }
+
+  /**
+   * 获取GUIID
+   *
+   * @static
+   * @param {Connection} conn - 数据库连接
+   * @returns
+   * @memberof Select
+   */
+  public static async selectGUID(conn: ConnectionPool) {
+    let result = await Select.select(conn, {
+      sql: `select upper(newid()) as GUID`
+    });
+    return Reflect.get(result, "GUID") as string;
   }
 }
