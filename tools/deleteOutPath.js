@@ -1,21 +1,14 @@
 // 删除dist目录
 
-let fs = require("fs");
+let fs = require("fs-extra");
 
 function deletePath(path) {
-  if (fs.existsSync(path)) {
-    let files = fs.readdirSync(path);
-    files.forEach((file, index) => {
-      let fileFullName = `${path}/${file}`;
-      if (fs.statSync(fileFullName).isDirectory()) {
-        deletePath(fileFullName);
-      } else {
-        fs.unlinkSync(fileFullName);
-      }
-    });
-    fs.rmdirSync(path);
-  }
+  fs.emptyDirSync(path);
+  fs.rmdirSync(path);
 }
+
+
+
 
 deletePath("./es");
 deletePath("./docs");
