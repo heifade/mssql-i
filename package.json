@@ -1,6 +1,6 @@
 {
   "name": "mssql-i",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "description": "sqlserver interface, base on mssql",
   "main": "./es/index.js",
   "module": "./es/index.js",
@@ -60,7 +60,7 @@
     "mocha": "^4.0.1",
     "nyc": "^11.3.0",
     "source-map-support": "^0.5.0",
-    "ts-node": "^3.3.0",
+    "ts-node": "^4.1.0",
     "typedoc": "^0.9.0",
     "typedoc-format": "^1.0.0-beta1",
     "typescript": "^2.6.1"
