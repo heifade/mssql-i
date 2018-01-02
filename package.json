@@ -14,9 +14,9 @@
   },
   "scripts": {
     "clean": "node ./tools/clean.js",
-    "tsBuild": "tsc -p tsconfig.json",
+    "code-build": "tsc -p tsconfig.json",
     "docs": "typedoc --out docs src --module commonjs --hideGenerator && node ./tools/formatDocs.js",
-    "build": "npm run clean && npm run tsBuild && npm run docs",
+    "build": "npm run clean && npm run code-build && npm run docs",
     "test": "nyc mocha -t 120000",
     "test-nyc": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
   },
