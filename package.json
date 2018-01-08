@@ -1,6 +1,6 @@
 {
   "name": "mssql-i",
-  "version": "2.0.13",
+  "version": "2.0.14",
   "description": "sqlserver interface, base on mssql",
   "main": "./es/index.js",
   "module": "./es/index.js",
@@ -13,25 +13,7 @@
     "url": "git+https://github.com/heifade/mssql-i.git"
   },
   "scripts": {
-    "clean": "node ./tools/clean.js",
-    "code-build": "tsc -p tsconfig.json",
-    "docs": "typedoc --out docs src --module commonjs --hideGenerator && node ./tools/formatDocs.js",
-    "build": "npm run clean && npm run code-build && npm run docs",
-    "test": "nyc mocha -t 120000",
-    "test-nyc": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
-  },
-  "nyc": {
-    "include": [
-      "src/**/*.ts"
-    ],
-    "extension": [
-      ".ts"
-    ],
-    "require": [
-      "ts-node/register"
-    ],
-    "sourceMap": true,
-    "instrument": true
+    "build": "pcreate build"
   },
   "keywords": [
     "sqlserver",
@@ -55,14 +37,8 @@
     "@types/mssql": "^4.0.6",
     "chai": "^4.1.2",
     "commander": "^2.12.2",
-    "coveralls": "^3.0.0",
     "fs-i": "^1.0.3",
     "mocha": "^4.0.1",
-    "nyc": "^11.3.0",
-    "source-map-support": "^0.5.0",
-    "ts-node": "^4.1.0",
-    "typedoc": "^0.9.0",
-    "typedoc-format": "^1.0.0-beta1",
     "typescript": "^2.6.1"
   }
 }

@@ -6,17 +6,21 @@ node_js:
 #   - mssql
 # before_install:
 #   - mssql -e 'CREATE DATABASE mssql-i-test;'
+before_script:
+  - npm i pcreate
 script :
   # - npm run test
-  - nyc mocha -t 120000 --server $SQLSERVER_IP --password $SQLSERVER_PASSWORD
-  - npm run build
+  # - nyc mocha -t 120000 --server $SQLSERVER_IP --password $SQLSERVER_PASSWORD
+  # - npm run build
+  - pcreate test --server $SQLSERVER_IP --password $SQLSERVER_PASSWORD
+  - pcreate build
 after_script:
   # - npm run test-nyc 
-  - nyc mocha -t 120000 --server $SQLSERVER_IP --password $SQLSERVER_PASSWORD && nyc report --reporter=text-lcov | coveralls
+  # - nyc mocha -t 120000 --server $SQLSERVER_IP --password $SQLSERVER_PASSWORD && nyc report --reporter=text-lcov | coveralls
 
 cache:
   directories:
-  - node_modules
+    - node_modules
 
 deploy:
   - provider: npm
