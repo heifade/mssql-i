@@ -4,8 +4,8 @@ node_js:
   - "8"
 before_script:
   - npm i pcreate
-script :
   - pcreate test --mochapars "timeout=120000,server=$SQLSERVER_IP,password=$SQLSERVER_PASSWORD"
+script :
   - pcreate build
 after_script:
 
