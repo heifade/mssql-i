@@ -1,6 +1,6 @@
 {
   "name": "mssql-i",
-  "version": "2.0.17",
+  "version": "2.0.18",
   "description": "sqlserver interface, base on mssql",
   "main": "./es/index.js",
   "module": "./es/index.js",
@@ -13,7 +13,8 @@
     "url": "git+https://github.com/heifade/mssql-i.git"
   },
   "scripts": {
-    "build": "pcreate build"
+    "build": "pcreate build",
+    "test": "pcreate test"
   },
   "keywords": [
     "sqlserver",
@@ -39,6 +40,6 @@
     "commander": "^2.12.2",
     "fs-i": "^1.0.3",
     "mocha": "^4.0.1",
-    "typescript": "^2.6.1"
+    "pcreate-config": "^1.0.11"
   }
 }
