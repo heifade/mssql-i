@@ -1,6 +1,6 @@
 {
   "name": "mssql-i",
-  "version": "2.0.20",
+  "version": "2.0.21",
   "description": "sqlserver interface, base on mssql",
   "main": "./es/index.js",
   "module": "./es/index.js",
@@ -33,7 +33,6 @@
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",
-    "@types/commander": "^2.12.2",
     "@types/mocha": "^2.2.44",
     "@types/mssql": "^4.0.6",
     "chai": "^4.1.2",
