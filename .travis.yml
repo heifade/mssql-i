@@ -2,21 +2,12 @@ language: node_js
 sudo: enabled
 node_js:
   - "8"
-# services:
-#   - mssql
-# before_install:
-#   - mssql -e 'CREATE DATABASE mssql-i-test;'
 before_script:
   - npm i pcreate
 script :
-  # - npm run test
-  # - nyc mocha -t 120000 --server $SQLSERVER_IP --password $SQLSERVER_PASSWORD
-  # - npm run build
-  - pcreate test --mochapars "server=$SQLSERVER_IP,password=$SQLSERVER_PASSWORD"
+  - pcreate test --mochapars "t=120000,server=$SQLSERVER_IP,password=$SQLSERVER_PASSWORD"
   - pcreate build
 after_script:
-  # - npm run test-nyc 
-  # - nyc mocha -t 120000 --server $SQLSERVER_IP --password $SQLSERVER_PASSWORD && nyc report --reporter=text-lcov | coveralls
 
 cache:
   directories:
