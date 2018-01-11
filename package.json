@@ -1,6 +1,6 @@
 {
   "name": "mssql-i",
-  "version": "2.0.19",
+  "version": "2.0.20",
   "description": "sqlserver interface, base on mssql",
   "main": "./es/index.js",
   "module": "./es/index.js",
