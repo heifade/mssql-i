@@ -3,12 +3,11 @@ sudo: enabled
 node_js:
   - "8"
 before_script:
-  - npm i nyc
-  - npm i coveralls
-script :
   - nyc mocha --server $SQLSERVER_IP --password $SQLSERVER_PASSWORD && nyc report --reporter=text-lcov | coveralls
-after_script:
+script :
   - npm run build
+after_script:
+
 cache:
   directories:
     - node_modules
