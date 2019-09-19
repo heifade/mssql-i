@@ -3,7 +3,7 @@ sudo: enabled
 node_js:
   - "8"
 before_script:
-  - npm run test
+  - npm run test --server $SQLSERVER_IP --password $SQLSERVER_PASSWORD
 script :
   - npm run build
 after_script:

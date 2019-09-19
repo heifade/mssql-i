@@ -1,17 +1,15 @@
 import { config } from "mssql";
 import * as fs from "fs";
-// import * as program from "commander";
+import * as program from "commander";
 
-// program
-//   .option("--server <n>", "please input sqlserver ip")
-//   .option("--password <n>", "please input sqlserver password")
-//   .option("--require", "")
-//   .parse(process.argv);
+program
+  .option("--server <n>", "please input sqlserver ip")
+  .option("--password <n>", "please input sqlserver password")
+  .option("--require", "")
+  .parse(process.argv);
 
-let server = "$SQLSERVER_IP";
-let password = "$SQLSERVER_PASSWORD";
-
-if (server.endsWith("SQLSERVER_IP")) {
+console.log("server", program.server);
+if (!program.server) {
   let configFile = "./test/config.json";
   if (!fs.existsSync(configFile)) {
     let content = `{
@@ -25,14 +23,14 @@ if (server.endsWith("SQLSERVER_IP")) {
   }
 
   let config = JSON.parse(fs.readFileSync(configFile, { encoding: "utf-8" }));
-  server = config.server;
-  password = config.password;
+  program.server = config.server;
+  program.password = config.password;
 }
 
 export let connectionConfig: config = {
-  server: server || ".",
+  server: program.server || ".",
   user: "sa",
-  password: password || "",
+  password: program.password || "",
   database: "mssql-i",
   port: 1433,
   connectionTimeout: 60000,
