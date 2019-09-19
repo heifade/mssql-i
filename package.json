@@ -1,6 +1,6 @@
 {
   "name": "mssql-i",
-  "version": "2.0.47",
+  "version": "2.0.48",
   "description": "sqlserver interface, base on mssql",
   "main": "./es/index.js",
   "module": "./es/index.js",
@@ -32,6 +32,7 @@
     "mssql": "^4.1.0"
   },
   "devDependencies": {
+    "@babel/register": "^7.6.0",
     "@types/chai": "^4.2.3",
     "@types/mocha": "^5.2.7",
     "@types/mssql": "^4.0.6",
