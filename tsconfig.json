@@ -1,0 +1,15 @@
+{
+  "include": ["./src/**/*"],
+  "compilerOptions": {
+    "outDir": "./es/",
+    "removeComments": true,
+    "types": ["node"],
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
+    "target": "esnext",
+    "module": "commonjs",
+    "declaration": true,
+    "sourceMap": true
+  }
+}
