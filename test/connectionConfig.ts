@@ -8,7 +8,6 @@ program
   .option("--require", "")
   .parse(process.argv);
 
-console.log("server", process.argv);
 if (!program.server) {
   let configFile = "./test/config.json";
   if (!fs.existsSync(configFile)) {
@@ -18,7 +17,6 @@ if (!program.server) {
     }`;
 
     fs.writeFileSync(configFile, content);
-
     console.error(`文件${configFile}不存在，已自动创建，请修改配置！`);
   }
 
