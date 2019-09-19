@@ -5,11 +5,10 @@ node_js:
 before_script:
   - npm i nyc
   - npm i coveralls
-  - nyc mocha --server $SQLSERVER_IP --password $SQLSERVER_PASSWORD && nyc report --reporter=text-lcov | coveralls
 script :
-  - npm run build
+  - nyc mocha --server $SQLSERVER_IP --password $SQLSERVER_PASSWORD && nyc report --reporter=text-lcov | coveralls
 after_script:
-
+  - npm run build
 cache:
   directories:
     - node_modules
