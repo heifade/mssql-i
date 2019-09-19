@@ -1,6 +1,6 @@
 {
   "name": "mssql-i",
-  "version": "2.0.50",
+  "version": "2.0.51",
   "description": "sqlserver interface, base on mssql",
   "main": "./es/index.js",
   "module": "./es/index.js",
@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "nyc mocha && nyc report --reporter=text-lcov"
+    "test": "nyc mocha"
   },
   "keywords": [
     "sqlserver",
@@ -32,13 +32,10 @@
     "mssql": "^4.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.6.0",
-    "@babel/register": "^7.6.0",
     "@types/chai": "^4.2.3",
     "@types/mocha": "^5.2.7",
     "@types/mssql": "^4.0.6",
     "chai": "^4.2.0",
-    "coveralls": "^3.0.6",
     "fs-i": "^1.2.1",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",
