@@ -3,10 +3,9 @@ sudo: enabled
 node_js:
   - "8"
 before_script:
-  - npm i pcreate
-  - pcreate test -c --mochapars "timeout=120000,server=$SQLSERVER_IP,password=$SQLSERVER_PASSWORD"
+  - npm run test
 script :
-  - pcreate build
+  - npm run build
 after_script:
 
 cache:
