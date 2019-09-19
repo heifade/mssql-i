@@ -8,7 +8,7 @@ program
   .option("--require", "")
   .parse(process.argv);
 
-console.log("server", program.server);
+console.log("server", process.argv);
 if (!program.server) {
   let configFile = "./test/config.json";
   if (!fs.existsSync(configFile)) {

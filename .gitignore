@@ -14,3 +14,6 @@ npm-debug.log*
 /.nyc_output
 
 /test/config.json
+
+/yarn.lock
+/package-lock.json
