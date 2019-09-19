@@ -1,6 +1,6 @@
 {
   "name": "mssql-i",
-  "version": "2.0.51",
+  "version": "2.0.52",
   "description": "sqlserver interface, base on mssql",
   "main": "./es/index.js",
   "module": "./es/index.js",
@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/heifade/mssql-i#readme",
   "dependencies": {
-    "mssql": "^4.1.0"
+    "mssql": "^5.1.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.3",
