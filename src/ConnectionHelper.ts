@@ -7,7 +7,7 @@ import { config, ConnectionPool } from "mssql";
  * @class ConnectionHelper
  */
 export class ConnectionHelper {
-  private static pool: ConnectionPool;
+  private static pool?: ConnectionPool;
   /**
    * 新创建一个连接
    *
@@ -42,6 +42,17 @@ export class ConnectionHelper {
       this.pool = new ConnectionPool(connConfig);
     }
     return this.pool.connect();
+  }
+
+  /**
+   * 关闭连接池
+   */
+  public static closePool() {
+    const { pool } = this;
+    if (pool && (pool.connected || pool.connecting)) {
+      pool.close();
+      this.pool = undefined;
+    }
   }
 
   /**
