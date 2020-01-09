@@ -49,8 +49,10 @@ export class ConnectionHelper {
    */
   public static async closePool() {
     const { pool } = this;
-    if (pool && (pool.connected || pool.connecting)) {
-      await pool.close();
+    if (pool) {
+      try {
+        await pool.close();
+      } catch {}
       this.pool = undefined;
     }
   }
