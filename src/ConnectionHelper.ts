@@ -37,20 +37,20 @@ export class ConnectionHelper {
    *  });
    * </pre>
    */
-  public static create(connConfig: config): Promise<ConnectionPool> {
+  public static async create(connConfig: config) {
     if (!this.pool) {
       this.pool = new ConnectionPool(connConfig);
     }
-    return this.pool.connect();
+    return await this.pool.connect();
   }
 
   /**
    * 关闭连接池
    */
-  public static closePool() {
+  public static async closePool() {
     const { pool } = this;
     if (pool && (pool.connected || pool.connecting)) {
-      pool.close();
+      await pool.close();
       this.pool = undefined;
     }
   }
@@ -63,9 +63,9 @@ export class ConnectionHelper {
    * @returns 返回一个Promise对象
    * @memberof ConnectionHelper
    */
-  public static close(conn: ConnectionPool) {
+  public static async close(conn: ConnectionPool) {
     if (conn && (conn.connected || conn.connecting)) {
-      return conn.close();
+      return await conn.close();
     }
   }
 }
