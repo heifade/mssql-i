@@ -7,6 +7,7 @@ import { config, ConnectionPool } from "mssql";
  * @class ConnectionHelper
  */
 export class ConnectionHelper {
+  private static pool: ConnectionPool;
   /**
    * 新创建一个连接
    *
@@ -37,8 +38,10 @@ export class ConnectionHelper {
    * </pre>
    */
   public static create(connConfig: config): Promise<ConnectionPool> {
-    let pool = new ConnectionPool(connConfig);
-    return pool.connect();
+    if (!this.pool) {
+      this.pool = new ConnectionPool(connConfig);
+    }
+    return this.pool.connect();
   }
 
   /**
