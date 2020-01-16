@@ -7,7 +7,6 @@ import { config, ConnectionPool } from "mssql";
  * @class ConnectionHelper
  */
 export class ConnectionHelper {
-  private static pool?: ConnectionPool;
   /**
    * 新创建一个连接
    *
@@ -38,23 +37,8 @@ export class ConnectionHelper {
    * </pre>
    */
   public static async create(connConfig: config) {
-    if (!this.pool) {
-      this.pool = new ConnectionPool(connConfig);
-    }
-    return await this.pool.connect();
-  }
-
-  /**
-   * 关闭连接池
-   */
-  public static async closePool() {
-    const { pool } = this;
-    if (pool) {
-      try {
-        await pool.close();
-      } catch {}
-      this.pool = undefined;
-    }
+    const pool = new ConnectionPool(connConfig);
+    return await pool.connect();
   }
 
   /**
