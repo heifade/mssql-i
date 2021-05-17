@@ -2,11 +2,7 @@ import { config } from "mssql";
 import * as fs from "fs";
 import * as program from "commander";
 
-program
-  .option("--server <n>", "please input sqlserver ip")
-  .option("--password <n>", "please input sqlserver password")
-  .option("--require", "")
-  .parse(process.argv);
+program.option("--server <n>", "please input sqlserver ip").option("--password <n>", "please input sqlserver password").option("--require", "").parse(process.argv);
 
 if (!program.server) {
   let configFile = "./test/config.json";
@@ -21,16 +17,19 @@ if (!program.server) {
   }
 
   let config = JSON.parse(fs.readFileSync(configFile, { encoding: "utf-8" }));
+
   program.server = config.server;
   program.password = config.password;
+  program.database = config.database;
+
 }
 
 export let connectionConfig: config = {
   server: program.server || ".",
   user: "sa",
   password: program.password || "",
-  database: "mssql-i",
+  database: program.database,
   port: 1433,
   connectionTimeout: 60000,
-  requestTimeout: 60000
+  requestTimeout: 60000,
 };

@@ -1201,6 +1201,13 @@ ms@^2.1.1:
   resolved "https://registry.npm.taobao.org/ms/download/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha1-0J0fNXtEP0kzgqjrPM0YOHKuYAk=
 
+mssql-i@^2.0.58:
+  version "2.0.58"
+  resolved "https://registry.nlark.com/mssql-i/download/mssql-i-2.0.58.tgz#708a233d770f5c9c8df4ea12f2695c029a0ffb40"
+  integrity sha1-cIojPXcPXJyN9OoS8mlcApoP+0A=
+  dependencies:
+    mssql "^5.1.0"
+
 mssql@^5.1.0:
   version "5.1.0"
   resolved "https://registry.npm.taobao.org/mssql/download/mssql-5.1.0.tgz#a06d75866802a8e7e8b69df6a2dc7d2ada82bc4b"
