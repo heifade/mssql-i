@@ -45,7 +45,6 @@ export class Exec {
     }
 
     await request.query(sql);
-    return true;
   }
 
   /**
@@ -71,7 +70,7 @@ export class Exec {
    * </pre>
    */
   public static async execs(conn: ConnectionPool, sqls: string[]) {
-    let promiseList = new Array<Promise<{}>>();
+    let promiseList = new Array<Promise<void>>();
 
     sqls.map(sql => {
       promiseList.push(Exec.exec(conn, sql));
