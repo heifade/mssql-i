@@ -1,7 +1,8 @@
-import { ConnectionPool, VarChar, Transaction as MssqlTransaction, Request, IProcedureResult } from "mssql";
+import { ConnectionPool, VarChar, Request, IProcedureResult } from "mssql";
 import { Schema } from "./schema/Schema";
 import { Utils } from "./util/Utils";
 import { Select } from "./Select";
+import { MssqlTransaction } from ".";
 
 export interface ProcedureResult extends IProcedureResult<any> {}
 

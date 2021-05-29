@@ -1,7 +1,8 @@
-import { ConnectionPool, Transaction as MssqlTransaction, Request } from "mssql";
+import { ConnectionPool, Request } from "mssql";
 import { Schema } from "./schema/Schema";
 import { Where } from "./util/Where";
 import { Utils } from "./util/Utils";
+import { MssqlTransaction } from ".";
 
 /**
  * 更新数据

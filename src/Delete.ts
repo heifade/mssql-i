@@ -1,8 +1,8 @@
-import { ConnectionPool, Transaction as MssqlTransaction, Request } from "mssql";
+import { ConnectionPool, Request } from "mssql";
 import { Schema } from "./schema/Schema";
-import { TableSchemaModel } from "./model/SchemaModel";
 import { Where } from "./util/Where";
 import { Utils } from "./util/Utils";
+import { MssqlTransaction } from ".";
 
 /**
  * 删除数据
@@ -64,7 +64,7 @@ export class Delete {
   ) {
     let database = pars.database || Utils.getDataBaseFromConnection(conn);
 
-    
+
 
     let table = pars.table;
     if (!table) {

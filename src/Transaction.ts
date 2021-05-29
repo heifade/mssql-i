@@ -1,5 +1,6 @@
 import { ConnectionPool, ISOLATION_LEVEL } from "mssql";
 import * as mssql from "mssql";
+import { MssqlTransaction } from ".";
 
 /**
  * 事务
@@ -40,7 +41,7 @@ export class Transaction {
    * @returns
    * @memberof Transaction
    */
-  public static async begin(conn: ConnectionPool) {
+  public static async begin(conn: ConnectionPool): Promise<MssqlTransaction> {
     let tran = new mssql.Transaction(conn);
     await tran.begin(ISOLATION_LEVEL.READ_COMMITTED);
     return tran;

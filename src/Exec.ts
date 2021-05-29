@@ -1,4 +1,5 @@
-import { ConnectionPool, Transaction as MssqlTransaction, Request } from "mssql";
+import { ConnectionPool, Request } from "mssql";
+import { MssqlTransaction } from ".";
 
 /**
  * 执行SQL

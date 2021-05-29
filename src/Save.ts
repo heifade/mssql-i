@@ -1,4 +1,4 @@
-import { ConnectionPool, Transaction as MssqlTransaction } from "mssql";
+import { ConnectionPool } from "mssql";
 import { SaveType } from "./model/SaveType";
 import { Schema } from "./schema/Schema";
 import { Insert } from "./Insert";
@@ -7,6 +7,7 @@ import { Delete } from "./Delete";
 import { Replace } from "./Replace";
 import { Transaction } from "./Transaction";
 import { resolve } from "path";
+import { MssqlTransaction } from ".";
 
 /**
  * 保存

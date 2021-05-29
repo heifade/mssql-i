@@ -1,4 +1,5 @@
-import { ConnectionPool, Transaction as MssqlTransaction, Request } from "mssql";
+import { ConnectionPool, Request } from "mssql";
+import { MssqlTransaction } from ".";
 import { Schema } from "./schema/Schema";
 import { Utils } from "./util/Utils";
 
