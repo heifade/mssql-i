@@ -19,9 +19,9 @@ if (!program.server) {
   let config = JSON.parse(fs.readFileSync(configFile, { encoding: "utf-8" }));
 
   program.server = config.server;
+  program.user = config.user;
   program.password = config.password;
   program.database = config.database;
-
 }
 
 export let connectionConfig: config = {
