@@ -34,6 +34,11 @@ version(v)
       connConfig.user = config.user;
       connConfig.password = config.password;
       connConfig.database = config.database;
+    } else {
+      connConfig.server = pars.server;
+      connConfig.user = pars.user;
+      connConfig.password = pars.password;
+      connConfig.database = pars.database;
     }
   });
 
