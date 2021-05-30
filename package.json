@@ -36,6 +36,7 @@
     "@types/mocha": "^5.2.7",
     "@types/mssql": "^4.0.6",
     "chai": "^4.2.0",
+    "commander": "^7.2.0",
     "fs-i": "^1.2.1",
     "mocha": "^6.2.0",
     "mssql-i": "^2.0.58",
