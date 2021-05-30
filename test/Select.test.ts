@@ -3,14 +3,14 @@ import "mocha";
 import { initTable } from "./DataInit";
 import { ConnectionPool } from "mssql";
 import { ConnectionHelper, Select } from "../src/index";
-import { connectionConfig } from "./connectionConfig";
+import { getConnectionConfig } from "./connectionConfig";
 
 describe("Select", function() {
   let tableName = "tbl_test_select";
   let conn: ConnectionPool;
 
   before(async () => {
-    conn = await ConnectionHelper.create(connectionConfig);
+    conn = await ConnectionHelper.create(getConnectionConfig());
     await initTable(conn, tableName, true);
   });
   after(async () => {

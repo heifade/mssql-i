@@ -10,6 +10,7 @@
     "target": "esnext",
     "module": "commonjs",
     "declaration": true,
+    "resolveJsonModule": true,
     "sourceMap": true
   }
 }

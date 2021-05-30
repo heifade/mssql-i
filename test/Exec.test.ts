@@ -2,14 +2,14 @@ import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
 import { ConnectionHelper, Select, Exec, ConnectionPool, Transaction } from "../src/index";
-import { connectionConfig } from "./connectionConfig";
+import { getConnectionConfig } from "./connectionConfig";
 
 describe("Exec", function() {
   let tableName = "tbl_test_exec";
   let conn: ConnectionPool;
 
   before(async () => {
-    conn = await ConnectionHelper.create(connectionConfig);
+    conn = await ConnectionHelper.create(getConnectionConfig());
     await initTable(conn, tableName, false);
   });
 

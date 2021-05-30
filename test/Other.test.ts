@@ -2,14 +2,14 @@ import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
 import { Schema, Utils, Exec, Where, ConnectionHelper, ConnectionPool } from "../src/index";
-import { connectionConfig } from "./connectionConfig";
+import { getConnectionConfig } from "./connectionConfig";
 
 describe("Other", function() {
   let tableName = "tbl_test_where";
   let conn: ConnectionPool;
 
   before(async () => {
-    conn = await ConnectionHelper.create(connectionConfig);
+    conn = await ConnectionHelper.create(getConnectionConfig());
 
     await Exec.exec(conn, `if exists (select top 1 1 from sys.tables where name = '${tableName}') drop table ${tableName}`);
     await Exec.exec(

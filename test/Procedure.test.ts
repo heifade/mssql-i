@@ -2,7 +2,7 @@ import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
 import { ConnectionHelper, Select, Procedure, Exec, Schema, ConnectionPool, Utils } from "../src/index";
-import { connectionConfig } from "./connectionConfig";
+import { getConnectionConfig } from "./connectionConfig";
 import { Transaction } from "../src/Transaction";
 
 describe("Procedure", function() {
@@ -11,7 +11,7 @@ describe("Procedure", function() {
   let conn: ConnectionPool;
 
   before(async () => {
-    conn = await ConnectionHelper.create(connectionConfig);
+    conn = await ConnectionHelper.create(getConnectionConfig());
     await initTable(conn, tableName, false);
     await Exec.exec(
       conn,

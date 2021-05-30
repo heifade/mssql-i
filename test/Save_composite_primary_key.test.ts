@@ -2,14 +2,14 @@ import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit_composite_primary_key";
 import { ConnectionHelper, Save, Select, SaveType, ConnectionPool } from "../src/index";
-import { connectionConfig } from "./connectionConfig";
+import { getConnectionConfig } from "./connectionConfig";
 
 describe("Save_composite_primary_key", function () {
   let tableName = "tbl_test_save_composite_primary_key";
   let conn: ConnectionPool;
 
   before(async () => {
-    conn = await ConnectionHelper.create(connectionConfig);
+    conn = await ConnectionHelper.create(getConnectionConfig());
     await initTable(conn, tableName);
   });
   after(async () => {

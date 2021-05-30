@@ -2,7 +2,7 @@ import { ConnectionHelper, Select, Exec, Schema, Insert, Update, Delete, Connect
 import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
-import { connectionConfig } from "./connectionConfig";
+import { getConnectionConfig } from "./connectionConfig";
 import { Utils } from "../src/util/Utils";
 import { Replace } from "../src/Replace";
 import { Transaction } from "../src/Transaction";
@@ -12,7 +12,7 @@ describe("Delete", function() {
   let tableNoPrimaryKey = "tbl_test_noprimarykey";
   let conn: ConnectionPool;
   before(async () => {
-    conn = await ConnectionHelper.create(connectionConfig);
+    conn = await ConnectionHelper.create(getConnectionConfig());
     await initTable(conn, tableName, false);
 
     await Exec.exec(conn, `if exists (select top 1 1 from sys.tables where name = '${tableNoPrimaryKey}') drop table ${tableNoPrimaryKey}`);

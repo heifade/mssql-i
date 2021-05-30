@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import "mocha";
-import { connectionConfig } from "./connectionConfig";
+import { getConnectionConfig } from "./connectionConfig";
 import { initTable } from "./DataInit";
 import { ConnectionHelper, Replace, Select, ConnectionPool, Exec, Schema, Transaction } from "../src/index";
 
@@ -9,7 +9,7 @@ describe("Replace", function() {
   let tableName2 = "tbl_test_replace_noprimarykey";
   let conn: ConnectionPool;
   before(async () => {
-    conn = await ConnectionHelper.create(connectionConfig);
+    conn = await ConnectionHelper.create(getConnectionConfig());
     await initTable(conn, tableName, true);
 
     await Exec.exec(conn, `if exists (select top 1 1 from sys.tables where name = '${tableName2}') drop table ${tableName2}`);

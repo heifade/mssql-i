@@ -2,13 +2,13 @@ import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
 import { ConnectionHelper, Update, Select, ConnectionPool, Transaction } from "../src/index";
-import { connectionConfig } from "./connectionConfig";
+import { getConnectionConfig } from "./connectionConfig";
 
 describe("Update", function() {
   let tableName = "tbl_test_update";
   let conn: ConnectionPool;
   before(async () => {
-    conn = await ConnectionHelper.create(connectionConfig);
+    conn = await ConnectionHelper.create(getConnectionConfig());
     await initTable(conn, tableName, false);
   });
   after(async () => {
