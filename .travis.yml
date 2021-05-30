@@ -3,7 +3,7 @@ sudo: enabled
 node_js:
   - "10"
 before_script:
-  - nyc mocha --server $SQLSERVER_IP --password $SQLSERVER_PASSWORD
+  - nyc mocha --user $SQLSERVER_USER --server $SQLSERVER_IP --password $SQLSERVER_PASSWORD
 script :
   - npm run build
 after_script:
