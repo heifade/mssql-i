@@ -174,7 +174,7 @@ export class Save {
       );
     });
 
-    return Promise.all(promiseList);
+    return await Promise.all(promiseList);
   }
 
   // /**
