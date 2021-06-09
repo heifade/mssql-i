@@ -4,7 +4,7 @@ import { initTable } from "./DataInit";
 import { ConnectionHelper, Save, Select, SaveType, ConnectionPool } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
 
-describe("Save", function() {
+describe("Save", function () {
   let tableName = "tbl_test_save";
   let conn: ConnectionPool;
 
@@ -22,12 +22,12 @@ describe("Save", function() {
     await Save.save(conn, {
       data: { id: 10, value: insertValue },
       table: tableName,
-      saveType: SaveType.insert
+      saveType: SaveType.insert,
     });
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [10]
+      where: [10],
     });
     expect(rowData.value).to.equal(insertValue);
 
@@ -35,24 +35,24 @@ describe("Save", function() {
     await Save.save(conn, {
       data: { id: 10, value: insertValue },
       table: tableName,
-      saveType: SaveType.update
+      saveType: SaveType.update,
     });
 
     rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [10]
+      where: [10],
     });
     expect(rowData.value).to.equal(insertValue);
 
     await Save.save(conn, {
       data: { id: 9 },
       table: tableName,
-      saveType: SaveType.delete
+      saveType: SaveType.delete,
     });
 
     rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [9]
+      where: [9],
     });
     expect(rowData).to.be.null;
 
@@ -60,12 +60,12 @@ describe("Save", function() {
     await Save.save(conn, {
       data: { id: 8, value: insertValue },
       table: tableName,
-      saveType: SaveType.replace
+      saveType: SaveType.replace,
     });
 
     rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [8]
+      where: [8],
     });
     expect(rowData.value).to.equal(insertValue);
   });
@@ -77,23 +77,23 @@ describe("Save", function() {
       {
         data: { id: 11, value: insertValue },
         table: tableName,
-        saveType: SaveType.insert
+        saveType: SaveType.insert,
       },
       {
         data: { id: 111, value: insertValue },
         table: tableName,
-        saveType: SaveType.insert
+        saveType: SaveType.insert,
       },
       {
         data: { id: 112, value: insertValue },
         table: tableName,
-        saveType: SaveType.insert
-      }
+        saveType: SaveType.insert,
+      },
     ]);
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [11]
+      where: [11],
     });
     expect(rowData.value).to.equal(insertValue);
 
@@ -102,13 +102,13 @@ describe("Save", function() {
       {
         data: { id: 11, value: insertValue },
         table: tableName,
-        saveType: SaveType.update
-      }
+        saveType: SaveType.update,
+      },
     ]);
 
     rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [11]
+      where: [11],
     });
     expect(rowData.value).to.equal(insertValue);
 
@@ -116,13 +116,13 @@ describe("Save", function() {
       {
         data: { id: 7 },
         table: tableName,
-        saveType: SaveType.delete
-      }
+        saveType: SaveType.delete,
+      },
     ]);
 
     rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [7]
+      where: [7],
     });
     expect(rowData).to.be.null;
 
@@ -131,13 +131,13 @@ describe("Save", function() {
       {
         data: { id: 6, value: insertValue },
         table: tableName,
-        saveType: SaveType.replace
-      }
+        saveType: SaveType.replace,
+      },
     ]);
 
     rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [6]
+      where: [6],
     });
     expect(rowData.value).to.equal(insertValue);
 
@@ -145,15 +145,41 @@ describe("Save", function() {
     insertValue = `value${Math.random()}_new3`;
     await Save.saves(conn, [
       {
+        data: { id: 600, value: insertValue },
+        table: tableName,
+        saveType: SaveType.insert,
+      },
+      {
         data: { id: 6, value: insertValue },
         table: tableName,
-        saveType: SaveType.insert
-      }
+        saveType: SaveType.insert,
+      },
     ])
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
+        expect(err.code).to.equal(`EREQUEST`);
+      });
+
+    // 插入主键为空时报错
+    insertValue = `value${Math.random()}_new3`;
+    await Save.saves(conn, [
+      {
+        data: { value: insertValue },
+        table: tableName,
+        saveType: SaveType.insert,
+      },
+      {
+        data: { value: insertValue },
+        table: tableName,
+        saveType: SaveType.insert,
+      },
+    ])
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch((err) => {
         expect(err.code).to.equal(`EREQUEST`);
       });
   });
@@ -165,23 +191,23 @@ describe("Save", function() {
       {
         data: { id: 12, value: insertValue },
         table: tableName,
-        saveType: SaveType.insert
+        saveType: SaveType.insert,
       },
       {
         data: { id: 121, value: insertValue },
         table: tableName,
-        saveType: SaveType.insert
+        saveType: SaveType.insert,
       },
       {
         data: { id: 122, value: insertValue },
         table: tableName,
-        saveType: SaveType.insert
-      }
+        saveType: SaveType.insert,
+      },
     ]);
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [12]
+      where: [12],
     });
     expect(rowData.value).to.equal(insertValue);
 
@@ -190,13 +216,13 @@ describe("Save", function() {
       {
         data: { id: 12, value: insertValue },
         table: tableName,
-        saveType: SaveType.update
-      }
+        saveType: SaveType.update,
+      },
     ]);
 
     rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [12]
+      where: [12],
     });
     expect(rowData.value).to.equal(insertValue);
 
@@ -204,13 +230,13 @@ describe("Save", function() {
       {
         data: { id: 5 },
         table: tableName,
-        saveType: SaveType.delete
-      }
+        saveType: SaveType.delete,
+      },
     ]);
 
     rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [5]
+      where: [5],
     });
     expect(rowData).to.be.null;
 
@@ -219,13 +245,13 @@ describe("Save", function() {
       {
         data: { id: 4, value: insertValue },
         table: tableName,
-        saveType: SaveType.replace
-      }
+        saveType: SaveType.replace,
+      },
     ]);
 
     rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [4]
+      where: [4],
     });
     expect(rowData.value).to.equal(insertValue);
   });
@@ -238,13 +264,13 @@ describe("Save", function() {
         {
           data: { id: 200, value: insertValue },
           table: tableName,
-          saveType: SaveType.insert
+          saveType: SaveType.insert,
         },
         {
           data: { id: 200, value: insertValue },
           table: tableName,
-          saveType: SaveType.insert
-        }
+          saveType: SaveType.insert,
+        },
       ]);
     } catch (err) {
       expect(err.code).to.equal(`EREQUEST`);
@@ -252,7 +278,7 @@ describe("Save", function() {
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [200]
+      where: [200],
     });
     expect(rowData.value).to.equal(insertValue);
   });
@@ -265,13 +291,13 @@ describe("Save", function() {
         {
           data: { id: 400, value: insertValue },
           table: tableName,
-          saveType: SaveType.insert
+          saveType: SaveType.insert,
         },
         {
           data: { id: 401, value: insertValue },
           table: tableName,
-          saveType: SaveType.insert
-        }
+          saveType: SaveType.insert,
+        },
       ]);
     } catch (err) {
       expect(err.code).to.equal(`EREQUEST`);
@@ -279,13 +305,13 @@ describe("Save", function() {
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [400]
+      where: [400],
     });
     expect(rowData.value).to.equal(insertValue);
 
     rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [401]
+      where: [401],
     });
     expect(rowData.value).to.equal(insertValue);
   });
@@ -298,13 +324,13 @@ describe("Save", function() {
         {
           data: { id: 402, value: insertValue },
           table: tableName,
-          saveType: SaveType.insert
+          saveType: SaveType.insert,
         },
         {
           data: { id: 402, value: insertValue },
           table: tableName,
-          saveType: SaveType.insert
-        }
+          saveType: SaveType.insert,
+        },
       ]);
     } catch (err) {
       expect(err.code).to.equal(`EREQUEST`);
@@ -312,7 +338,7 @@ describe("Save", function() {
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [402]
+      where: [402],
     });
     expect(rowData).to.be.null;
   });

@@ -4,7 +4,7 @@ import { initTable } from "./DataInit";
 import { ConnectionHelper, Save, Transaction, Select, SaveType, ConnectionPool } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
 
-describe("Transaction", function() {
+describe("Transaction", function () {
   let tableName = "tbl_test_transaction";
   let conn: ConnectionPool;
 
@@ -26,7 +26,7 @@ describe("Transaction", function() {
       {
         data: { id: 10, value: insertValue },
         table: tableName,
-        saveType: SaveType.insert
+        saveType: SaveType.insert,
       },
       tran
     );
@@ -35,7 +35,7 @@ describe("Transaction", function() {
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [10]
+      where: [10],
     });
     expect(rowData.value).to.equal(insertValue);
   });
@@ -51,7 +51,7 @@ describe("Transaction", function() {
         {
           data: { id: 11, value: insertValue },
           table: tableName,
-          saveType: SaveType.insert
+          saveType: SaveType.insert,
         },
         tran
       );
@@ -61,7 +61,7 @@ describe("Transaction", function() {
         {
           data: { id: 11, value: insertValue },
           table: tableName,
-          saveType: SaveType.insert
+          saveType: SaveType.insert,
         },
         tran
       );
@@ -72,16 +72,8 @@ describe("Transaction", function() {
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [11]
+      where: [11],
     });
     expect(rowData).to.equal(null);
-  });
-
-  it("transaction err", async () => {
-    ConnectionHelper.close(conn);
-
-    await Transaction.begin(conn).catch(err => {
-      expect(err.code).to.equal(`ENOTOPEN`);
-    });
   });
 });

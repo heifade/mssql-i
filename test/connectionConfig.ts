@@ -8,12 +8,14 @@ const connConfig = {
   user: "",
   password: "",
   database: "",
+  port: 1433,
 };
 
 version(v)
   .option("--user <n>", "please input sqlserver user")
   .option("--server <n>", "please input sqlserver ip")
   .option("--password <n>", "please input sqlserver password")
+  .option("--port <n>", "please input sqlserver port")
   .option("--require", "")
   .action((pars) => {
     if (!pars.server) {
@@ -21,7 +23,8 @@ version(v)
       if (!fs.existsSync(configFile)) {
         let content = `{
         "server": "127.0.0.1",
-        "password": ""
+        "password": "",
+        "port": 143
       }`;
 
         fs.writeFileSync(configFile, content);
@@ -34,6 +37,7 @@ version(v)
       connConfig.user = config.user;
       connConfig.password = config.password;
       connConfig.database = config.database;
+      connConfig.port = config.port;
     } else {
       connConfig.server = pars.server;
       connConfig.user = pars.user;
@@ -50,8 +54,11 @@ export function getConnectionConfig() {
     user: connConfig.user || "sa",
     password: connConfig.password || "",
     database: connConfig.database,
-    port: 1433,
+    port: connConfig.port || 1433,
     connectionTimeout: 60000,
     requestTimeout: 60000,
+    options: {
+      trustServerCertificate: true,
+    },
   } as config;
 }
