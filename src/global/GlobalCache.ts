@@ -11,9 +11,9 @@ export class GlobalCache {
   }
 
   public static get(key: string) {
-    return Reflect.get(GlobalCache.getGlobalHash(), key);
+    return GlobalCache.getGlobalHash()[key];
   }
   public static set(key: string, value: any) {
-    Reflect.set(GlobalCache.getGlobalHash(), key, value);
+    GlobalCache.getGlobalHash()[key] = value;
   }
 }

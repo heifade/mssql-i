@@ -1,12 +1,6 @@
 import { Select } from "../Select";
 
-import {
-  SchemaModel,
-  TableSchemaModel,
-  ColumnSchemaModel,
-  ProcedureSchemaModel,
-  ProcedureParSchemaModel
-} from "../model/SchemaModel";
+import { SchemaModel, TableSchemaModel, ColumnSchemaModel, ProcedureSchemaModel, ProcedureParSchemaModel } from "../model/SchemaModel";
 import { GlobalCache } from "../global/GlobalCache";
 import { ConnectionPool } from "mssql";
 
@@ -34,7 +28,7 @@ export class SchemaCache {
    * @memberof SchemaCache
    */
   public static get(database: string) {
-    return Reflect.get(SchemaCache.getHash(), database);
+    return SchemaCache.getHash()[database];
   }
   /**
    * 设置指定数据库的架构信息
@@ -76,10 +70,7 @@ export class Schema {
    * @returns
    * @memberof Schema
    */
-  public static async getSchema(
-    conn: ConnectionPool,
-    database: string
-  ): Promise<SchemaModel> {
+  public static async getSchema(conn: ConnectionPool, database: string): Promise<SchemaModel> {
     let schemaModel = SchemaCache.get(database);
 
     if (!schemaModel) {
@@ -178,25 +169,25 @@ export class Schema {
         { sql: sqlTables, where: [] }, //database
         { sql: sqlColumns, where: [] }, //database
         { sql: sqlProcedures, where: [] }, //database
-        { sql: sqlProcedurePars, where: [] } //database
+        { sql: sqlProcedurePars, where: [] }, //database
       ]);
 
       let tableList = lists[0];
       let columnList = lists[1];
       schemaModel.tables = new Array<TableSchemaModel>();
-      tableList.map(table => {
+      tableList.map((table) => {
         let tableModel = new TableSchemaModel();
-        tableModel.name = Reflect.get(table, "tableName");
+        tableModel.name = table["tableName"];
         tableModel.columns = [];
         schemaModel.tables.push(tableModel);
 
         columnList
-          .filter(column => Reflect.get(column, "tableName") === Reflect.get(table, "tableName"))
-          .map(column => {
+          .filter((column) => column["tableName"] === table["tableName"])
+          .map((column) => {
             let columnModel = new ColumnSchemaModel();
-            columnModel.columnName = Reflect.get(column, "columnName");
-            columnModel.primaryKey = Reflect.get(column, "primaryKey") === 1;
-            columnModel.autoIncrement = Reflect.get(column, "isIdentity") === 1;
+            columnModel.columnName = column["columnName"];
+            columnModel.primaryKey = column["primaryKey"] === 1;
+            columnModel.autoIncrement = column["isIdentity"] === 1;
 
             tableModel.columns.push(columnModel);
           });
@@ -205,18 +196,18 @@ export class Schema {
       let procedureList = lists[2];
       let procedureParsList = lists[3];
       schemaModel.procedures = new Array<ProcedureSchemaModel>();
-      procedureList.map(procedure => {
+      procedureList.map((procedure) => {
         let procedureModel = new ProcedureSchemaModel();
-        procedureModel.name = Reflect.get(procedure, "procedureName");
+        procedureModel.name = procedure["procedureName"];
         procedureModel.pars = [];
         schemaModel.procedures.push(procedureModel);
 
         procedureParsList
-          .filter(par => Reflect.get(par, "objId") === Reflect.get(procedure, "objId"))
-          .map(par => {
+          .filter((par) => par["objId"] === procedure["objId"])
+          .map((par) => {
             let parModel = new ProcedureParSchemaModel();
-            parModel.name = Reflect.get(par, "parameterName");
-            parModel.parameterMode = Reflect.get(par, "parameterMode");
+            parModel.name = par["parameterName"];
+            parModel.parameterMode = par["parameterMode"];
             procedureModel.pars.push(parModel);
           });
       });

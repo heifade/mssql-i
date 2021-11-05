@@ -1,8 +1,8 @@
 import { ConnectionPool, VarChar, Request, IProcedureResult } from "mssql";
 import { Schema } from "./schema/Schema";
 import { Utils } from "./util/Utils";
-import { Select } from "./Select";
 import { MssqlTransaction } from ".";
+import { IHash } from "./interface/iHash";
 
 export interface ProcedureResult extends IProcedureResult<any> {}
 
@@ -20,7 +20,7 @@ export class Procedure {
    * @static
    * @param {Connection} conn - 数据库连接对象
    * @param {{
-   *       data?: {};
+   *       data?: IHash;
    *       database?: string;
    *       procedure: string;
    *     }} pars
@@ -31,7 +31,7 @@ export class Procedure {
   public static async exec(
     conn: ConnectionPool,
     pars: {
-      data?: {};
+      data?: IHash;
       database?: string;
       chema?: string;
       procedure: string;
@@ -64,16 +64,15 @@ export class Procedure {
     }
 
     if (data) {
-      Reflect.ownKeys(data).map((key, index) => {
-        let par = procedureSchemaModel.pars.filter(par => par.name === key.toString().replace(/^@/, ""))[0];
-
+      Object.getOwnPropertyNames(data).map((key, index) => {
+        const par = procedureSchemaModel.pars.filter((par) => par.name === key.replace(/^@/, ""))[0];
         if (par) {
           if (par.parameterMode === "out") {
             parSQL += `${par.name},`;
             request.output(`${par.name}`, VarChar);
           } else {
             parSQL += `${par.name},`;
-            request.input(`${par.name}`, Reflect.get(data, par.name));
+            request.input(`${par.name}`, data[par.name]);
           }
         }
       });

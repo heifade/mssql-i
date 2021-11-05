@@ -17,11 +17,7 @@ export class Utils {
    * @returns 数据库.对象
    * @memberof Utils
    */
-  public static getDbObjectName(
-    database: string,
-    chema: string,
-    objectName: string
-  ) {
+  public static getDbObjectName(database: string, chema: string, objectName: string) {
     if (!database && !chema) {
       return `[${objectName}]`;
     } else if (!chema) {

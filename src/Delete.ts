@@ -3,6 +3,7 @@ import { Schema } from "./schema/Schema";
 import { Where } from "./util/Where";
 import { Utils } from "./util/Utils";
 import { MssqlTransaction } from ".";
+import { IHash } from "./interface/iHash";
 
 /**
  * 删除数据
@@ -18,7 +19,7 @@ export class Delete {
    * @static
    * @param {Connection} conn - 数据库连接
    * @param {{
-   *       data: {};
+   *       data: IHash;
    *       database?: string;
    *       table: string;
    *       onlyDeleteByPrimaryKey: boolean - 根据主键来删除，当主键为 null 或 undefined 时，报错
@@ -55,7 +56,7 @@ export class Delete {
   public static async delete(
     conn: ConnectionPool,
     pars: {
-      data: {};
+      data: IHash;
       database?: string;
       chema?: string;
       table: string;
@@ -84,7 +85,7 @@ export class Delete {
     }
 
     const whereList = new Array<any>();
-    const wherePars = {};
+    const wherePars: IHash = {};
     let whereSQL = ``;
     const primaryKeyList = tableSchemaModel.columns.filter((column) => column.primaryKey);
     if (primaryKeyList.length < 1) {
@@ -96,7 +97,7 @@ export class Delete {
       const cannotBeNullFields = tableSchemaModel.columns
         .filter((n) => n.primaryKey)
         .filter((n) => {
-          const value = Reflect.get(data, n.columnName);
+          const value = data[n.columnName];
           return value === null || value === undefined;
         })
         .map((n) => n.columnName);
@@ -107,14 +108,14 @@ export class Delete {
 
     primaryKeyList
       .filter((n) => {
-        const value = Reflect.get(data, n.columnName);
+        const value = data[n.columnName];
         return value !== null && value !== undefined;
       })
       .map(({ columnName }) => {
-        const value = Reflect.get(data, columnName);
+        const value = data[columnName];
         whereSQL += ` ${columnName} = @wpar${columnName} and`;
         whereList.push(value);
-        Reflect.set(wherePars, `wpar${columnName}`, value);
+        wherePars[`wpar${columnName}`] = value;
       });
 
     if (whereSQL) {
@@ -132,8 +133,8 @@ export class Delete {
       request = conn.request();
     }
 
-    Reflect.ownKeys(wherePars).map((m) => {
-      request.input(m.toString(), Reflect.get(wherePars, m));
+    Object.getOwnPropertyNames(wherePars).map((m) => {
+      request.input(m, wherePars[m]);
     });
 
     await request.query(sql);
@@ -223,8 +224,8 @@ export class Delete {
       request = conn.request();
     }
 
-    Reflect.ownKeys(wherePars).map((m) => {
-      request.input(m.toString(), Reflect.get(wherePars, m));
+    Object.getOwnPropertyNames(wherePars).map((m) => {
+      request.input(m, wherePars[m]);
     });
 
     await request.query(sql);

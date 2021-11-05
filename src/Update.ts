@@ -3,6 +3,7 @@ import { Schema } from "./schema/Schema";
 import { Where } from "./util/Where";
 import { Utils } from "./util/Utils";
 import { MssqlTransaction } from ".";
+import { IHash } from "./interface/iHash";
 
 /**
  * 更新数据
@@ -19,7 +20,7 @@ export class Update {
    * @static
    * @param {Connection} conn - 数据库连接对象
    * @param {{
-   *       data: {};
+   *       data: IHash;
    *       database?: string;
    *       table: string;
    *       onlyUpdateByPrimaryKey: boolean - 根据主键来更新，当主键为 null 或 undefined 时，报错
@@ -57,7 +58,7 @@ export class Update {
   public static async update(
     conn: ConnectionPool,
     pars: {
-      data: {};
+      data: IHash;
       database?: string;
       chema?: string;
       table: string;
@@ -65,21 +66,21 @@ export class Update {
     },
     tran?: MssqlTransaction
   ) {
-    let database = pars.database || Utils.getDataBaseFromConnection(conn);
+    const database = pars.database || Utils.getDataBaseFromConnection(conn);
     const { onlyUpdateByPrimaryKey = true } = pars;
 
-    let data = pars.data;
+    const data = pars.data;
     if (!data) {
       return Promise.reject(new Error(`pars.data can not be null or empty!`));
     }
 
-    let table = pars.table;
+    const table = pars.table;
     if (!table) {
       return Promise.reject(new Error(`pars.table can not be null or empty!`));
     }
 
-    let schemaModel = await Schema.getSchema(conn, database);
-    let tableSchemaModel = schemaModel.getTableSchemaModel(table);
+    const schemaModel = await Schema.getSchema(conn, database);
+    const tableSchemaModel = schemaModel.getTableSchemaModel(table);
 
     if (!tableSchemaModel) {
       return Promise.reject(new Error(`Table '${table}' is not exists!`));
@@ -100,7 +101,7 @@ export class Update {
       const cannotBeNullFields = tableSchemaModel.columns
         .filter((n) => n.primaryKey)
         .filter((n) => {
-          const value = Reflect.get(data, n.columnName);
+          const value = data[n.columnName];
           return value === null || value === undefined;
         })
         .map((n) => n.columnName);
@@ -109,18 +110,16 @@ export class Update {
       }
     }
 
-    Reflect.ownKeys(data).map((key, index) => {
-      let column = tableSchemaModel.columns.filter((column) => column.columnName === key.toString())[0];
+    Object.getOwnPropertyNames(data).map((key, index) => {
+      const column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
-        let colName = column.columnName;
+        const colName = column.columnName;
         if (column.primaryKey) {
           whereSQL += ` ${colName} = @wpar${colName} and`;
-
-          request.input(`wpar${colName}`, Reflect.get(data, colName));
+          request.input(`wpar${colName}`, data[colName]);
         } else {
           fieldSQL += ` ${colName} = @fpar${colName},`;
-
-          request.input(`fpar${colName}`, Reflect.get(data, colName));
+          request.input(`fpar${colName}`, data[colName]);
         }
       }
     });
@@ -130,9 +129,9 @@ export class Update {
       whereSQL = ` where ` + whereSQL.replace(/and$/, "");
     }
 
-    let tableName = Utils.getDbObjectName(database, pars.chema, table);
+    const tableName = Utils.getDbObjectName(database, pars.chema, table);
 
-    let sql = `update ${tableName} set ${fieldSQL} ${whereSQL}`;
+    const sql = `update ${tableName} set ${fieldSQL} ${whereSQL}`;
 
     await request.query(sql);
     return true;
@@ -159,7 +158,7 @@ export class Update {
   public static async updateByWhere(
     conn: ConnectionPool,
     pars: {
-      data: {};
+      data: IHash;
       where?: {};
       database?: string;
       chema?: string;
@@ -167,22 +166,22 @@ export class Update {
     },
     tran?: MssqlTransaction
   ) {
-    let database = pars.database || Utils.getDataBaseFromConnection(conn);
+    const database = pars.database || Utils.getDataBaseFromConnection(conn);
 
-    let data = pars.data;
+    const data = pars.data;
     if (!data) {
       return Promise.reject(new Error(`pars.data can not be null or empty!`));
     }
 
-    let where = pars.where;
+    const where = pars.where;
 
-    let table = pars.table;
+    const table = pars.table;
     if (!table) {
       return Promise.reject(new Error(`pars.table can not be null or empty!`));
     }
 
-    let schemaModel = await Schema.getSchema(conn, database);
-    let tableSchemaModel = schemaModel.getTableSchemaModel(table);
+    const schemaModel = await Schema.getSchema(conn, database);
+    const tableSchemaModel = schemaModel.getTableSchemaModel(table);
 
     if (!tableSchemaModel) {
       return Promise.reject(new Error(`Table '${table}' is not exists!`));
@@ -196,27 +195,27 @@ export class Update {
     }
 
     let fieldSQL = ` `;
-    Reflect.ownKeys(data).map((key, index) => {
-      let column = tableSchemaModel.columns.filter((column) => column.columnName === key.toString())[0];
+    Object.getOwnPropertyNames(data).map((key, index) => {
+      let column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
         let colName = column.columnName;
         fieldSQL += ` ${colName} = @fpar${colName},`;
 
-        request.input(`fpar${colName}`, Reflect.get(data, colName));
+        request.input(`fpar${colName}`, data[colName]);
       }
     });
 
     fieldSQL = fieldSQL.trim().replace(/\,$/, ""); //去掉最后面的','
 
-    let { whereSQL, wherePars } = Where.getWhereSQL(where, tableSchemaModel);
+    const { whereSQL, wherePars } = Where.getWhereSQL(where, tableSchemaModel);
 
-    Reflect.ownKeys(wherePars).map((m) => {
-      request.input(m.toString(), Reflect.get(wherePars, m));
+    Object.getOwnPropertyNames(wherePars).map((m) => {
+      request.input(m, wherePars[m]);
     });
 
-    let tableName = Utils.getDbObjectName(database, pars.chema, table);
+    const tableName = Utils.getDbObjectName(database, pars.chema, table);
 
-    let sql = `update ${tableName} set ${fieldSQL} ${whereSQL}`;
+    const sql = `update ${tableName} set ${fieldSQL} ${whereSQL}`;
 
     await request.query(sql);
     return true;

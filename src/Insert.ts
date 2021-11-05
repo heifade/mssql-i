@@ -1,5 +1,6 @@
 import { ConnectionPool, Request } from "mssql";
 import { MssqlTransaction } from ".";
+import { IHash } from "./interface/iHash";
 import { Schema } from "./schema/Schema";
 import { Utils } from "./util/Utils";
 
@@ -19,7 +20,7 @@ export class Insert {
    * @static
    * @param {Connection} conn - 数据库连接对象
    * @param {{
-   *       data: {};
+   *       data: IHash;
    *       database?: string;
    *       table: string;
    *     }} pars
@@ -49,7 +50,7 @@ export class Insert {
   public static async insert(
     conn: ConnectionPool,
     pars: {
-      data: {};
+      data: IHash;
       database?: string;
       chema?: string;
       table: string;
@@ -90,22 +91,21 @@ export class Insert {
 
     let haveAutoIncrement = false; //是否有自增字段
 
-    tableSchemaModel.columns.map(column => {
+    tableSchemaModel.columns.map((column) => {
       if (column.autoIncrement) {
         haveAutoIncrement = true; //有自增字段
       }
     });
 
-    Reflect.ownKeys(data).map((key, index) => {
-      let column = tableSchemaModel.columns.filter(column => column.columnName === key.toString())[0];
+    Object.getOwnPropertyNames(data).map((key, index) => {
+      let column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
         if (!column.autoIncrement) {
           //跳过自增字段
           fields += `${column.columnName},`;
           values += `@${column.columnName},`;
         }
-
-        request.input(column.columnName, Reflect.get(data, column.columnName));
+        request.input(column.columnName, data[column.columnName]);
       }
     });
 

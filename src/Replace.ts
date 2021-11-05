@@ -1,5 +1,6 @@
 import { ConnectionPool, Request } from "mssql";
 import { MssqlTransaction } from ".";
+import { IHash } from "./interface/iHash";
 import { Schema } from "./schema/Schema";
 import { Utils } from "./util/Utils";
 
@@ -19,7 +20,7 @@ export class Replace {
    * @static
    * @param {Connection} conn - 数据库连接对象
    * @param {{
-   *       data: {};
+   *       data: IHash;
    *       database?: string;
    *       table: string;
    *     }} pars
@@ -46,7 +47,7 @@ export class Replace {
   public static async replace(
     conn: ConnectionPool,
     pars: {
-      data: {};
+      data: IHash;
       chema?: string;
       database?: string;
       table: string;
@@ -88,24 +89,24 @@ export class Replace {
     let insertFields = "";
     let insertValues = "";
 
-    Reflect.ownKeys(data).map((key, index) => {
-      let column = tableSchemaModel.columns.filter(column => column.columnName === key.toString())[0];
+    Object.getOwnPropertyNames(data).map((key, index) => {
+      let column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
         let colName = column.columnName;
 
         if (column.primaryKey) {
-          request.input(`wparw${colName}`, Reflect.get(data, colName));
-          request.input(`wparu${colName}`, Reflect.get(data, colName));
+          request.input(`wparw${colName}`, data[colName]);
+          request.input(`wparu${colName}`, data[colName]);
 
           sWhereSQL += ` ${colName} = @wparw${colName} and`;
           uWhereSQL += ` ${colName} = @wparu${colName} and`;
         } else {
-          request.input(`upar${colName}`, Reflect.get(data, colName));
+          request.input(`upar${colName}`, data[colName]);
           updateFields += ` ${colName} = @upar${colName},`;
         }
 
         if (!column.autoIncrement) {
-          request.input(`ipar${colName}`, Reflect.get(data, colName));
+          request.input(`ipar${colName}`, data[colName]);
           insertFields += ` ${colName},`;
           insertValues += ` @ipar${colName},`;
         }
@@ -126,7 +127,7 @@ export class Replace {
 
     let haveAutoIncrement = false; //是否有自增字段
 
-    tableSchemaModel.columns.map(column => {
+    tableSchemaModel.columns.map((column) => {
       if (column.autoIncrement) {
         haveAutoIncrement = true; //有自增字段
       }
@@ -143,9 +144,9 @@ export class Replace {
         ${getIdentity}
       end`;
 
-      const result = await request.query(sql);
+    const result = await request.query(sql);
 
-      const returnValue: any = {};
+    const returnValue: any = {};
     if (haveAutoIncrement) {
       //有自增字段
       returnValue.insertId = result.recordset[0]["insertId"];

@@ -88,7 +88,7 @@ export class Select {
   public static async selects(conn: ConnectionPool, params: SelectParamsModel[]) {
     const promises = new Array<Promise<any[]>>();
 
-    params.map(param => {
+    params.map((param) => {
       promises.push(Select.select(conn, param));
     });
 
@@ -197,7 +197,7 @@ export class Select {
 
     const dataPromise = await Select.select(conn, {
       sql: sql,
-      where: param.where
+      where: param.where,
     });
 
     const list = await Promise.all([countPromise, dataPromise]);
@@ -234,7 +234,7 @@ export class Select {
     const result = await Select.selectBase(conn, param);
     const v = result.recordset[0];
     if (v) {
-      const keys = Reflect.ownKeys(v);
+      const keys = Object.getOwnPropertyNames(v);
       return v[keys[0]];
     }
     return null;
@@ -250,7 +250,7 @@ export class Select {
    */
   public static async selectGUID(conn: ConnectionPool) {
     const result = await Select.selectOneValue(conn, {
-      sql: `select upper(newid()) as GUID`
+      sql: `select upper(newid()) as GUID`,
     });
     return result as string;
   }

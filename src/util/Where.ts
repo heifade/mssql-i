@@ -1,3 +1,4 @@
+import { IHash } from "../interface/iHash";
 import { TableSchemaModel } from "../model/SchemaModel";
 
 /**
@@ -16,18 +17,17 @@ export class Where {
    * @returns
    * @memberof Where
    */
-  public static getWhereSQL(where: {}, tableSchemaModel: TableSchemaModel) {
+  public static getWhereSQL(where: IHash, tableSchemaModel: TableSchemaModel) {
     let whereSQL = ``;
     const whereList = new Array<any>();
-    const wherePars = {};
+    const wherePars: IHash = {};
 
     if (where != null) {
-      Reflect.ownKeys(where).map((key, index) => {
-        let k = key.toString();
-        if (tableSchemaModel.columns.filter(column => column.columnName === k).length) {
-          whereSQL += ` ${k} = @wpar${k} and`;
-          whereList.push(Reflect.get(where, k));
-          Reflect.set(wherePars, `wpar${k}`, Reflect.get(where, k));
+      Object.getOwnPropertyNames(where).map((key, index) => {
+        if (tableSchemaModel.columns.filter((column) => column.columnName === key).length) {
+          whereSQL += ` ${key} = @wpar${key} and`;
+          whereList.push(where[key]);
+          wherePars[`wpar${key}`] = where[key];
         }
       });
     }
