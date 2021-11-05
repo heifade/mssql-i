@@ -113,11 +113,15 @@ describe("Update", function () {
     }
 
     rowData = await Select.selectTop1(conn, {
-      sql: `select * from ${tableName} where id=?`,
+      sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id = ?`,
       where: [2],
     });
 
     expect(rowData.value).to.equal(newValue);
+    expect(rowData.createBy).to.equal(null);
+    expect(rowData.createDate).to.equal(null);
+    expect(rowData.updateBy).to.equal('djd2');
+    expect(rowData.updateDate).to.equal('2021-11-05 23:45:56');
   });
 
   it("when pars.data is null of update", async () => {

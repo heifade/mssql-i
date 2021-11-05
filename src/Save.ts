@@ -9,6 +9,7 @@ import { Transaction } from "./Transaction";
 import { resolve } from "path";
 import { MssqlTransaction } from ".";
 import { ICreateBy, ICreateDate, IUpdateBy, IUpdateDate } from "./interface/iCreateBy";
+import { IHash } from "./interface/iHash";
 
 /**
  * 保存
@@ -91,8 +92,8 @@ export class Save {
             database: pars.database,
             table: pars.table,
             createBy: pars.createBy,
-            updateBy: pars.updateBy,
             createDate: pars.createDate,
+            updateBy: pars.updateBy,
             updateDate: pars.updateDate,
           },
           tran
@@ -132,6 +133,10 @@ export class Save {
             data: pars.data,
             database: pars.database,
             table: pars.table,
+            createBy: pars.createBy,
+            createDate: pars.createDate,
+            updateBy: pars.updateBy,
+            updateDate: pars.updateDate,
           },
           tran
         );
@@ -161,10 +166,14 @@ export class Save {
   public static async saves(
     conn: ConnectionPool,
     list: Array<{
-      data: {};
+      data: IHash;
       database?: string;
       table: string;
       saveType: SaveType;
+      createBy?: ICreateBy;
+      createDate?: ICreateDate;
+      updateBy?: IUpdateBy;
+      updateDate?: IUpdateDate;
     }>,
     tran?: MssqlTransaction
   ) {
@@ -179,6 +188,10 @@ export class Save {
             database: h.database,
             table: h.table,
             saveType: h.saveType,
+            createBy: h.createBy,
+            createDate: h.createDate,
+            updateBy: h.updateBy,
+            updateDate: h.updateDate,
           },
           tran
         )
@@ -247,14 +260,18 @@ export class Save {
   public static async savesSeq(
     conn: ConnectionPool,
     list: Array<{
-      data: {};
+      data: IHash;
       database?: string;
       table: string;
       saveType: SaveType;
+      createBy?: ICreateBy;
+      createDate?: ICreateDate;
+      updateBy?: IUpdateBy;
+      updateDate?: IUpdateDate;
     }>,
     tran?: MssqlTransaction
   ) {
-    for (let item of list) {
+    for (const item of list) {
       await Save.save(conn, item, tran);
     }
   }
@@ -279,17 +296,21 @@ export class Save {
   public static async savesSeqWithTran(
     conn: ConnectionPool,
     list: Array<{
-      data: {};
+      data: IHash;
       database?: string;
       table: string;
       saveType: SaveType;
+      createBy?: ICreateBy;
+      createDate?: ICreateDate;
+      updateBy?: IUpdateBy;
+      updateDate?: IUpdateDate;
     }>
   ) {
     let tran;
     try {
       tran = await Transaction.begin(conn);
 
-      for (let item of list) {
+      for (const item of list) {
         await Save.save(conn, item, tran);
       }
       await Transaction.commit(tran);

@@ -59,7 +59,9 @@ export class Replace {
       updateDate?: IUpdateDate;
     },
     tran?: MssqlTransaction
-  ) {
+  ): Promise<{
+    insertId: number;
+  }> {
     const database = pars.database || Utils.getDataBaseFromConnection(conn);
 
     const { data: row, createBy, updateBy, createDate, updateDate } = pars;
@@ -118,18 +120,21 @@ export class Replace {
           sWhereSQL += ` ${colName} = @wparw${colName} and`;
           uWhereSQL += ` ${colName} = @wparu${colName} and`;
         } else {
-          // 字段名为: createBy, createDate 的，当原数据没有指定值时，跳过更新
+          // 字段名为: createBy, createDate 的，当原数据有指定值时，以源数据为准，如果没有指定，跳过
           if (colName === createByFieldName) {
-            if (!row[createByFieldName]) {
-              return;
+            if (Reflect.has(row, createByFieldName)) {
+              request.input(`upar${colName}`, row[colName]);
+              updateFields += ` ${colName} = @upar${colName},`;
             }
+            return;
           }
           if (colName === createDateFieldName) {
-            if (!row[createDateFieldName]) {
-              return;
+            if (Reflect.has(row, createDateFieldName)) {
+              request.input(`upar${colName}`, row[colName]);
+              updateFields += ` ${colName} = @upar${colName},`;
             }
+            return;
           }
-
           request.input(`upar${colName}`, rowData[colName]);
           updateFields += ` ${colName} = @upar${colName},`;
         }
@@ -150,6 +155,20 @@ export class Replace {
     if (uWhereSQL) {
       uWhereSQL = ` where ` + uWhereSQL.replace(/and$/, "");
     }
+
+    if (createBy && !Reflect.has(row, createByFieldName)) {
+      // 如果源数据没有指定，但需要填写 createBy 时
+      request.input(`ipar${createByFieldName}`, rowData[createByFieldName]);
+      insertFields += ` ${createByFieldName},`;
+      insertValues += ` @ipar${createByFieldName},`;
+    }
+    if (createDate && !Reflect.has(row, createDateFieldName)) {
+      // 如果源数据没有指定，但需要填写 createDate 时
+      request.input(`ipar${createDateFieldName}`, rowData[createDateFieldName]);
+      insertFields += ` ${createDateFieldName},`;
+      insertValues += ` @ipar${createDateFieldName},`;
+    }
+
     updateFields = updateFields.trim().replace(/\,$/, ""); //去掉最后面的','
     insertFields = insertFields.trim().replace(/\,$/, ""); //去掉最后面的','
     insertValues = insertValues.trim().replace(/\,$/, ""); //去掉最后面的','
@@ -166,7 +185,9 @@ export class Replace {
 
     let sql = `
     if exists(select 1 from ${tableName} ${sWhereSQL})
-      update ${tableName} set ${updateFields} ${uWhereSQL};
+      begin
+        update ${tableName} set ${updateFields} ${uWhereSQL};
+      end
     else
       begin
         insert into ${tableName}(${insertFields}) values(${insertValues});
@@ -174,13 +195,16 @@ export class Replace {
       end`;
 
     const result = await request.query(sql);
-
-    const returnValue: any = {};
+    const returnValue: { insertId: number } = {
+      insertId: undefined,
+    };
     if (haveAutoIncrement) {
-      //有自增字段
-      returnValue.insertId = result.recordset[0]["insertId"];
+      const { recordset } = result;
+      if (recordset && recordset.length > 0) {
+        //有自增字段
+        returnValue.insertId = recordset[0]["insertId"];
+      }
     }
-
     return returnValue;
   }
 }

@@ -31,12 +31,16 @@ describe("Insert", function () {
     let insertId = result.insertId;
 
     let rowData = await Select.selectTop1(conn, {
-      sql: `select value from ${tableName} where id=?`,
+      sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id=?`,
       where: [insertId],
     });
 
     expect(rowData != null).to.be.true;
     expect(rowData.value).to.equal(insertValue);
+    expect(rowData.createBy).to.equal("djd3");
+    expect(rowData.createDate).to.equal("2021-11-05 12:23:47");
+    expect(rowData.updateBy).to.equal("djd4");
+    expect(rowData.updateDate).to.equal("2021-11-05 12:23:48");
   });
 
   it("insert multiple must be success", async () => {
@@ -65,10 +69,14 @@ describe("Insert", function () {
     await tran.commit();
 
     let rowData = await Select.select(conn, {
-      sql: `select * from ${tableName} where dateValue = '2021-11-05' `,
+      sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where dateValue = '2021-11-05' `,
       where: [],
     });
     expect(rowData.length).to.equal(5);
+    expect(rowData[0].createBy).to.equal('djd1');
+    expect(rowData[0].createDate).to.equal('2021-11-05 12:23:45');
+    expect(rowData[0].updateBy).to.equal('djd2');
+    expect(rowData[0].updateDate).to.equal('2021-11-05 12:23:46');
   });
 
   it("insert multiple with tran roll back must be success", async () => {

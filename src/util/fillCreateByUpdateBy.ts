@@ -7,39 +7,55 @@ export function fillCreateByUpdateBy({ row, createBy, updateBy, createDate, upda
   }
 
   const rowData = { ...row };
-  if (createBy !== undefined && createBy !== null) {
-    if (typeof createBy === "object") {
-      rowData[createBy.fieldName] = createBy.value;
+  if (createBy !== undefined) {
+    if (createBy === null) {
+      rowData["createBy"] = null;
     } else {
-      rowData["createBy"] = createBy;
+      if (typeof createBy === "object") {
+        rowData[createBy.fieldName] = createBy.value;
+      } else {
+        rowData["createBy"] = createBy;
+      }
     }
   }
 
-  if (updateBy !== undefined && updateBy !== null) {
-    if (typeof updateBy === "object") {
-      rowData[updateBy.fieldName] = updateBy.value;
+  if (updateBy !== undefined) {
+    if (updateBy === null) {
+      rowData["updateBy"] = null;
     } else {
-      rowData["updateBy"] = updateBy;
+      if (typeof updateBy === "object") {
+        rowData[updateBy.fieldName] = updateBy.value;
+      } else {
+        rowData["updateBy"] = updateBy;
+      }
     }
   }
 
-  if (createDate !== undefined && createDate !== null) {
-    if (createDate instanceof Date) {
-      rowData["createDate"] = createDate;
-    } else if (typeof createDate === "string") {
-      rowData["createDate"] = createDate;
+  if (createDate !== undefined) {
+    if (createDate === null) {
+      rowData["createDate"] = null;
     } else {
-      rowData[createDate.fieldName] = createDate.value;
+      if (createDate instanceof Date) {
+        rowData["createDate"] = createDate;
+      } else if (typeof createDate === "string") {
+        rowData["createDate"] = createDate;
+      } else {
+        rowData[createDate.fieldName] = createDate.value;
+      }
     }
   }
 
-  if (updateDate !== undefined && updateDate !== null) {
-    if (updateDate instanceof Date) {
-      rowData["updateDate"] = updateDate;
-    } else if (typeof updateDate === "string") {
-      rowData["updateDate"] = updateDate;
+  if (updateDate !== undefined) {
+    if (updateDate === null) {
+      rowData["updateDate"] = null;
     } else {
-      rowData[updateDate.fieldName] = updateDate.value;
+      if (updateDate instanceof Date) {
+        rowData["updateDate"] = updateDate;
+      } else if (typeof updateDate === "string") {
+        rowData["updateDate"] = updateDate;
+      } else {
+        rowData[updateDate.fieldName] = updateDate.value;
+      }
     }
   }
   return rowData;

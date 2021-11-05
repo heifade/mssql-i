@@ -4,7 +4,7 @@ import { getConnectionConfig } from "./connectionConfig";
 import { initTable } from "./DataInit";
 import { ConnectionHelper, Replace, Select, ConnectionPool, Exec, Schema, Transaction } from "../src/index";
 
-describe("Replace", function() {
+describe("Replace", function () {
   let tableName = "tbl_test_replace";
   let tableName2 = "tbl_test_replace_noprimarykey";
   let conn: ConnectionPool;
@@ -31,21 +31,109 @@ describe("Replace", function() {
     await ConnectionHelper.close(conn);
   });
 
-  it("replace must be success", async () => {
+  it("replace must be success with primary key", async () => {
     let insertValue = `value${Math.random()}`;
 
-    let result = await Replace.replace(conn, {
-      data: { value: insertValue },
-      table: tableName
+    await Replace.replace(conn, {
+      data: {
+        id: 1,
+        value: insertValue,
+      },
+      table: tableName,
+      createBy: "djd2",
+      createDate: "2021-11-05 15:00:00",
+      updateBy: "djd1",
+      updateDate: "2021-11-05 15:00:23",
     });
 
     let rowData = await Select.selectTop1(conn, {
-      sql: `select value from ${tableName} where id=?`,
-      where: [result.insertId]
+      sql: `select value, createBy, convert(char(19), createDate, 120) as createDate from ${tableName} where id = ?`,
+      where: [1],
     });
 
     expect(rowData != null).to.be.true;
     expect(rowData.value).to.equal(insertValue);
+    expect(rowData.createBy).to.equal(null);
+    expect(rowData.createDate).to.equal(null);
+  });
+
+  it("replace must be success with primary key 1", async () => {
+    let insertValue = `value${Math.random()}`;
+
+    await Replace.replace(conn, {
+      data: {
+        id: 1,
+        value: insertValue,
+      },
+      table: tableName,
+      createBy: "djd2",
+      createDate: "2021-11-05 15:00:00",
+      updateBy: null,
+      updateDate: null,
+    });
+
+    let rowData = await Select.selectTop1(conn, {
+      sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id = ?`,
+      where: [1],
+    });
+
+    expect(rowData != null).to.be.true;
+    expect(rowData.value).to.equal(insertValue);
+    expect(rowData.createBy).to.equal(null);
+    expect(rowData.createDate).to.equal(null);
+    expect(rowData.updateBy).to.equal(null);
+    expect(rowData.updateDate).to.equal(null);
+  });
+
+  it("replace must be success with primary key 2", async () => {
+    let insertValue = `value${Math.random()}`;
+
+    const result = await Replace.replace(conn, {
+      data: {
+        id: 1000,
+        value: insertValue,
+      },
+      table: tableName,
+      createBy: "djd2",
+      createDate: "2021-11-05 15:00:00",
+      updateBy: "djd1",
+      updateDate: "2021-11-05 15:00:23",
+    });
+
+    let rowData = await Select.selectTop1(conn, {
+      sql: `select value, createBy, convert(char(19), createDate, 120) as createDate from ${tableName} where id = ?`,
+      where: [result.insertId],
+    });
+
+    expect(rowData !== null).to.be.true;
+    expect(rowData.value).to.equal(insertValue);
+    expect(rowData.createBy).to.equal("djd2");
+    expect(rowData.createDate).to.equal("2021-11-05 15:00:00");
+  });
+
+  it("replace must be success with no primary key", async () => {
+    let insertValue = `value${Math.random()}`;
+
+    let result = await Replace.replace(conn, {
+      data: {
+        value: insertValue,
+      },
+      table: tableName,
+      createBy: "djd2",
+      createDate: "2021-11-05 15:00:00",
+      updateBy: "djd1",
+      updateDate: "2021-11-05 15:00:23",
+    });
+
+    let rowData = await Select.selectTop1(conn, {
+      sql: `select value, createBy, convert(char(19), createDate, 120) as createDate from ${tableName} where id=?`,
+      where: [result.insertId],
+    });
+
+    expect(rowData != null).to.be.true;
+    expect(rowData.value).to.equal(insertValue);
+    expect(rowData.createBy).to.equal("djd2");
+    expect(rowData.createDate).to.equal("2021-11-05 15:00:00");
   });
 
   it("replace with tran must be success", async () => {
@@ -59,7 +147,7 @@ describe("Replace", function() {
         conn,
         {
           data: { value: insertValue },
-          table: tableName
+          table: tableName,
         },
         tran
       );
@@ -71,7 +159,7 @@ describe("Replace", function() {
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [result.insertId]
+      where: [result.insertId],
     });
 
     expect(rowData != null).to.be.true;
@@ -84,24 +172,24 @@ describe("Replace", function() {
 
     let result = await Replace.replace(conn, {
       data: { f1: 1, f2: 1, f3: 1 },
-      table: tableName2
+      table: tableName2,
     });
 
     let rowData = await Select.selectCount(conn, {
       sql: `select * from ${tableName2} where f1=?`,
-      where: [1]
+      where: [1],
     });
 
     expect(rowData).to.equal(1);
 
     result = await Replace.replace(conn, {
       data: { f1: 1, f2: 1, f3: 1 },
-      table: tableName2
+      table: tableName2,
     });
 
     rowData = await Select.selectCount(conn, {
       sql: `select * from ${tableName2} where f1=?`,
-      where: [1]
+      where: [1],
     });
 
     expect(rowData).to.equal(2);
@@ -110,12 +198,12 @@ describe("Replace", function() {
   it("when pars.data is null", async () => {
     await Replace.replace(conn, {
       data: null,
-      table: tableName
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal("pars.data can not be null or empty!");
       });
   });
@@ -125,12 +213,12 @@ describe("Replace", function() {
 
     await Replace.replace(conn, {
       data: { value: insertValue },
-      table: null
+      table: null,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal("pars.table can not be null or empty!");
       });
   });
@@ -142,12 +230,12 @@ describe("Replace", function() {
 
     await Replace.replace(conn, {
       data: { value: insertValue },
-      table: tableName
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
       });
   });
@@ -159,14 +247,14 @@ describe("Replace", function() {
       data: {
         id: 1,
         value: insertValue,
-        value2: "aaa"
+        value2: "aaa",
       },
-      table: tableName
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.code).to.equal(`EREQUEST`);
       });
   });
