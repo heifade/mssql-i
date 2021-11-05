@@ -4,6 +4,8 @@ import { Where } from "./util/Where";
 import { Utils } from "./util/Utils";
 import { MssqlTransaction } from ".";
 import { IHash } from "./interface/iHash";
+import { IUpdateBy, IUpdateDate } from "./interface/iCreateBy";
+import { fillCreateByUpdateBy } from "./util/fillCreateByUpdateBy";
 
 /**
  * 更新数据
@@ -63,14 +65,15 @@ export class Update {
       chema?: string;
       table: string;
       onlyUpdateByPrimaryKey?: boolean;
+      updateBy?: IUpdateBy;
+      updateDate?: IUpdateDate;
     },
     tran?: MssqlTransaction
   ) {
     const database = pars.database || Utils.getDataBaseFromConnection(conn);
-    const { onlyUpdateByPrimaryKey = true } = pars;
+    const { onlyUpdateByPrimaryKey = true, data: row, updateBy, updateDate } = pars;
 
-    const data = pars.data;
-    if (!data) {
+    if (!row) {
       return Promise.reject(new Error(`pars.data can not be null or empty!`));
     }
 
@@ -101,7 +104,7 @@ export class Update {
       const cannotBeNullFields = tableSchemaModel.columns
         .filter((n) => n.primaryKey)
         .filter((n) => {
-          const value = data[n.columnName];
+          const value = row[n.columnName];
           return value === null || value === undefined;
         })
         .map((n) => n.columnName);
@@ -110,16 +113,18 @@ export class Update {
       }
     }
 
-    Object.getOwnPropertyNames(data).map((key, index) => {
+    const rowData = fillCreateByUpdateBy({ row, updateBy, updateDate });
+
+    Object.getOwnPropertyNames(rowData).map((key, index) => {
       const column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
         const colName = column.columnName;
         if (column.primaryKey) {
           whereSQL += ` ${colName} = @wpar${colName} and`;
-          request.input(`wpar${colName}`, data[colName]);
+          request.input(`wpar${colName}`, rowData[colName]);
         } else {
           fieldSQL += ` ${colName} = @fpar${colName},`;
-          request.input(`fpar${colName}`, data[colName]);
+          request.input(`fpar${colName}`, rowData[colName]);
         }
       }
     });
@@ -163,13 +168,15 @@ export class Update {
       database?: string;
       chema?: string;
       table: string;
+      updateBy?: IUpdateBy;
+      updateDate?: IUpdateDate;
     },
     tran?: MssqlTransaction
   ) {
     const database = pars.database || Utils.getDataBaseFromConnection(conn);
 
-    const data = pars.data;
-    if (!data) {
+    const { data: row, updateBy, updateDate } = pars;
+    if (!row) {
       return Promise.reject(new Error(`pars.data can not be null or empty!`));
     }
 
@@ -195,13 +202,14 @@ export class Update {
     }
 
     let fieldSQL = ` `;
-    Object.getOwnPropertyNames(data).map((key, index) => {
+    const rowData = fillCreateByUpdateBy({ row, updateBy, updateDate });
+    Object.getOwnPropertyNames(rowData).map((key, index) => {
       let column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
         let colName = column.columnName;
         fieldSQL += ` ${colName} = @fpar${colName},`;
 
-        request.input(`fpar${colName}`, data[colName]);
+        request.input(`fpar${colName}`, rowData[colName]);
       }
     });
 

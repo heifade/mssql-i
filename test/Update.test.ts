@@ -54,7 +54,7 @@ describe("Update", function () {
 
     rowData = await Select.selectTop1(conn, {
       sql: `select * from ${tableName} where id = ?`,
-      where: [2]
+      where: [2],
     });
 
     expect(rowData.value).to.equal(newValue);
@@ -72,6 +72,8 @@ describe("Update", function () {
         {
           data: { id: 1, value: newValue },
           table: tableName,
+          updateBy: "djd1",
+          updateDate: "2021-11-05 15:23:45",
         },
         tran
       );
@@ -99,6 +101,8 @@ describe("Update", function () {
           data: { value: newValue },
           table: tableName,
           where: { id: 2 },
+          updateBy: "djd2",
+          updateDate: "2021-11-05 23:45:56",
         },
         tran
       );

@@ -1,7 +1,9 @@
 import { ConnectionPool, Request } from "mssql";
 import { MssqlTransaction } from ".";
+import { ICreateBy, ICreateDate, IUpdateBy, IUpdateDate } from "./interface/iCreateBy";
 import { IHash } from "./interface/iHash";
 import { Schema } from "./schema/Schema";
+import { fillCreateByUpdateBy } from "./util/fillCreateByUpdateBy";
 import { Utils } from "./util/Utils";
 
 /**
@@ -51,13 +53,17 @@ export class Replace {
       chema?: string;
       database?: string;
       table: string;
+      createBy?: ICreateBy;
+      createDate?: ICreateDate;
+      updateBy?: IUpdateBy;
+      updateDate?: IUpdateDate;
     },
     tran?: MssqlTransaction
   ) {
     const database = pars.database || Utils.getDataBaseFromConnection(conn);
 
-    const data = pars.data;
-    if (!data) {
+    const { data: row, createBy, updateBy, createDate, updateDate } = pars;
+    if (!row) {
       return Promise.reject(new Error(`pars.data can not be null or empty!`));
     }
 
@@ -89,24 +95,47 @@ export class Replace {
     let insertFields = "";
     let insertValues = "";
 
-    Object.getOwnPropertyNames(data).map((key, index) => {
+    let createByFieldName = "createBy";
+    if (typeof createBy === "object" && createBy.fieldName) {
+      createByFieldName = createBy.fieldName;
+    }
+    let createDateFieldName = "createDate";
+    if (typeof createDate === "object" && !(createDate instanceof Date) && createDate.fieldName) {
+      createDateFieldName = createDate.fieldName;
+    }
+
+    const rowData = fillCreateByUpdateBy({ row, createBy, updateBy, createDate, updateDate });
+
+    Object.getOwnPropertyNames(rowData).map((key, index) => {
       let column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
         let colName = column.columnName;
 
         if (column.primaryKey) {
-          request.input(`wparw${colName}`, data[colName]);
-          request.input(`wparu${colName}`, data[colName]);
+          request.input(`wparw${colName}`, rowData[colName]);
+          request.input(`wparu${colName}`, rowData[colName]);
 
           sWhereSQL += ` ${colName} = @wparw${colName} and`;
           uWhereSQL += ` ${colName} = @wparu${colName} and`;
         } else {
-          request.input(`upar${colName}`, data[colName]);
+          // 字段名为: createBy, createDate 的，当原数据没有指定值时，跳过更新
+          if (colName === createByFieldName) {
+            if (!row[createByFieldName]) {
+              return;
+            }
+          }
+          if (colName === createDateFieldName) {
+            if (!row[createDateFieldName]) {
+              return;
+            }
+          }
+
+          request.input(`upar${colName}`, rowData[colName]);
           updateFields += ` ${colName} = @upar${colName},`;
         }
 
         if (!column.autoIncrement) {
-          request.input(`ipar${colName}`, data[colName]);
+          request.input(`ipar${colName}`, rowData[colName]);
           insertFields += ` ${colName},`;
           insertValues += ` @ipar${colName},`;
         }
@@ -133,7 +162,7 @@ export class Replace {
       }
     });
 
-    let getIdentity = haveAutoIncrement ? "select @@IDENTITY as insertId" : "";
+    const getIdentity = haveAutoIncrement ? "select @@IDENTITY as insertId" : "";
 
     let sql = `
     if exists(select 1 from ${tableName} ${sWhereSQL})

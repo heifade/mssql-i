@@ -50,6 +50,8 @@ describe("Update with 2 primary key", function () {
     await Update.update(conn, {
       data: { id1: 2, id2: 2, value: newValue },
       table: tableName,
+      updateBy: 'djd2',
+      updateDate: '2021-11-05 23:45:56'
     });
 
     rowData = await Select.selectTop1(conn, {

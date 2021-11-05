@@ -8,6 +8,7 @@ import { Replace } from "./Replace";
 import { Transaction } from "./Transaction";
 import { resolve } from "path";
 import { MssqlTransaction } from ".";
+import { ICreateBy, ICreateDate, IUpdateBy, IUpdateDate } from "./interface/iCreateBy";
 
 /**
  * 保存
@@ -73,6 +74,10 @@ export class Save {
       database?: string;
       table: string;
       saveType: SaveType;
+      createBy?: ICreateBy;
+      createDate?: ICreateDate;
+      updateBy?: IUpdateBy;
+      updateDate?: IUpdateDate;
     },
     tran?: MssqlTransaction
   ) {
@@ -84,7 +89,11 @@ export class Save {
           {
             data: pars.data,
             database: pars.database,
-            table: pars.table
+            table: pars.table,
+            createBy: pars.createBy,
+            updateBy: pars.updateBy,
+            createDate: pars.createDate,
+            updateDate: pars.updateDate,
           },
           tran
         );
@@ -96,7 +105,9 @@ export class Save {
           {
             data: pars.data,
             database: pars.database,
-            table: pars.table
+            table: pars.table,
+            updateBy: pars.updateBy,
+            updateDate: pars.updateDate,
           },
           tran
         );
@@ -108,7 +119,7 @@ export class Save {
           {
             data: pars.data,
             database: pars.database,
-            table: pars.table
+            table: pars.table,
           },
           tran
         );
@@ -120,7 +131,7 @@ export class Save {
           {
             data: pars.data,
             database: pars.database,
-            table: pars.table
+            table: pars.table,
           },
           tran
         );
@@ -159,7 +170,7 @@ export class Save {
   ) {
     const promiseList = new Array<Promise<any>>();
 
-    list.map(h => {
+    list.map((h) => {
       promiseList.push(
         Save.save(
           conn,
@@ -167,7 +178,7 @@ export class Save {
             data: h.data,
             database: h.database,
             table: h.table,
-            saveType: h.saveType
+            saveType: h.saveType,
           },
           tran
         )

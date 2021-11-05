@@ -7,7 +7,11 @@ export let initTable = async function (conn: ConnectionPool, tableName: string, 
     `create table ${tableName} (
         id int not null ${autoIncrement ? "identity(1,1)" : ""} primary key,
         value varchar(50),
-        dateValue datetime
+        dateValue datetime,
+        createBy varchar(100),
+        createDate datetime,
+        updateBy varchar(100),
+        updateDate datetime
       )`
   );
 
@@ -33,6 +37,10 @@ export let initTableWith2PrimaryKey = async function (conn: ConnectionPool, tabl
         id2 int not null,
         value varchar(50),
         dateValue datetime,
+        createBy varchar(100),
+        createDate datetime,
+        updateBy varchar(100),
+        updateDate datetime,
         primary key(id1, id2)
       )`
   );

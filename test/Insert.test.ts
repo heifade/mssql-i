@@ -22,6 +22,10 @@ describe("Insert", function () {
     let result = await Insert.insertAndGetIdentity(conn, {
       data: { value: insertValue, value2: 1, id: 1 },
       table: tableName,
+      createBy: "djd3",
+      createDate: "2021-11-05 12:23:47",
+      updateBy: "djd4",
+      updateDate: "2021-11-05 12:23:48",
     });
 
     let insertId = result.insertId;
@@ -51,6 +55,10 @@ describe("Insert", function () {
           { value: insertValue, dateValue: "2021-11-05" },
         ],
         table: tableName,
+        createBy: "djd1",
+        createDate: "2021-11-05 12:23:45",
+        updateBy: "djd2",
+        updateDate: "2021-11-05 12:23:46",
       },
       tran
     );

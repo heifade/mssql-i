@@ -1,8 +1,10 @@
 import { ConnectionPool, Request } from "mssql";
 import { MssqlTransaction } from ".";
+import { ICreateBy, ICreateDate, IUpdateBy, IUpdateDate } from "./interface/iCreateBy";
 import { IHash } from "./interface/iHash";
 import { TableSchemaModel } from "./model/SchemaModel";
 import { Schema } from "./schema/Schema";
+import { fillCreateByUpdateBy } from "./util/fillCreateByUpdateBy";
 import { Utils } from "./util/Utils";
 
 /**
@@ -55,12 +57,16 @@ export class Insert {
       database?: string;
       chema?: string;
       table: string;
+      createBy?: ICreateBy;
+      createDate?: ICreateDate;
+      updateBy?: IUpdateBy;
+      updateDate?: IUpdateDate;
     },
     tran?: MssqlTransaction
   ) {
     const database = pars.database || Utils.getDataBaseFromConnection(conn);
 
-    const { data } = pars;
+    const { data, createBy, createDate, updateBy, updateDate } = pars;
 
     if (!data) {
       return Promise.reject(new Error(`pars.data can not be null or empty!`));
@@ -83,8 +89,9 @@ export class Insert {
     if (data instanceof Array) {
       for (const row of data) {
         const request = tran ? new Request(tran) : conn.request();
+
         await this._insert({
-          row,
+          row: fillCreateByUpdateBy({ row, createBy, updateBy, createDate, updateDate }),
           tableSchemaModel,
           tableName,
           request,
@@ -93,7 +100,7 @@ export class Insert {
     } else {
       const request = tran ? new Request(tran) : conn.request();
       await this._insert({
-        row: data,
+        row: fillCreateByUpdateBy({ row: data, createBy, updateBy, createDate, updateDate }),
         tableSchemaModel,
         tableName,
         request,
@@ -133,14 +140,18 @@ export class Insert {
       database?: string;
       chema?: string;
       table: string;
+      createBy?: ICreateBy;
+      createDate?: ICreateDate;
+      updateBy?: IUpdateBy;
+      updateDate?: IUpdateDate;
     },
     tran?: MssqlTransaction
   ) {
     const database = pars.database || Utils.getDataBaseFromConnection(conn);
 
-    const { data } = pars;
+    const { data: row, createBy, updateBy, createDate, updateDate } = pars;
 
-    if (!data) {
+    if (!row) {
       return Promise.reject(new Error(`pars.data can not be null or empty!`));
     }
 
@@ -176,7 +187,9 @@ export class Insert {
       }
     });
 
-    Object.getOwnPropertyNames(data).map((key, index) => {
+    const rowData = fillCreateByUpdateBy({ row, createBy, updateBy, createDate, updateDate });
+
+    Object.getOwnPropertyNames(rowData).map((key, index) => {
       const column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
         if (!column.autoIncrement) {
@@ -184,7 +197,7 @@ export class Insert {
           fields += `${column.columnName},`;
           values += `@${column.columnName},`;
         }
-        request.input(column.columnName, data[column.columnName]);
+        request.input(column.columnName, rowData[column.columnName]);
       }
     });
 
