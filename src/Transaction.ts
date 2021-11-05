@@ -42,7 +42,7 @@ export class Transaction {
    * @memberof Transaction
    */
   public static async begin(conn: ConnectionPool): Promise<MssqlTransaction> {
-    let tran = new mssql.Transaction(conn);
+    const tran = new mssql.Transaction(conn);
     await tran.begin(ISOLATION_LEVEL.READ_COMMITTED);
     return tran;
   }

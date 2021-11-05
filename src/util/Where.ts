@@ -18,8 +18,8 @@ export class Where {
    */
   public static getWhereSQL(where: {}, tableSchemaModel: TableSchemaModel) {
     let whereSQL = ``;
-    let whereList = new Array<any>();
-    let wherePars = {};
+    const whereList = new Array<any>();
+    const wherePars = {};
 
     if (where != null) {
       Reflect.ownKeys(where).map((key, index) => {

@@ -1,31 +1,31 @@
 import { expect } from "chai";
 import "mocha";
-import { initTable } from "./DataInit";
+import { initTableWith2PrimaryKey } from "./DataInit";
 import { ConnectionHelper, Update, Select, ConnectionPool, Transaction } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
 
-describe("Update", function () {
-  let tableName = "tbl_test_update";
+describe("Update with 2 primary key", function () {
+  let tableName = "tbl_test_update_with_2primarykey";
   let conn: ConnectionPool;
   before(async () => {
     conn = await ConnectionHelper.create(getConnectionConfig());
-    await initTable(conn, tableName, false);
+    await initTableWith2PrimaryKey(conn, tableName);
   });
   after(async () => {
     await ConnectionHelper.close(conn);
   });
 
-  it("update must be success", async () => {
+  it("with 2 primary key must be success", async () => {
     let newValue = `value${Math.random()}` + "_newValue1";
 
     let result = await Update.update(conn, {
-      data: { id: 1, value: newValue },
+      data: { id1: 1, id2: 1, value: newValue },
       table: tableName,
     });
 
     let rowData = await Select.selectTop1(conn, {
-      sql: `select * from ${tableName} where id=?`,
-      where: [1],
+      sql: `select * from ${tableName} where id1 = ? and id2 = ?`,
+      where: [1, 1],
     });
 
     expect(rowData.value).to.equal(newValue);
@@ -35,12 +35,12 @@ describe("Update", function () {
     result = await Update.updateByWhere(conn, {
       data: { value: newValue },
       table: tableName,
-      where: { id: 2 },
+      where: { id1: 2, id2: 2 },
     });
 
     rowData = await Select.selectTop1(conn, {
-      sql: `select * from ${tableName} where id=?`,
-      where: [2],
+      sql: `select * from ${tableName} where id1 = ? and id2 = ?`,
+      where: [2, 2],
     });
 
     expect(rowData.value).to.equal(newValue);
@@ -48,19 +48,33 @@ describe("Update", function () {
     newValue = `value${Math.random()}` + "_newValue3";
 
     await Update.update(conn, {
-      data: { id: 2, value: newValue },
+      data: { id1: 2, id2: 2, value: newValue },
       table: tableName,
     });
 
     rowData = await Select.selectTop1(conn, {
-      sql: `select * from ${tableName} where id = ?`,
-      where: [2]
+      sql: `select * from ${tableName} where id1 = ? and id2 = ?`,
+      where: [2, 2],
     });
 
     expect(rowData.value).to.equal(newValue);
   });
 
-  it("update with tran must be success", async () => {
+  it("with 2 primary key when primary key is null", async () => {
+    let newValue = `value${Math.random()}` + "_newValue1";
+
+    try {
+      await Update.update(conn, {
+        data: { id1: 1, value: newValue },
+        table: tableName,
+      });
+      expect(true).to.be.false; // 进到这里就有问题
+    } catch (e) {
+      expect(e.message).to.equal("Field: id2 can not be null!");
+    }
+  });
+
+  it("with 2 primary key with tran must be success", async () => {
     let newValue = `value${Math.random()}` + "_newValue11";
 
     let tran;
@@ -70,7 +84,7 @@ describe("Update", function () {
       let result = await Update.update(
         conn,
         {
-          data: { id: 1, value: newValue },
+          data: { id1: 1, id2: 1, value: newValue },
           table: tableName,
         },
         tran
@@ -82,8 +96,8 @@ describe("Update", function () {
     }
 
     let rowData = await Select.selectTop1(conn, {
-      sql: `select * from ${tableName} where id=?`,
-      where: [1],
+      sql: `select * from ${tableName} where id1 = ? and id2 = ?`,
+      where: [1, 1],
     });
 
     expect(rowData.value).to.equal(newValue);
@@ -98,7 +112,7 @@ describe("Update", function () {
         {
           data: { value: newValue },
           table: tableName,
-          where: { id: 2 },
+          where: { id1: 2, id2: 2 },
         },
         tran
       );
@@ -109,8 +123,8 @@ describe("Update", function () {
     }
 
     rowData = await Select.selectTop1(conn, {
-      sql: `select * from ${tableName} where id=?`,
-      where: [2],
+      sql: `select * from ${tableName} where id1 = ? and id2 = ?`,
+      where: [2, 2],
     });
 
     expect(rowData.value).to.equal(newValue);
@@ -206,7 +220,7 @@ describe("Update", function () {
       });
   });
 
-  it("update as data with no primary key", async () => {
+  it("with 2 primary key as data with no primary key", async () => {
     let insertValue = `value${Math.random()}_update5`;
 
     await Update.update(conn, {
@@ -229,7 +243,8 @@ describe("Update", function () {
 
     await Update.update(conn, {
       data: {
-        id: 1,
+        id1: 1,
+        id2: 1,
         dateValue: insertValue,
         value2: "aaa",
       },
@@ -248,12 +263,13 @@ describe("Update", function () {
 
     await Update.updateByWhere(conn, {
       data: {
-        id: 2,
+        id1: 2,
+        id2: 2,
         dateValue: insertValue,
         value2: "aaa",
       },
       table: tableName,
-      where: { id: 2 },
+      where: { id1: 2, id2: 2 },
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题

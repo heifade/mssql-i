@@ -27,7 +27,7 @@ export class ConnectionHelper {
    * @memberof ConnectionHelper
    * @example
    * <pre>
-   *  let conn = await ConnectionHelper.create({
+   *  const conn = await ConnectionHelper.create({
    *    server: "localhost", // 数据库服务器地址
    *    user: "", // 用户名
    *    password: "", // 密码

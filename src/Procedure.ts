@@ -38,21 +38,21 @@ export class Procedure {
     },
     tran?: MssqlTransaction
   ) {
-    let database = pars.database || Utils.getDataBaseFromConnection(conn);
+    const database = pars.database || Utils.getDataBaseFromConnection(conn);
 
-    let procedure = pars.procedure;
+    const procedure = pars.procedure;
     if (!procedure) {
       return Promise.reject(new Error(`pars.procedure can not be null or empty!`));
     }
-    let data = pars.data;
+    const data = pars.data;
 
-    let schemaModel = await Schema.getSchema(conn, database);
-    let procedureSchemaModel = schemaModel.getProcedureSchemaModel(procedure);
+    const schemaModel = await Schema.getSchema(conn, database);
+    const procedureSchemaModel = schemaModel.getProcedureSchemaModel(procedure);
     if (!procedureSchemaModel) {
       return Promise.reject(new Error(`Procedure '${procedure}' is not exists!`));
     }
 
-    let procedureName = Utils.getDbObjectName(database, pars.chema, procedure);
+    const procedureName = Utils.getDbObjectName(database, pars.chema, procedure);
 
     let parSQL = "";
 
@@ -80,9 +80,9 @@ export class Procedure {
       parSQL = parSQL.replace(/\,$/, "");
     }
 
-    let sql = `${procedureName}`;
+    const sql = `${procedureName}`;
 
-    let result: ProcedureResult = await request.execute(sql);
+    const result: ProcedureResult = await request.execute(sql);
     return result;
   }
 }

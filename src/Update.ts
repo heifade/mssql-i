@@ -22,6 +22,7 @@ export class Update {
    *       data: {};
    *       database?: string;
    *       table: string;
+   *       onlyUpdateByPrimaryKey: boolean - 根据主键来更新，当主键为 null 或 undefined 时，报错
    *     }} pars
    * @param {MssqlTransaction} [tran] - 事务对象（可选），当需要事务处理时，必须传入此对象
    * @returns Promise对象
@@ -60,10 +61,12 @@ export class Update {
       database?: string;
       chema?: string;
       table: string;
+      onlyUpdateByPrimaryKey?: boolean;
     },
     tran?: MssqlTransaction
   ) {
     let database = pars.database || Utils.getDataBaseFromConnection(conn);
+    const { onlyUpdateByPrimaryKey = true } = pars;
 
     let data = pars.data;
     if (!data) {
@@ -92,8 +95,22 @@ export class Update {
 
     let fieldSQL = ` `;
     let whereSQL = ``;
+
+    if (onlyUpdateByPrimaryKey) {
+      const cannotBeNullFields = tableSchemaModel.columns
+        .filter((n) => n.primaryKey)
+        .filter((n) => {
+          const value = Reflect.get(data, n.columnName);
+          return value === null || value === undefined;
+        })
+        .map((n) => n.columnName);
+      if (cannotBeNullFields.length) {
+        return Promise.reject(new Error(`Field: ${cannotBeNullFields.join(",")} can not be null!`));
+      }
+    }
+
     Reflect.ownKeys(data).map((key, index) => {
-      let column = tableSchemaModel.columns.filter(column => column.columnName === key.toString())[0];
+      let column = tableSchemaModel.columns.filter((column) => column.columnName === key.toString())[0];
       if (column) {
         let colName = column.columnName;
         if (column.primaryKey) {
@@ -180,7 +197,7 @@ export class Update {
 
     let fieldSQL = ` `;
     Reflect.ownKeys(data).map((key, index) => {
-      let column = tableSchemaModel.columns.filter(column => column.columnName === key.toString())[0];
+      let column = tableSchemaModel.columns.filter((column) => column.columnName === key.toString())[0];
       if (column) {
         let colName = column.columnName;
         fieldSQL += ` ${colName} = @fpar${colName},`;
@@ -193,7 +210,7 @@ export class Update {
 
     let { whereSQL, wherePars } = Where.getWhereSQL(where, tableSchemaModel);
 
-    Reflect.ownKeys(wherePars).map(m => {
+    Reflect.ownKeys(wherePars).map((m) => {
       request.input(m.toString(), Reflect.get(wherePars, m));
     });
 

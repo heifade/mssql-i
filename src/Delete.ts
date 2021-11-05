@@ -11,7 +11,6 @@ import { MssqlTransaction } from ".";
  * @class Delete
  */
 export class Delete {
-
   /**
    * 根据主键删除一条数据。
    * 注意：此方法没有开启事务。如需开启事务，见 {@link Transaction}
@@ -22,6 +21,7 @@ export class Delete {
    *       data: {};
    *       database?: string;
    *       table: string;
+   *       onlyDeleteByPrimaryKey: boolean - 根据主键来删除，当主键为 null 或 undefined 时，报错
    *     }} pars
    * @param {MssqlTransaction} [tran] - 事务对象（可选）。当需要事务处理时必需传入此参数
    * @returns Promise 对象
@@ -59,49 +59,67 @@ export class Delete {
       database?: string;
       chema?: string;
       table: string;
+      onlyDeleteByPrimaryKey?: boolean;
     },
     tran?: MssqlTransaction
   ) {
-    let database = pars.database || Utils.getDataBaseFromConnection(conn);
+    const { onlyDeleteByPrimaryKey = true } = pars;
+    const database = pars.database || Utils.getDataBaseFromConnection(conn);
 
-
-
-    let table = pars.table;
+    const table = pars.table;
     if (!table) {
       return Promise.reject(new Error(`pars.table can not be null or empty!`));
     }
 
-    let data = pars.data;
+    const data = pars.data;
     if (!data) {
       return Promise.reject(new Error(`pars.data can not be null or empty!`));
     }
 
-    let schemaModel = await Schema.getSchema(conn, database);
-    let tableSchemaModel = schemaModel.getTableSchemaModel(table);
+    const schemaModel = await Schema.getSchema(conn, database);
+    const tableSchemaModel = schemaModel.getTableSchemaModel(table);
 
     if (!tableSchemaModel) {
       return Promise.reject(new Error(`Table '${table}' is not exists!`));
     }
 
-    let whereList = new Array<any>();
-    let wherePars = {};
+    const whereList = new Array<any>();
+    const wherePars = {};
     let whereSQL = ``;
-    let primaryKeyList = tableSchemaModel.columns.filter(column => column.primaryKey);
+    const primaryKeyList = tableSchemaModel.columns.filter((column) => column.primaryKey);
     if (primaryKeyList.length < 1) {
       return Promise.reject(new Error(`Table '${table}' has no primary key, you can not call this function. Please try function 'deleteByWhere'!`));
     }
-    for (let column of primaryKeyList) {
-      let key = column.columnName;
-      if (Reflect.has(data, key)) {
-        whereSQL += ` ${key} = @wpar${key} and`;
-        whereList.push(Reflect.get(data, key));
-        Reflect.set(wherePars, `wpar${key}`, Reflect.get(data, key));
-      } else {
-        return Promise.reject(new Error(`Key ${column.columnName} is not provided!`));
+
+    if (onlyDeleteByPrimaryKey) {
+      // 检查所有主键是否赋值
+      const cannotBeNullFields = tableSchemaModel.columns
+        .filter((n) => n.primaryKey)
+        .filter((n) => {
+          const value = Reflect.get(data, n.columnName);
+          return value === null || value === undefined;
+        })
+        .map((n) => n.columnName);
+      if (cannotBeNullFields.length) {
+        return Promise.reject(new Error(`Field: ${cannotBeNullFields.join(",")} can not be null!`));
       }
     }
 
-    whereSQL = ` where ` + whereSQL.replace(/and$/, "");
+    primaryKeyList
+      .filter((n) => {
+        const value = Reflect.get(data, n.columnName);
+        return value !== null && value !== undefined;
+      })
+      .map(({ columnName }) => {
+        const value = Reflect.get(data, columnName);
+        whereSQL += ` ${columnName} = @wpar${columnName} and`;
+        whereList.push(value);
+        Reflect.set(wherePars, `wpar${columnName}`, value);
+      });
+
+    if (whereSQL) {
+      whereSQL = ` where ` + whereSQL.replace(/and$/, "");
+    }
 
     let tableName = Utils.getDbObjectName(database, pars.chema, table);
 
@@ -114,14 +132,12 @@ export class Delete {
       request = conn.request();
     }
 
-    Reflect.ownKeys(wherePars).map(m => {
+    Reflect.ownKeys(wherePars).map((m) => {
       request.input(m.toString(), Reflect.get(wherePars, m));
     });
 
     await request.query(sql);
   }
-
-
 
   /**
    * 根据条件删除一条数据。
@@ -178,27 +194,27 @@ export class Delete {
     },
     tran?: MssqlTransaction
   ) {
-    let database = pars.database || Utils.getDataBaseFromConnection(conn);
+    const database = pars.database || Utils.getDataBaseFromConnection(conn);
 
-    let where = pars.where;
+    const where = pars.where;
 
-    let table = pars.table;
+    const table = pars.table;
     if (!table) {
       return Promise.reject(new Error(`pars.table can not be null or empty!`));
     }
 
-    let schemaModel = await Schema.getSchema(conn, database);
-    let tableSchemaModel = schemaModel.getTableSchemaModel(table);
+    const schemaModel = await Schema.getSchema(conn, database);
+    const tableSchemaModel = schemaModel.getTableSchemaModel(table);
 
     if (!tableSchemaModel) {
       return Promise.reject(new Error(`Table '${table}' is not exists!`));
     }
 
-    let { whereSQL, whereList, wherePars } = Where.getWhereSQL(where, tableSchemaModel);
+    const { whereSQL, whereList, wherePars } = Where.getWhereSQL(where, tableSchemaModel);
 
-    let tableName = Utils.getDbObjectName(database, pars.chema, table);
+    const tableName = Utils.getDbObjectName(database, pars.chema, table);
 
-    let sql = `delete from ${tableName} ${whereSQL}`;
+    const sql = `delete from ${tableName} ${whereSQL}`;
 
     let request: Request;
     if (tran) {
@@ -207,7 +223,7 @@ export class Delete {
       request = conn.request();
     }
 
-    Reflect.ownKeys(wherePars).map(m => {
+    Reflect.ownKeys(wherePars).map((m) => {
       request.input(m.toString(), Reflect.get(wherePars, m));
     });
 

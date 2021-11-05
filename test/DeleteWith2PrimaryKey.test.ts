@@ -1,30 +1,17 @@
-import { ConnectionHelper, Select, Exec, Schema, Insert, Update, Delete, ConnectionPool } from "../src/index";
+import { ConnectionHelper, Select, Schema, Delete, ConnectionPool } from "../src/index";
 import { expect } from "chai";
 import "mocha";
-import { initTable } from "./DataInit";
+import { initTableWith2PrimaryKey } from "./DataInit";
 import { getConnectionConfig } from "./connectionConfig";
 import { Utils } from "../src/util/Utils";
-import { Replace } from "../src/Replace";
 import { Transaction } from "../src/Transaction";
 
-describe("Delete", function() {
-  let tableName = "tbl_test_delete";
-  let tableNoPrimaryKey = "tbl_test_noprimarykey";
+describe("Delete with 2 primary key", function () {
+  let tableName = "tbl_test_delete_with_2primarykey";
   let conn: ConnectionPool;
   before(async () => {
     conn = await ConnectionHelper.create(getConnectionConfig());
-    await initTable(conn, tableName, false);
-
-    await Exec.exec(conn, `if exists (select top 1 1 from sys.tables where name = '${tableNoPrimaryKey}') drop table ${tableNoPrimaryKey}`);
-
-    await Exec.exec(
-      conn,
-      `create table ${tableNoPrimaryKey} (
-          id int,
-          value varchar(50),
-          dateValue datetime
-        )`
-    );
+    await initTableWith2PrimaryKey(conn, tableName);
 
     Schema.clear(Utils.getDataBaseFromConnection(conn));
   });
@@ -36,37 +23,37 @@ describe("Delete", function() {
   it("delete must be success", async () => {
     let deleteId = 1;
     let count = await Select.selectCount(conn, {
-      sql: `select * from ${tableName} where id=?`,
-      where: [deleteId]
+      sql: `select * from ${tableName} where id1 = ? and id2 = ?`,
+      where: [deleteId, deleteId],
     });
     expect(count).to.equal(1);
 
     await Delete.deleteByWhere(conn, {
-      where: { id: deleteId },
-      table: tableName
+      where: { id1: deleteId, id2: deleteId },
+      table: tableName,
     });
 
     count = await Select.selectCount(conn, {
-      sql: `select * from ${tableName} where id=?`,
-      where: [deleteId]
+      sql: `select * from ${tableName} where id1 = ? and id2 = ?`,
+      where: [deleteId, deleteId],
     });
     expect(count).to.equal(0);
 
     deleteId = 2;
     count = await Select.selectCount(conn, {
-      sql: `select * from ${tableName} where id=?`,
-      where: [deleteId]
+      sql: `select * from ${tableName} where id1 = ? and id2 = ?`,
+      where: [deleteId, deleteId],
     });
     expect(count).to.equal(1);
 
     await Delete.delete(conn, {
-      data: { id: deleteId },
-      table: tableName
+      data: { id1: deleteId, id2: deleteId },
+      table: tableName,
     });
 
     count = await Select.selectCount(conn, {
-      sql: `select * from ${tableName} where id=?`,
-      where: [deleteId]
+      sql: `select * from ${tableName} where id1 = ? and id2 = ?`,
+      where: [deleteId, deleteId],
     });
     expect(count).to.equal(0);
   });
@@ -76,8 +63,8 @@ describe("Delete", function() {
     let deleteId2 = 4;
 
     let count = await Select.selectCount(conn, {
-      sql: `select * from ${tableName} where id in (?,?)`,
-      where: [deleteId1, deleteId2]
+      sql: `select * from ${tableName} where id1 in (?, ?)`,
+      where: [deleteId1, deleteId2],
     });
     expect(count).to.equal(2);
 
@@ -87,8 +74,8 @@ describe("Delete", function() {
       await Delete.deleteByWhere(
         conn,
         {
-          where: { id: deleteId1 },
-          table: tableName
+          where: { id1: deleteId1, id2: deleteId1 },
+          table: tableName,
         },
         tran
       );
@@ -96,8 +83,8 @@ describe("Delete", function() {
       await Delete.delete(
         conn,
         {
-          data: { id: deleteId2 },
-          table: tableName
+          data: { id1: deleteId2, id2: deleteId2 },
+          table: tableName,
         },
         tran
       );
@@ -107,32 +94,32 @@ describe("Delete", function() {
     }
 
     count = await Select.selectCount(conn, {
-      sql: `select * from ${tableName} where id in (?,?)`,
-      where: [deleteId1, deleteId2]
+      sql: `select * from ${tableName} where id1 in (?,?)`,
+      where: [deleteId1, deleteId2],
     });
     expect(count).to.equal(0);
   });
 
   it("when pars.table is null", async () => {
     await Delete.deleteByWhere(conn, {
-      where: { id: 1 },
-      table: null
+      where: { id1: 1, id2: 1 },
+      table: null,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal("pars.table can not be null or empty!");
       });
 
     await Delete.delete(conn, {
-      data: { id: 1 },
-      table: null
+      data: { id1: 1, id2: 1 },
+      table: null,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal("pars.table can not be null or empty!");
       });
   });
@@ -143,24 +130,24 @@ describe("Delete", function() {
     let tableName = `tbl_not_exists`;
 
     await Delete.deleteByWhere(conn, {
-      where: { id: 1 },
-      table: tableName
+      where: { id1: 1, id2: 1 },
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
       });
 
     await Delete.delete(conn, {
-      data: { id: 1 },
-      table: tableName
+      data: { id1: 1, id2: 1 },
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
       });
   });
@@ -170,12 +157,12 @@ describe("Delete", function() {
 
     await Delete.delete(conn, {
       data: null,
-      table: tableName
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal(`pars.data can not be null or empty!`);
       });
   });
@@ -185,51 +172,57 @@ describe("Delete", function() {
 
     await Delete.delete(conn, {
       data: {},
-      table: tableName
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
-        expect(err.message).to.equal(`Field: id can not be null!`);
+      .catch((err) => {
+        expect(err.message).to.equal(`Field: id1,id2 can not be null!`);
       });
   });
 
-  it("when table with no primary key", async () => {
-    let insertName = `name${Math.random()}`;
+  it("delete all", async () => {
+    let count = await Select.selectCount(conn, {
+      sql: `select * from ${tableName} `,
+      where: [],
+    });
+    expect(count).to.equal(6);
 
     await Delete.delete(conn, {
-      data: { id: 1 },
-      table: tableNoPrimaryKey
-    })
-      .then(() => {
-        expect(true).to.be.false; // 进到这里就有问题
-      })
-      .catch(err => {
-        expect(err.message).to.equal(`Table '${tableNoPrimaryKey}' has no primary key, you can not call this function. Please try function 'deleteByWhere'!`);
-      });
+      data: {},
+      table: tableName,
+      onlyDeleteByPrimaryKey: false,
+    });
+
+    count = await Select.selectCount(conn, {
+      sql: `select * from ${tableName} `,
+      where: [],
+    });
+    expect(count).to.equal(0);
+
   });
 
   it("when error", async () => {
     await Delete.deleteByWhere(conn, {
-      where: { id: "Hellow" },
-      table: tableName
+      where: { id1: "Hellow", id2: "abc" },
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.code).to.equal(`EREQUEST`);
       });
 
     await Delete.delete(conn, {
-      data: { id: "Hellow" },
-      table: tableName
+      data: { id1: "Hellow", id2: "ddd" },
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.code).to.equal(`EREQUEST`);
       });
   });

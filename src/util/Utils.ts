@@ -40,7 +40,7 @@ export class Utils {
    * @memberof Utils
    */
   public static getDataBaseFromConnection(conn: ConnectionPool) {
-    let config = Reflect.get(conn, "config");
+    const config = Reflect.get(conn, "config");
     return config.database;
   }
 }

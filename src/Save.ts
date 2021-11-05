@@ -157,7 +157,7 @@ export class Save {
     }>,
     tran?: MssqlTransaction
   ) {
-    let promiseList = new Array<Promise<any>>();
+    const promiseList = new Array<Promise<any>>();
 
     list.map(h => {
       promiseList.push(

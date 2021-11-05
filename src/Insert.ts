@@ -56,27 +56,27 @@ export class Insert {
     },
     tran?: MssqlTransaction
   ) {
-    let database = pars.database || Utils.getDataBaseFromConnection(conn);
+    const database = pars.database || Utils.getDataBaseFromConnection(conn);
 
-    let data = pars.data;
+    const data = pars.data;
 
     if (!data) {
       return Promise.reject(new Error(`pars.data can not be null or empty!`));
     }
 
-    let table = pars.table;
+    const table = pars.table;
     if (!table) {
       return Promise.reject(new Error(`pars.table can not be null or empty!`));
     }
-    let schemaModel = await Schema.getSchema(conn, database);
+    const schemaModel = await Schema.getSchema(conn, database);
 
-    let tableSchemaModel = schemaModel.getTableSchemaModel(table);
+    const tableSchemaModel = schemaModel.getTableSchemaModel(table);
 
     if (!tableSchemaModel) {
       return Promise.reject(new Error(`Table '${table}' is not exists!`));
     }
 
-    let tableName = Utils.getDbObjectName(database, pars.chema, table);
+    const tableName = Utils.getDbObjectName(database, pars.chema, table);
 
     let fields = "";
     let values = "";
