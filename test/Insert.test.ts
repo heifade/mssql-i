@@ -1,10 +1,10 @@
 import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
-import { ConnectionHelper, Insert, Select, ConnectionPool } from "../src/index";
+import { ConnectionHelper, Insert, Select, ConnectionPool, Transaction } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
 
-describe("Insert", function() {
+describe("Insert", function () {
   let tableName = "tbl_test_insert";
   let conn: ConnectionPool;
 
@@ -19,31 +19,87 @@ describe("Insert", function() {
   it("insert must be success", async () => {
     let insertValue = `value${Math.random()}`;
 
-    let result = await Insert.insert(conn, {
+    let result = await Insert.insertAndGetIdentity(conn, {
       data: { value: insertValue, value2: 1, id: 1 },
-      table: tableName
+      table: tableName,
     });
 
     let insertId = result.insertId;
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [insertId]
+      where: [insertId],
     });
 
     expect(rowData != null).to.be.true;
     expect(rowData.value).to.equal(insertValue);
   });
 
+  it("insert multiple must be success", async () => {
+    let insertValue = `value${Math.random()}-123`;
+
+    const tran = await Transaction.begin(conn);
+
+    await Insert.insert(
+      conn,
+      {
+        data: [
+          { value: insertValue, dateValue: "2021-11-05" },
+          { value: insertValue, dateValue: "2021-11-05" },
+          { value: insertValue, dateValue: "2021-11-05" },
+          { value: insertValue, dateValue: "2021-11-05" },
+          { value: insertValue, dateValue: "2021-11-05" },
+        ],
+        table: tableName,
+      },
+      tran
+    );
+    await tran.commit();
+
+    let rowData = await Select.select(conn, {
+      sql: `select * from ${tableName} where dateValue = '2021-11-05' `,
+      where: [],
+    });
+    expect(rowData.length).to.equal(5);
+  });
+
+  it("insert multiple with tran roll back must be success", async () => {
+    let insertValue = `value${Math.random()}-124`;
+
+    const tran = await Transaction.begin(conn);
+
+    await Insert.insert(
+      conn,
+      {
+        data: [
+          { value: insertValue, dateValue: "2021-11-06" },
+          { value: insertValue, dateValue: "2021-11-06" },
+          { value: insertValue, dateValue: "2021-11-06" },
+          { value: insertValue, dateValue: "2021-11-06" },
+          { value: insertValue, dateValue: "2021-11-06" },
+        ],
+        table: tableName,
+      },
+      tran
+    );
+    await tran.rollback();
+
+    let rowData = await Select.select(conn, {
+      sql: `select * from ${tableName} where dateValue = '2021-11-06' `,
+      where: [],
+    });
+    expect(rowData.length).to.equal(0);
+  });
+
   it("when pars.data is null", async () => {
     await Insert.insert(conn, {
       data: null,
-      table: tableName
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal("pars.data can not be null or empty!");
       });
   });
@@ -53,12 +109,12 @@ describe("Insert", function() {
 
     await Insert.insert(conn, {
       data: { value: insertValue },
-      table: null
+      table: null,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal("pars.table can not be null or empty!");
       });
   });
@@ -70,12 +126,12 @@ describe("Insert", function() {
 
     await Insert.insert(conn, {
       data: { value: insertValue },
-      table: tableName
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
       });
   });
@@ -83,18 +139,17 @@ describe("Insert", function() {
   it("when error", async () => {
     let insertValue = `value${Math.random()}`;
 
-    await Insert.insert(conn, {
-      data: {
-        value: insertValue,
-        dateValue: "aaa"
-      },
-      table: tableName
-    })
-      .then(() => {
-        expect(true).to.be.false; // 进到这里就有问题
-      })
-      .catch(err => {
-        expect(err.code).to.equal(`EREQUEST`);
+    try {
+      await Insert.insert(conn, {
+        data: {
+          value: insertValue,
+          dateValue: ",,,",
+        },
+        table: tableName,
       });
+      expect(true).to.be.false; // 进到这里就有问题
+    } catch (err) {
+      expect(err.code).to.equal(`EREQUEST`);
+    }
   });
 });

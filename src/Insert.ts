@@ -1,6 +1,7 @@
 import { ConnectionPool, Request } from "mssql";
 import { MssqlTransaction } from ".";
 import { IHash } from "./interface/iHash";
+import { TableSchemaModel } from "./model/SchemaModel";
 import { Schema } from "./schema/Schema";
 import { Utils } from "./util/Utils";
 
@@ -20,7 +21,7 @@ export class Insert {
    * @static
    * @param {Connection} conn - 数据库连接对象
    * @param {{
-   *       data: IHash;
+   *       data: IHash | IHash[];
    *       database?: string;
    *       table: string;
    *     }} pars
@@ -50,6 +51,84 @@ export class Insert {
   public static async insert(
     conn: ConnectionPool,
     pars: {
+      data: IHash | IHash[];
+      database?: string;
+      chema?: string;
+      table: string;
+    },
+    tran?: MssqlTransaction
+  ) {
+    const database = pars.database || Utils.getDataBaseFromConnection(conn);
+
+    const { data } = pars;
+
+    if (!data) {
+      return Promise.reject(new Error(`pars.data can not be null or empty!`));
+    }
+
+    const table = pars.table;
+    if (!table) {
+      return Promise.reject(new Error(`pars.table can not be null or empty!`));
+    }
+    const schemaModel = await Schema.getSchema(conn, database);
+
+    const tableSchemaModel = schemaModel.getTableSchemaModel(table);
+
+    if (!tableSchemaModel) {
+      return Promise.reject(new Error(`Table '${table}' is not exists!`));
+    }
+
+    const tableName = Utils.getDbObjectName(database, pars.chema, table);
+
+    if (data instanceof Array) {
+      for (const row of data) {
+        const request = tran ? new Request(tran) : conn.request();
+        await this._insert({
+          row,
+          tableSchemaModel,
+          tableName,
+          request,
+        });
+      }
+    } else {
+      const request = tran ? new Request(tran) : conn.request();
+      await this._insert({
+        row: data,
+        tableSchemaModel,
+        tableName,
+        request,
+      });
+    }
+    return true;
+  }
+
+  private static async _insert(pars: { row: IHash; tableSchemaModel: TableSchemaModel; request: Request; tableName: string }) {
+    const { row, tableName, tableSchemaModel, request } = pars;
+    let fields = "";
+    let values = "";
+    Object.getOwnPropertyNames(row).map((key, index) => {
+      const column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
+      if (column) {
+        if (!column.autoIncrement) {
+          //跳过自增字段
+          fields += `${column.columnName},`;
+          values += `@${column.columnName},`;
+        }
+        request.input(column.columnName, row[column.columnName]);
+      }
+    });
+
+    fields = fields.replace(/\,$/, "");
+    values = values.replace(/\,$/, "");
+
+    const sql = `insert into ${tableName}(${fields}) values(${values})`;
+
+    await request.query(sql);
+  }
+
+  public static async insertAndGetIdentity(
+    conn: ConnectionPool,
+    pars: {
       data: IHash;
       database?: string;
       chema?: string;
@@ -59,7 +138,7 @@ export class Insert {
   ) {
     const database = pars.database || Utils.getDataBaseFromConnection(conn);
 
-    const data = pars.data;
+    const { data } = pars;
 
     if (!data) {
       return Promise.reject(new Error(`pars.data can not be null or empty!`));
@@ -98,7 +177,7 @@ export class Insert {
     });
 
     Object.getOwnPropertyNames(data).map((key, index) => {
-      let column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
+      const column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
         if (!column.autoIncrement) {
           //跳过自增字段
@@ -119,14 +198,12 @@ export class Insert {
       sql += ";select @@IDENTITY as insertId";
     }
 
-    let result = await request.query(sql);
-
-    let returnValue: any = {};
+    const result = await request.query(sql);
+    const returnValue: any = {};
     if (haveAutoIncrement) {
       //有自增字段
       returnValue.insertId = result.recordset[0]["insertId"];
     }
-
     return returnValue;
   }
 }

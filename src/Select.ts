@@ -1,4 +1,5 @@
 import { ConnectionPool } from "mssql";
+import { IHash } from "./interface/iHash";
 import { SelectParamsModel } from "./model/SelectParamsModel";
 import { SplitPageParamsModel } from "./model/SplitPageParamsModel";
 import { SplitPageResultModel } from "./model/SplitPageResultModel";
@@ -53,7 +54,7 @@ export class Select {
    * });
    * </pre>
    */
-  public static async select(conn: ConnectionPool, param: SelectParamsModel) {
+  public static async select(conn: ConnectionPool, param: SelectParamsModel): Promise<IHash[]> {
     const result = await Select.selectBase(conn, param);
 
     return await readListFromResult(result.recordset);
@@ -85,7 +86,7 @@ export class Select {
    * }]);
    * </pre>
    */
-  public static async selects(conn: ConnectionPool, params: SelectParamsModel[]) {
+  public static async selects(conn: ConnectionPool, params: SelectParamsModel[]): Promise<IHash[][]> {
     const promises = new Array<Promise<any[]>>();
 
     params.map((param) => {
@@ -116,7 +117,7 @@ export class Select {
    * });
    * </pre>
    */
-  public static async selectTop1(conn: ConnectionPool, param: SelectParamsModel) {
+  public static async selectTop1(conn: ConnectionPool, param: SelectParamsModel): Promise<IHash> {
     const result = await Select.selectBase(conn, param);
     if (result.recordset.length > 0) {
       return readListFromResult([result.recordset[0]])[0];
@@ -143,7 +144,7 @@ export class Select {
    * });
    * </pre>
    */
-  public static async selectCount(conn: ConnectionPool, param: SelectParamsModel) {
+  public static async selectCount(conn: ConnectionPool, param: SelectParamsModel): Promise<number> {
     const param2 = new SelectParamsModel();
     param2.sql = `select count(*) as value from (${param.sql}) tCount`;
     param2.where = param.where;
@@ -230,7 +231,7 @@ export class Select {
    * 结果，返回值为满足条件的第一条数据的f1字段值
    * </pre>
    */
-  public static async selectOneValue(conn: ConnectionPool, param: SelectParamsModel) {
+  public static async selectOneValue(conn: ConnectionPool, param: SelectParamsModel): Promise<any> {
     const result = await Select.selectBase(conn, param);
     const v = result.recordset[0];
     if (v) {
