@@ -31,7 +31,7 @@ describe("Replace", function () {
     await ConnectionHelper.close(conn);
   });
 
-  it("replace must be success with primary key", async () => {
+  it("replace must be success with primary key 01", async () => {
     let insertValue = `value${Math.random()}`;
 
     await Replace.replace(conn, {
@@ -57,7 +57,7 @@ describe("Replace", function () {
     expect(rowData.createDate).to.equal(null);
   });
 
-  it("replace must be success with primary key 1", async () => {
+  it("replace must be success with primary key 02", async () => {
     let insertValue = `value${Math.random()}`;
 
     await Replace.replace(conn, {
@@ -68,8 +68,8 @@ describe("Replace", function () {
       table: tableName,
       createBy: "djd2",
       createDate: "2021-11-05 15:00:00",
-      updateBy: null,
-      updateDate: null,
+      updateBy: "djd50",
+      updateDate: "2021-11-15 15:00:00",
     });
 
     let rowData = await Select.selectTop1(conn, {
@@ -81,8 +81,8 @@ describe("Replace", function () {
     expect(rowData.value).to.equal(insertValue);
     expect(rowData.createBy).to.equal(null);
     expect(rowData.createDate).to.equal(null);
-    expect(rowData.updateBy).to.equal(null);
-    expect(rowData.updateDate).to.equal(null);
+    expect(rowData.updateBy).to.equal("djd50");
+    expect(rowData.updateDate).to.equal("2021-11-15 15:00:00");
   });
 
   it("replace must be success with primary key 2", async () => {
@@ -134,6 +134,87 @@ describe("Replace", function () {
     expect(rowData.value).to.equal(insertValue);
     expect(rowData.createBy).to.equal("djd2");
     expect(rowData.createDate).to.equal("2021-11-05 15:00:00");
+  });
+
+  it("replace must be success with no primary key 2", async () => {
+    let insertValue = `value${Math.random()}`;
+
+    let result = await Replace.replace(conn, {
+      data: {
+        value: insertValue,
+      },
+      table: tableName,
+      createBy: {
+        fieldName: "createBy",
+        value: "djd27",
+      },
+      createDate: {
+        fieldName: "createDate",
+        value: "2031-12-05 15:00:00",
+      },
+      updateBy: {
+        fieldName: "updateBy",
+        value: "djd18",
+      },
+      updateDate: {
+        fieldName: "updateDate",
+        value: "2031-11-05 15:00:23",
+      },
+    });
+
+    let rowData = await Select.selectTop1(conn, {
+      sql: `select value, createBy, convert(char(19), createDate, 120) as createDate from ${tableName} where id=?`,
+      where: [result.insertId],
+    });
+
+    expect(rowData != null).to.be.true;
+    expect(rowData.value).to.equal(insertValue);
+    expect(rowData.createBy).to.equal("djd27");
+    expect(rowData.createDate).to.equal("2031-12-05 15:00:00");
+  });
+
+  it("replace must be success with no primary key 2", async () => {
+    let insertValue = `value${Math.random()}`;
+
+    let result = await Replace.replace(conn, {
+      data: {
+        value: insertValue,
+        createBy: "djd91",
+        createDate: "2021-10-12",
+        updateBy: "djd92",
+        updateDate: "2021-11-12",
+      },
+      table: tableName,
+      createBy: {
+        fieldName: "createBy",
+        value: "djd27",
+      },
+      createDate: {
+        fieldName: "createDate",
+        value: "2031-12-05 15:00:00",
+      },
+      updateBy: {
+        fieldName: "updateBy",
+        value: "djd18",
+      },
+      updateDate: {
+        fieldName: "updateDate",
+        value: "2031-11-05 15:00:23",
+      },
+    });
+
+    let rowData = await Select.selectTop1(conn, {
+      sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id = ?`,
+      where: [result.insertId],
+    });
+    console.log(1, result.insertId);
+
+    expect(rowData != null).to.be.true;
+    expect(rowData.value).to.equal(insertValue);
+    expect(rowData.createBy).to.equal("djd91");
+    expect(rowData.createDate).to.equal("2021-10-12 00:00:00");
+    expect(rowData.updateBy).to.equal("djd92");
+    expect(rowData.updateDate).to.equal("2021-11-12 00:00:00");
   });
 
   it("replace with tran must be success", async () => {

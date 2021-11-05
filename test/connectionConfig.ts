@@ -1,7 +1,9 @@
 import { config } from "mssql";
 import * as fs from "fs";
-import { version, parse } from "commander";
+import { Command } from "commander";
 import { version as v } from "../package.json";
+
+const program = new Command();
 
 const connConfig = {
   server: "",
@@ -11,7 +13,7 @@ const connConfig = {
   port: 1433,
 };
 
-version(v)
+program
   .option("--user <n>", "please input sqlserver user")
   .option("--server <n>", "please input sqlserver ip")
   .option("--password <n>", "please input sqlserver password")
@@ -46,7 +48,7 @@ version(v)
     }
   });
 
-parse(process.argv);
+program.parse(process.argv);
 
 export function getConnectionConfig() {
   return {

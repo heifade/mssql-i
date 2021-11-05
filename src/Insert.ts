@@ -146,7 +146,7 @@ export class Insert {
       updateDate?: IUpdateDate;
     },
     tran?: MssqlTransaction
-  ) {
+  ): Promise<{ insertId: number }> {
     const database = pars.database || Utils.getDataBaseFromConnection(conn);
 
     const { data: row, createBy, updateBy, createDate, updateDate } = pars;

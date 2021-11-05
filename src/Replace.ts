@@ -105,6 +105,14 @@ export class Replace {
     if (typeof createDate === "object" && !(createDate instanceof Date) && createDate.fieldName) {
       createDateFieldName = createDate.fieldName;
     }
+    let updateByFieldName = "updateBy";
+    if (typeof updateBy === "object" && updateBy.fieldName) {
+      updateByFieldName = updateBy.fieldName;
+    }
+    let updateDateFieldName = "updateDate";
+    if (typeof updateDate === "object" && !(updateDate instanceof Date) && updateDate.fieldName) {
+      updateDateFieldName = updateDate.fieldName;
+    }
 
     const rowData = fillCreateByUpdateBy({ row, createBy, updateBy, createDate, updateDate });
 
@@ -120,27 +128,35 @@ export class Replace {
           sWhereSQL += ` ${colName} = @wparw${colName} and`;
           uWhereSQL += ` ${colName} = @wparu${colName} and`;
         } else {
-          // 字段名为: createBy, createDate 的，当原数据有指定值时，以源数据为准，如果没有指定，跳过
-          if (colName === createByFieldName) {
-            if (Reflect.has(row, createByFieldName)) {
-              request.input(`upar${colName}`, row[colName]);
-              updateFields += ` ${colName} = @upar${colName},`;
-            }
-            return;
+          // // 字段名为: createBy, createDate 的，当原数据有指定值时，以源数据为准，如果没有指定，跳过
+          // if (colName === createByFieldName) {
+          //   if (Reflect.has(row, createByFieldName)) {
+          //     request.input(`ipar${createByFieldName}`, row[createByFieldName]);
+          //     insertFields += ` ${createByFieldName},`;
+          //     insertValues += ` @ipar${createByFieldName},`;
+          //   }
+          //   return;
+          // } else if (colName === createDateFieldName) {
+          //   if (Reflect.has(row, createDateFieldName)) {
+          //     request.input(`ipar${createDateFieldName}`, row[createDateFieldName]);
+          //     insertFields += ` ${createDateFieldName},`;
+          //     insertValues += ` @ipar${createDateFieldName},`;
+          //   }
+          //   return;
+          // }
+
+          if (![createByFieldName, createDateFieldName].includes(colName)) {
+            request.input(`upar${colName}`, rowData[colName]);
+            updateFields += ` ${colName} = @upar${colName},`;
           }
-          if (colName === createDateFieldName) {
-            if (Reflect.has(row, createDateFieldName)) {
-              request.input(`upar${colName}`, row[colName]);
-              updateFields += ` ${colName} = @upar${colName},`;
-            }
-            return;
-          }
-          request.input(`upar${colName}`, rowData[colName]);
-          updateFields += ` ${colName} = @upar${colName},`;
         }
 
         if (!column.autoIncrement) {
-          request.input(`ipar${colName}`, rowData[colName]);
+          if (Reflect.has(row, colName)) {
+            request.input(`ipar${colName}`, row[colName]);
+          } else {
+            request.input(`ipar${colName}`, rowData[colName]);
+          }
           insertFields += ` ${colName},`;
           insertValues += ` @ipar${colName},`;
         }
@@ -156,18 +172,18 @@ export class Replace {
       uWhereSQL = ` where ` + uWhereSQL.replace(/and$/, "");
     }
 
-    if (createBy && !Reflect.has(row, createByFieldName)) {
-      // 如果源数据没有指定，但需要填写 createBy 时
-      request.input(`ipar${createByFieldName}`, rowData[createByFieldName]);
-      insertFields += ` ${createByFieldName},`;
-      insertValues += ` @ipar${createByFieldName},`;
-    }
-    if (createDate && !Reflect.has(row, createDateFieldName)) {
-      // 如果源数据没有指定，但需要填写 createDate 时
-      request.input(`ipar${createDateFieldName}`, rowData[createDateFieldName]);
-      insertFields += ` ${createDateFieldName},`;
-      insertValues += ` @ipar${createDateFieldName},`;
-    }
+    // if (createBy && !Reflect.has(row, createByFieldName)) {
+    //   // 如果源数据没有指定，但需要填写 createBy 时
+    //   request.input(`ipar${createByFieldName}`, rowData[createByFieldName]);
+    //   insertFields += ` ${createByFieldName},`;
+    //   insertValues += ` @ipar${createByFieldName},`;
+    // }
+    // if (createDate && !Reflect.has(row, createDateFieldName)) {
+    //   // 如果源数据没有指定，但需要填写 createDate 时
+    //   request.input(`ipar${createDateFieldName}`, rowData[createDateFieldName]);
+    //   insertFields += ` ${createDateFieldName},`;
+    //   insertValues += ` @ipar${createDateFieldName},`;
+    // }
 
     updateFields = updateFields.trim().replace(/\,$/, ""); //去掉最后面的','
     insertFields = insertFields.trim().replace(/\,$/, ""); //去掉最后面的','

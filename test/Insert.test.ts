@@ -43,7 +43,90 @@ describe("Insert", function () {
     expect(rowData.updateDate).to.equal("2021-11-05 12:23:48");
   });
 
-  it("insert multiple must be success", async () => {
+  it("insert with tran must be success", async () => {
+    let insertValue = `value${Math.random()}`;
+
+    const tran = await Transaction.begin(conn);
+
+    let result = await Insert.insertAndGetIdentity(
+      conn,
+      {
+        data: { value: insertValue },
+        table: tableName,
+        createBy: "djd31",
+        createDate: "2021-12-05 12:23:47",
+        updateBy: "djd41",
+        updateDate: "2021-12-05 12:23:48",
+      },
+      tran
+    );
+
+    await tran.commit();
+
+    let insertId = result.insertId;
+
+    let rowData = await Select.selectTop1(conn, {
+      sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id=?`,
+      where: [insertId],
+    });
+
+    expect(rowData != null).to.be.true;
+    expect(rowData.value).to.equal(insertValue);
+    expect(rowData.createBy).to.equal("djd31");
+    expect(rowData.createDate).to.equal("2021-12-05 12:23:47");
+    expect(rowData.updateBy).to.equal("djd41");
+    expect(rowData.updateDate).to.equal("2021-12-05 12:23:48");
+  });
+
+  it("insert data can not be null or empty", async () => {
+    try {
+      await Insert.insertAndGetIdentity(conn, {
+        data: null,
+        table: tableName,
+        createBy: "djd3",
+        createDate: "2021-11-05 12:23:47",
+        updateBy: "djd4",
+        updateDate: "2021-11-05 12:23:48",
+      });
+      expect(true).to.equal(false); // 不能进这里
+    } catch (e) {
+      expect(e.message).to.equal("pars.data can not be null or empty!");
+    }
+  });
+
+  it("insert table can not be null or empty", async () => {
+    try {
+      await Insert.insertAndGetIdentity(conn, {
+        data: { id: 1 },
+        table: null,
+        createBy: "djd3",
+        createDate: "2021-11-05 12:23:47",
+        updateBy: "djd4",
+        updateDate: "2021-11-05 12:23:48",
+      });
+      expect(true).to.equal(false); // 不能进这里
+    } catch (e) {
+      expect(e.message).to.equal("pars.table can not be null or empty!");
+    }
+  });
+
+  it("insert table can not exists", async () => {
+    try {
+      await Insert.insertAndGetIdentity(conn, {
+        data: { id: 1 },
+        table: "t12345",
+        createBy: "djd3",
+        createDate: "2021-11-05 12:23:47",
+        updateBy: "djd4",
+        updateDate: "2021-11-05 12:23:48",
+      });
+      expect(true).to.equal(false); // 不能进这里
+    } catch (e) {
+      expect(e.message).to.equal("Table 't12345' is not exists!");
+    }
+  });
+
+  it("insert multiple with tran must be success", async () => {
     let insertValue = `value${Math.random()}-123`;
 
     const tran = await Transaction.begin(conn);
@@ -73,10 +156,39 @@ describe("Insert", function () {
       where: [],
     });
     expect(rowData.length).to.equal(5);
-    expect(rowData[0].createBy).to.equal('djd1');
-    expect(rowData[0].createDate).to.equal('2021-11-05 12:23:45');
-    expect(rowData[0].updateBy).to.equal('djd2');
-    expect(rowData[0].updateDate).to.equal('2021-11-05 12:23:46');
+    expect(rowData[0].createBy).to.equal("djd1");
+    expect(rowData[0].createDate).to.equal("2021-11-05 12:23:45");
+    expect(rowData[0].updateBy).to.equal("djd2");
+    expect(rowData[0].updateDate).to.equal("2021-11-05 12:23:46");
+  });
+
+  it("insert multiple must be success", async () => {
+    let insertValue = `value${Math.random()}-12345`;
+
+    await Insert.insert(conn, {
+      data: [
+        { value: insertValue, dateValue: "2031-11-05" },
+        { value: insertValue, dateValue: "2031-11-05" },
+        { value: insertValue, dateValue: "2031-11-05" },
+        { value: insertValue, dateValue: "2031-11-05" },
+        { value: insertValue, dateValue: "2031-11-05" },
+      ],
+      table: tableName,
+      createBy: "djd16",
+      createDate: "2020-11-05 12:23:45",
+      updateBy: "djd27",
+      updateDate: "2020-11-05 12:23:46",
+    });
+
+    let rowData = await Select.select(conn, {
+      sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where dateValue = '2031-11-05' `,
+      where: [],
+    });
+    expect(rowData.length).to.equal(5);
+    expect(rowData[0].createBy).to.equal("djd16");
+    expect(rowData[0].createDate).to.equal("2020-11-05 12:23:45");
+    expect(rowData[0].updateBy).to.equal("djd27");
+    expect(rowData[0].updateDate).to.equal("2020-11-05 12:23:46");
   });
 
   it("insert multiple with tran roll back must be success", async () => {
