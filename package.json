@@ -1,6 +1,6 @@
 {
   "name": "mssql-i",
-  "version": "3.0.10",
+  "version": "3.0.11",
   "description": "sqlserver interface, base on mssql",
   "main": "./es/index.js",
   "module": "./es/index.js",
@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "mocha 'test/**/*.test.ts'"
+    "test": "nyc mocha 'test/**/*.test.ts'"
   },
   "keywords": [
     "sqlserver",
