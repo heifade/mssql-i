@@ -6,11 +6,13 @@ import { getConnectionConfig } from "./connectionConfig";
 
 describe("Insert", function () {
   let tableName = "tbl_test_insert";
+  let tableName2 = "tbl_test_insert2";
   let conn: ConnectionPool;
 
   before(async () => {
     conn = await ConnectionHelper.create(getConnectionConfig());
     await initTable(conn, tableName, true);
+    await initTable(conn, tableName2, true);
   });
   after(async () => {
     await ConnectionHelper.close(conn);
@@ -279,5 +281,109 @@ describe("Insert", function () {
     } catch (err) {
       expect(err.code).to.equal(`EREQUEST`);
     }
+  });
+
+  it("test2 当数据里指定 createBy, updateBy, createDate, updateDate时, 直接插入", async () => {
+    const insertValue = `value${Math.random()}`;
+    await Insert.insert(conn, {
+      data: {
+        value: insertValue,
+        dateValue: "2021-01-01",
+        createBy: "djd1",
+        createDate: "2021-01-02",
+        updateBy: "djd2",
+        updateDate: "2021-01-03",
+      },
+      table: tableName2,
+    });
+
+    const list = await Select.select(conn, {
+      sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName2} where id = 11`,
+    });
+
+    expect(list.length).to.equal(1);
+    expect(list[0].value).to.equal(insertValue);
+    expect(list[0].dateValue).to.equals("2021-01-01 00:00:00");
+    expect(list[0].createBy).to.equals("djd1");
+    expect(list[0].createDate).to.equals("2021-01-02 00:00:00");
+    expect(list[0].updateBy).to.equals("djd2");
+    expect(list[0].updateDate).to.equals("2021-01-03 00:00:00");
+  });
+
+  it("test2 当数据里指定 createBy, updateBy, createDate, updateDate, 并且操作里又传入时, 以数据的为准", async () => {
+    const insertValue = `value${Math.random()}`;
+    await Insert.insert(conn, {
+      data: {
+        value: insertValue,
+        dateValue: "2021-01-01",
+        createBy: "djd1",
+        createDate: "2021-01-02",
+        updateBy: "djd2",
+        updateDate: "2021-01-03",
+      },
+      createBy: "djd3",
+      createDate: "2021-01-04",
+      updateBy: "djd4",
+      updateDate: "2021-01-05",
+      table: tableName2,
+    });
+
+    const list = await Select.select(conn, {
+      sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName2} where id = 12`,
+    });
+
+    expect(list.length).to.equal(1);
+    expect(list[0].value).to.equal(insertValue);
+    expect(list[0].dateValue).to.equals("2021-01-01 00:00:00");
+    expect(list[0].createBy).to.equals("djd1");
+    expect(list[0].createDate).to.equals("2021-01-02 00:00:00");
+    expect(list[0].updateBy).to.equals("djd2");
+    expect(list[0].updateDate).to.equals("2021-01-03 00:00:00");
+  });
+  it("test2 当数据里没指定 createBy, updateBy, createDate, updateDate, 并且操作里又传入时, 以操作数据为准", async () => {
+    const insertValue = `value${Math.random()}`;
+    await Insert.insert(conn, {
+      data: {
+        value: insertValue,
+        dateValue: "2021-01-01",
+      },
+      createBy: "djd3",
+      createDate: "2021-01-04",
+      updateBy: "djd4",
+      updateDate: "2021-01-05",
+      table: tableName2,
+    });
+    const list = await Select.select(conn, {
+      sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName2} where id = 13`,
+    });
+
+    expect(list.length).to.equal(1);
+    expect(list[0].value).to.equal(insertValue);
+    expect(list[0].dateValue).to.equals("2021-01-01 00:00:00");
+    expect(list[0].createBy).to.equals("djd3");
+    expect(list[0].createDate).to.equals("2021-01-04 00:00:00");
+    expect(list[0].updateBy).to.equals("djd4");
+    expect(list[0].updateDate).to.equals("2021-01-05 00:00:00");
+  });
+  it("test2 当数据里没指定 createBy, updateBy, createDate, updateDate, 并且操作里又没指定时, 为空", async () => {
+    const insertValue = `value${Math.random()}`;
+    await Insert.insert(conn, {
+      data: {
+        value: insertValue,
+        dateValue: "2021-01-01",
+      },
+      table: tableName2,
+    });
+    const list = await Select.select(conn, {
+      sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName2} where id = 14`,
+    });
+
+    expect(list.length).to.equal(1);
+    expect(list[0].value).to.equal(insertValue);
+    expect(list[0].dateValue).to.equals("2021-01-01 00:00:00");
+    expect(list[0].createBy).to.equals(null);
+    expect(list[0].createDate).to.equals(null);
+    expect(list[0].updateBy).to.equals(null);
+    expect(list[0].updateDate).to.equals(null);
   });
 });
