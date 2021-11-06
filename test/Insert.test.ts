@@ -28,6 +28,7 @@ describe("Insert", function () {
       createDate: "2021-11-05 12:23:47",
       updateBy: "djd4",
       updateDate: "2021-11-05 12:23:48",
+      getIdentityValue: true,
     });
 
     let insertId = result.identityValue;
@@ -37,7 +38,7 @@ describe("Insert", function () {
       where: [insertId],
     });
 
-    expect(rowData != null).to.be.true;
+    expect(rowData !== null).to.be.true;
     expect(rowData.value).to.equal(insertValue);
     expect(rowData.createBy).to.equal("djd3");
     expect(rowData.createDate).to.equal("2021-11-05 12:23:47");
@@ -59,6 +60,7 @@ describe("Insert", function () {
         createDate: "2021-12-05 12:23:47",
         updateBy: "djd41",
         updateDate: "2021-12-05 12:23:48",
+        getIdentityValue: true,
       },
       tran
     );
@@ -133,7 +135,7 @@ describe("Insert", function () {
 
     const tran = await Transaction.begin(conn);
 
-    await Insert.insert(
+    await Insert.inserts(
       conn,
       {
         data: [
@@ -167,7 +169,7 @@ describe("Insert", function () {
   it("insert multiple must be success", async () => {
     let insertValue = `value${Math.random()}-12345`;
 
-    await Insert.insert(conn, {
+    await Insert.inserts(conn, {
       data: [
         { value: insertValue, dateValue: "2031-11-05" },
         { value: insertValue, dateValue: "2031-11-05" },
@@ -198,7 +200,7 @@ describe("Insert", function () {
 
     const tran = await Transaction.begin(conn);
 
-    await Insert.insert(
+    await Insert.inserts(
       conn,
       {
         data: [
@@ -234,11 +236,38 @@ describe("Insert", function () {
       });
   });
 
+  it("when pars.data is null", async () => {
+    await Insert.inserts(conn, {
+      data: null,
+      table: tableName,
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch((err) => {
+        expect(err.message).to.equal("pars.data can not be null or empty!");
+      });
+  });
+
   it("when pars.table is null", async () => {
     let insertValue = `value${Math.random()}`;
 
     await Insert.insert(conn, {
       data: { value: insertValue },
+      table: null,
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch((err) => {
+        expect(err.message).to.equal("pars.table can not be null or empty!");
+      });
+  });
+  it("when pars.table is null", async () => {
+    let insertValue = `value${Math.random()}`;
+
+    await Insert.inserts(conn, {
+      data: [{ value: insertValue }],
       table: null,
     })
       .then(() => {
@@ -256,6 +285,22 @@ describe("Insert", function () {
 
     await Insert.insert(conn, {
       data: { value: insertValue },
+      table: tableName,
+    })
+      .then(() => {
+        expect(true).to.be.false; // 进到这里就有问题
+      })
+      .catch((err) => {
+        expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
+      });
+  });
+  it("when table is not exists", async () => {
+    let insertValue = `value${Math.random()}`;
+
+    let tableName = `tbl_not_exists`;
+
+    await Insert.inserts(conn, {
+      data: [{ value: insertValue }],
       table: tableName,
     })
       .then(() => {
