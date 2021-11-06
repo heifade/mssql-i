@@ -7,6 +7,10 @@ import { Schema } from "./schema/Schema";
 import { fillCreateByUpdateBy } from "./util/fillCreateByUpdateBy";
 import { Utils } from "./util/Utils";
 
+interface IInsertResult {
+  identityValue: number;
+}
+
 /**
  * 插入数据
  *
@@ -14,6 +18,58 @@ import { Utils } from "./util/Utils";
  * @class Insert
  */
 export class Insert {
+  public static async inserts(
+    conn: ConnectionPool,
+    pars: {
+      data: IHash[];
+      database?: string;
+      chema?: string;
+      table: string;
+      getIdentityValue?: boolean;
+      createBy?: ICreateBy;
+      createDate?: ICreateDate;
+      updateBy?: IUpdateBy;
+      updateDate?: IUpdateDate;
+    },
+    tran?: MssqlTransaction
+  ) {
+    const resultList: IInsertResult[] = [];
+    const { data, createBy, updateBy, createDate, updateDate, getIdentityValue } = pars;
+    const database = pars.database || Utils.getDataBaseFromConnection(conn);
+
+    if (!data) {
+      return Promise.reject(new Error(`pars.data can not be null or empty!`));
+    }
+
+    const table = pars.table;
+    if (!table) {
+      return Promise.reject(new Error(`pars.table can not be null or empty!`));
+    }
+    const schemaModel = await Schema.getSchema(conn, database);
+
+    const tableSchemaModel = schemaModel.getTableSchemaModel(table);
+
+    if (!tableSchemaModel) {
+      return Promise.reject(new Error(`Table '${table}' is not exists!`));
+    }
+
+    const tableName = Utils.getDbObjectName(database, pars.chema, table);
+
+    for (const row of data) {
+      const request = tran ? new Request(tran) : conn.request();
+      resultList.push(
+        await this._insert({
+          row: fillCreateByUpdateBy({ row, createBy, updateBy, createDate, updateDate }),
+          tableSchemaModel,
+          tableName,
+          request,
+          getIdentityValue,
+        })
+      );
+    }
+    return resultList;
+  }
+
   /**
    * <pre>
    * 插入一条数据
@@ -53,10 +109,11 @@ export class Insert {
   public static async insert(
     conn: ConnectionPool,
     pars: {
-      data: IHash | IHash[];
+      data: IHash;
       database?: string;
       chema?: string;
       table: string;
+      getIdentityValue?: boolean;
       createBy?: ICreateBy;
       createDate?: ICreateDate;
       updateBy?: IUpdateBy;
@@ -66,7 +123,7 @@ export class Insert {
   ) {
     const database = pars.database || Utils.getDataBaseFromConnection(conn);
 
-    const { data, createBy, createDate, updateBy, updateDate } = pars;
+    const { data, createBy, createDate, updateBy, updateDate, getIdentityValue } = pars;
 
     if (!data) {
       return Promise.reject(new Error(`pars.data can not be null or empty!`));
@@ -85,32 +142,18 @@ export class Insert {
     }
 
     const tableName = Utils.getDbObjectName(database, pars.chema, table);
-
-    if (data instanceof Array) {
-      for (const row of data) {
-        const request = tran ? new Request(tran) : conn.request();
-
-        await this._insert({
-          row: fillCreateByUpdateBy({ row, createBy, updateBy, createDate, updateDate }),
-          tableSchemaModel,
-          tableName,
-          request,
-        });
-      }
-    } else {
-      const request = tran ? new Request(tran) : conn.request();
-      await this._insert({
-        row: fillCreateByUpdateBy({ row: data, createBy, updateBy, createDate, updateDate }),
-        tableSchemaModel,
-        tableName,
-        request,
-      });
-    }
-    return true;
+    const request = tran ? new Request(tran) : conn.request();
+    return await this._insert({
+      row: fillCreateByUpdateBy({ row: data, createBy, updateBy, createDate, updateDate }),
+      tableSchemaModel,
+      tableName,
+      request,
+      getIdentityValue,
+    });
   }
 
-  private static async _insert(pars: { row: IHash; tableSchemaModel: TableSchemaModel; request: Request; tableName: string }) {
-    const { row, tableName, tableSchemaModel, request } = pars;
+  private static async _insert(pars: { row: IHash; tableSchemaModel: TableSchemaModel; request: Request; tableName: string; getIdentityValue?: boolean }): Promise<IInsertResult> {
+    const { row, tableName, tableSchemaModel, request, getIdentityValue } = pars;
     let fields = "";
     let values = "";
     Object.getOwnPropertyNames(row).map((key, index) => {
@@ -125,97 +168,20 @@ export class Insert {
       }
     });
 
-    fields = fields.replace(/\,$/, "");
-    values = values.replace(/\,$/, "");
-
-    const sql = `insert into ${tableName}(${fields}) values(${values})`;
-
-    await request.query(sql);
-  }
-
-  public static async insertAndGetIdentity(
-    conn: ConnectionPool,
-    pars: {
-      data: IHash;
-      database?: string;
-      chema?: string;
-      table: string;
-      createBy?: ICreateBy;
-      createDate?: ICreateDate;
-      updateBy?: IUpdateBy;
-      updateDate?: IUpdateDate;
-    },
-    tran?: MssqlTransaction
-  ): Promise<{ insertId: number }> {
-    const database = pars.database || Utils.getDataBaseFromConnection(conn);
-
-    const { data: row, createBy, updateBy, createDate, updateDate } = pars;
-
-    if (!row) {
-      return Promise.reject(new Error(`pars.data can not be null or empty!`));
-    }
-
-    const table = pars.table;
-    if (!table) {
-      return Promise.reject(new Error(`pars.table can not be null or empty!`));
-    }
-    const schemaModel = await Schema.getSchema(conn, database);
-
-    const tableSchemaModel = schemaModel.getTableSchemaModel(table);
-
-    if (!tableSchemaModel) {
-      return Promise.reject(new Error(`Table '${table}' is not exists!`));
-    }
-
-    const tableName = Utils.getDbObjectName(database, pars.chema, table);
-
-    let fields = "";
-    let values = "";
-
-    let request: Request;
-    if (tran) {
-      request = new Request(tran);
-    } else {
-      request = conn.request();
-    }
-
-    let haveAutoIncrement = false; //是否有自增字段
-
-    tableSchemaModel.columns.map((column) => {
-      if (column.autoIncrement) {
-        haveAutoIncrement = true; //有自增字段
-      }
-    });
-
-    const rowData = fillCreateByUpdateBy({ row, createBy, updateBy, createDate, updateDate });
-
-    Object.getOwnPropertyNames(rowData).map((key, index) => {
-      const column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
-      if (column) {
-        if (!column.autoIncrement) {
-          //跳过自增字段
-          fields += `${column.columnName},`;
-          values += `@${column.columnName},`;
-        }
-        request.input(column.columnName, rowData[column.columnName]);
-      }
-    });
+    const needGetIdentityValue = getIdentityValue && !!tableSchemaModel.columns.find((n) => n.autoIncrement);
 
     fields = fields.replace(/\,$/, "");
     values = values.replace(/\,$/, "");
 
-    let sql = `insert into ${tableName}(${fields}) values(${values})`;
-
-    if (haveAutoIncrement) {
-      //有自增字段
-      sql += ";select @@IDENTITY as insertId";
-    }
+    //是否需要返回自增字段
+    const sql = `insert into ${tableName}(${fields}) values(${values}) ${needGetIdentityValue ? ";select @@IDENTITY as insertId" : ""}`;
 
     const result = await request.query(sql);
-    const returnValue: any = {};
-    if (haveAutoIncrement) {
-      //有自增字段
-      returnValue.insertId = result.recordset[0]["insertId"];
+    const returnValue: IInsertResult = {
+      identityValue: -1,
+    };
+    if (needGetIdentityValue) {
+      returnValue.identityValue = result.recordset[0]["insertId"];
     }
     return returnValue;
   }

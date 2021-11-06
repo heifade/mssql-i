@@ -21,7 +21,7 @@ describe("Insert", function () {
   it("insert must be success", async () => {
     let insertValue = `value${Math.random()}`;
 
-    let result = await Insert.insertAndGetIdentity(conn, {
+    let result = await Insert.insert(conn, {
       data: { value: insertValue, value2: 1, id: 1 },
       table: tableName,
       createBy: "djd3",
@@ -30,7 +30,7 @@ describe("Insert", function () {
       updateDate: "2021-11-05 12:23:48",
     });
 
-    let insertId = result.insertId;
+    let insertId = result.identityValue;
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id=?`,
@@ -50,7 +50,7 @@ describe("Insert", function () {
 
     const tran = await Transaction.begin(conn);
 
-    let result = await Insert.insertAndGetIdentity(
+    let result = await Insert.insert(
       conn,
       {
         data: { value: insertValue },
@@ -65,7 +65,7 @@ describe("Insert", function () {
 
     await tran.commit();
 
-    let insertId = result.insertId;
+    let insertId = result.identityValue;
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id=?`,
@@ -82,7 +82,7 @@ describe("Insert", function () {
 
   it("insert data can not be null or empty", async () => {
     try {
-      await Insert.insertAndGetIdentity(conn, {
+      await Insert.insert(conn, {
         data: null,
         table: tableName,
         createBy: "djd3",
@@ -98,7 +98,7 @@ describe("Insert", function () {
 
   it("insert table can not be null or empty", async () => {
     try {
-      await Insert.insertAndGetIdentity(conn, {
+      await Insert.insert(conn, {
         data: { id: 1 },
         table: null,
         createBy: "djd3",
@@ -114,7 +114,7 @@ describe("Insert", function () {
 
   it("insert table can not exists", async () => {
     try {
-      await Insert.insertAndGetIdentity(conn, {
+      await Insert.insert(conn, {
         data: { id: 1 },
         table: "t12345",
         createBy: "djd3",
