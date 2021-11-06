@@ -42,14 +42,14 @@ export class Procedure {
 
     const procedure = pars.procedure;
     if (!procedure) {
-      return Promise.reject(new Error(`pars.procedure can not be null or empty!`));
+      return Promise.reject(new Error(`pars.procedure 不能为空!`));
     }
     const data = pars.data;
 
     const schemaModel = await Schema.getSchema(conn, database);
     const procedureSchemaModel = schemaModel.getProcedureSchemaModel(procedure);
     if (!procedureSchemaModel) {
-      return Promise.reject(new Error(`Procedure '${procedure}' is not exists!`));
+      return Promise.reject(new Error(`存储过程: '${procedure}' 不存在!`));
     }
 
     const procedureName = Utils.getDbObjectName(database, pars.chema, procedure);

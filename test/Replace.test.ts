@@ -2,7 +2,7 @@ import { expect } from "chai";
 import "mocha";
 import { getConnectionConfig } from "./connectionConfig";
 import { initTable } from "./DataInit";
-import { ConnectionHelper, Replace, Select, ConnectionPool, Exec, Schema, Transaction } from "../src/index";
+import { ConnectionHelper, Replace, Select, ConnectionPool, Exec, Schema, Transaction, IInsertResult } from "../src/index";
 
 describe("Replace", function () {
   let tableName = "tbl_test_replace";
@@ -104,7 +104,7 @@ describe("Replace", function () {
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate from ${tableName} where id = ?`,
-      where: [result.insertId],
+      where: [result.identityValue],
     });
 
     expect(rowData !== null).to.be.true;
@@ -129,7 +129,7 @@ describe("Replace", function () {
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate from ${tableName} where id=?`,
-      where: [result.insertId],
+      where: [result.identityValue],
     });
 
     expect(rowData != null).to.be.true;
@@ -154,7 +154,7 @@ describe("Replace", function () {
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate from ${tableName} where id=?`,
-      where: [result.insertId],
+      where: [result.identityValue],
     });
 
     expect(rowData != null).to.be.true;
@@ -183,7 +183,7 @@ describe("Replace", function () {
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id = ?`,
-      where: [result.insertId],
+      where: [result.identityValue],
     });
 
     expect(rowData != null).to.be.true;
@@ -198,7 +198,7 @@ describe("Replace", function () {
     let insertValue = `value${Math.random()}`;
 
     let tran;
-    let result;
+    let result: IInsertResult;
     try {
       tran = await Transaction.begin(conn);
       result = await Replace.replace(
@@ -217,7 +217,7 @@ describe("Replace", function () {
 
     let rowData = await Select.selectTop1(conn, {
       sql: `select value from ${tableName} where id=?`,
-      where: [result.insertId],
+      where: [result.identityValue],
     });
 
     expect(rowData != null).to.be.true;
@@ -262,7 +262,7 @@ describe("Replace", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal("pars.data can not be null or empty!");
+        expect(err.message).to.equal("pars.data 不能为空!");
       });
   });
 
@@ -277,11 +277,11 @@ describe("Replace", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal("pars.table can not be null or empty!");
+        expect(err.message).to.equal("pars.table 不能为空!");
       });
   });
 
-  it("when table is not exists", async () => {
+  it("when table 不存在", async () => {
     let insertValue = `value${Math.random()}`;
 
     let tableName = `tbl_not_exists`;
@@ -294,7 +294,7 @@ describe("Replace", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
+        expect(err.message).to.equal(`表: '${tableName}' 不存在!`);
       });
   });
 
@@ -597,7 +597,6 @@ describe("Replace", function () {
     expect(list[0].createDate).to.equals(null);
     expect(list[0].updateBy).to.equals("djd2");
     expect(list[0].updateDate).to.equals("2021-01-01 00:00:00");
-
 
     await Replace.replace(conn, {
       data: {

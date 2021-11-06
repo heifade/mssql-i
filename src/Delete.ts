@@ -60,6 +60,9 @@ export class Delete {
       database?: string;
       chema?: string;
       table: string;
+      /**
+       * 是否需要在 data 里指定所有主键值才能删除.
+       */
       onlyDeleteByPrimaryKey?: boolean;
     },
     tran?: MssqlTransaction
@@ -69,19 +72,19 @@ export class Delete {
 
     const table = pars.table;
     if (!table) {
-      return Promise.reject(new Error(`pars.table can not be null or empty!`));
+      return Promise.reject(new Error(`pars.table 不能为空!`));
     }
 
     const data = pars.data;
     if (!data) {
-      return Promise.reject(new Error(`pars.data can not be null or empty!`));
+      return Promise.reject(new Error(`pars.data 不能为空!`));
     }
 
     const schemaModel = await Schema.getSchema(conn, database);
     const tableSchemaModel = schemaModel.getTableSchemaModel(table);
 
     if (!tableSchemaModel) {
-      return Promise.reject(new Error(`Table '${table}' is not exists!`));
+      return Promise.reject(new Error(`表: '${table}' 不存在!`));
     }
 
     const whereList = new Array<any>();
@@ -89,7 +92,7 @@ export class Delete {
     let whereSQL = ``;
     const primaryKeyList = tableSchemaModel.columns.filter((column) => column.primaryKey);
     if (primaryKeyList.length < 1) {
-      return Promise.reject(new Error(`Table '${table}' has no primary key, you can not call this function. Please try function 'deleteByWhere'!`));
+      return Promise.reject(new Error(`表: '${table}' 没有主键, 不能通过此方法来删数据. 请尝试方法: 'deleteByWhere'!`));
     }
 
     if (onlyDeleteByPrimaryKey) {
@@ -102,7 +105,7 @@ export class Delete {
         })
         .map((n) => n.columnName);
       if (cannotBeNullFields.length) {
-        return Promise.reject(new Error(`Field: ${cannotBeNullFields.join(",")} can not be null!`));
+        return Promise.reject(new Error(`字段: ${cannotBeNullFields.join(", ")} 不能为空!`));
       }
     }
 
@@ -201,14 +204,14 @@ export class Delete {
 
     const table = pars.table;
     if (!table) {
-      return Promise.reject(new Error(`pars.table can not be null or empty!`));
+      return Promise.reject(new Error(`pars.table 不能为空!`));
     }
 
     const schemaModel = await Schema.getSchema(conn, database);
     const tableSchemaModel = schemaModel.getTableSchemaModel(table);
 
     if (!tableSchemaModel) {
-      return Promise.reject(new Error(`Table '${table}' is not exists!`));
+      return Promise.reject(new Error(`表: '${table}' 不存在!`));
     }
 
     const { whereSQL, whereList, wherePars } = Where.getWhereSQL(where, tableSchemaModel);

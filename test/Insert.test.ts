@@ -82,7 +82,7 @@ describe("Insert", function () {
     expect(rowData.updateDate).to.equal("2021-12-05 12:23:48");
   });
 
-  it("insert data can not be null or empty", async () => {
+  it("insert data 不能为空", async () => {
     try {
       await Insert.insert(conn, {
         data: null,
@@ -94,11 +94,11 @@ describe("Insert", function () {
       });
       expect(true).to.equal(false); // 不能进这里
     } catch (e) {
-      expect(e.message).to.equal("pars.data can not be null or empty!");
+      expect(e.message).to.equal("pars.data 不能为空!");
     }
   });
 
-  it("insert table can not be null or empty", async () => {
+  it("insert table 不能为空", async () => {
     try {
       await Insert.insert(conn, {
         data: { id: 1 },
@@ -110,7 +110,7 @@ describe("Insert", function () {
       });
       expect(true).to.equal(false); // 不能进这里
     } catch (e) {
-      expect(e.message).to.equal("pars.table can not be null or empty!");
+      expect(e.message).to.equal("pars.table 不能为空!");
     }
   });
 
@@ -126,7 +126,7 @@ describe("Insert", function () {
       });
       expect(true).to.equal(false); // 不能进这里
     } catch (e) {
-      expect(e.message).to.equal("Table 't12345' is not exists!");
+      expect(e.message).to.equal("表: 't12345' 不存在!");
     }
   });
 
@@ -232,7 +232,7 @@ describe("Insert", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal("pars.data can not be null or empty!");
+        expect(err.message).to.equal("pars.data 不能为空!");
       });
   });
 
@@ -245,7 +245,7 @@ describe("Insert", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal("pars.data can not be null or empty!");
+        expect(err.message).to.equal("pars.data 不能为空!");
       });
   });
 
@@ -260,7 +260,7 @@ describe("Insert", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal("pars.table can not be null or empty!");
+        expect(err.message).to.equal("pars.table 不能为空!");
       });
   });
   it("when pars.table is null", async () => {
@@ -274,11 +274,11 @@ describe("Insert", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal("pars.table can not be null or empty!");
+        expect(err.message).to.equal("pars.table 不能为空!");
       });
   });
 
-  it("when table is not exists", async () => {
+  it("when table 不存在", async () => {
     let insertValue = `value${Math.random()}`;
 
     let tableName = `tbl_not_exists`;
@@ -291,10 +291,10 @@ describe("Insert", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
+        expect(err.message).to.equal(`表: '${tableName}' 不存在!`);
       });
   });
-  it("when table is not exists", async () => {
+  it("when table 不存在", async () => {
     let insertValue = `value${Math.random()}`;
 
     let tableName = `tbl_not_exists`;
@@ -307,7 +307,7 @@ describe("Insert", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
+        expect(err.message).to.equal(`表: '${tableName}' 不存在!`);
       });
   });
 

@@ -15,5 +15,6 @@ import { Schema } from "./schema/Schema";
 import { Where } from "./util/Where";
 import { Utils } from "./util/Utils";
 import { MssqlTransaction } from "./MssqlTransaction";
+import { IInsertResult } from "./interface/iInsertResult";
 
-export { Insert, Update, Delete, Replace, Save, Select, Exec, Transaction, ConnectionPool, ConnectionHelper, SaveType, Procedure, Schema, Where, Utils, MssqlTransaction, IOptions };
+export { Insert, Update, Delete, Replace, Save, Select, Exec, Transaction, ConnectionPool, ConnectionHelper, SaveType, Procedure, Schema, Where, Utils, MssqlTransaction, IOptions, IInsertResult };

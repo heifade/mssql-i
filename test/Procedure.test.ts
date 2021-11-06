@@ -127,11 +127,11 @@ describe("Procedure", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        expect(err.message).to.equal("pars.procedure can not be null or empty!");
+        expect(err.message).to.equal("pars.procedure 不能为空!");
       });
   });
 
-  it("when procedure is not exists", async () => {
+  it("when procedure 不存在", async () => {
     let insertValue = `value${Math.random()}`;
 
     let procedureName = `p_not_exists`;
@@ -144,7 +144,7 @@ describe("Procedure", function() {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch(err => {
-        expect(err.message).to.equal(`Procedure '${procedureName}' is not exists!`);
+        expect(err.message).to.equal(`存储过程: '${procedureName}' 不存在!`);
       });
   });
 

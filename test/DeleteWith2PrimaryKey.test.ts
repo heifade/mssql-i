@@ -109,7 +109,7 @@ describe("Delete with 2 primary key", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal("pars.table can not be null or empty!");
+        expect(err.message).to.equal("pars.table 不能为空!");
       });
 
     await Delete.delete(conn, {
@@ -120,11 +120,11 @@ describe("Delete with 2 primary key", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal("pars.table can not be null or empty!");
+        expect(err.message).to.equal("pars.table 不能为空!");
       });
   });
 
-  it("when table is not exists", async () => {
+  it("when table 不存在", async () => {
     let insertName = `name${Math.random()}`;
 
     let tableName = `tbl_not_exists`;
@@ -137,7 +137,7 @@ describe("Delete with 2 primary key", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
+        expect(err.message).to.equal(`表: '${tableName}' 不存在!`);
       });
 
     await Delete.delete(conn, {
@@ -148,7 +148,7 @@ describe("Delete with 2 primary key", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
+        expect(err.message).to.equal(`表: '${tableName}' 不存在!`);
       });
   });
 
@@ -163,7 +163,7 @@ describe("Delete with 2 primary key", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal(`pars.data can not be null or empty!`);
+        expect(err.message).to.equal(`pars.data 不能为空!`);
       });
   });
 
@@ -178,7 +178,7 @@ describe("Delete with 2 primary key", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal(`Field: id1,id2 can not be null!`);
+        expect(err.message).to.equal(`字段: id1, id2 不能为空!`);
       });
   });
 

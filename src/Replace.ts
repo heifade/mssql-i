@@ -6,6 +6,7 @@ import { IHash } from "./interface/iHash";
 import { Schema } from "./schema/Schema";
 import { fillCreateByUpdateBy } from "./util/fillCreateByUpdateBy";
 import { Utils } from "./util/Utils";
+import { IInsertResult } from "./interface/iInsertResult";
 
 /**
  * 替换
@@ -60,19 +61,17 @@ export class Replace {
       updateDate?: IUpdateDate;
     },
     tran?: MssqlTransaction
-  ): Promise<{
-    insertId: number;
-  }> {
+  ): Promise<IInsertResult> {
     const database = pars.database || Utils.getDataBaseFromConnection(conn);
 
     const { data: row, createBy, updateBy, createDate, updateDate } = pars;
     if (!row) {
-      return Promise.reject(new Error(`pars.data can not be null or empty!`));
+      return Promise.reject(new Error(`pars.data 不能为空!`));
     }
 
     const table = pars.table;
     if (!table) {
-      return Promise.reject(new Error(`pars.table can not be null or empty!`));
+      return Promise.reject(new Error(`pars.table 不能为空!`));
     }
 
     const schemaModel = await Schema.getSchema(conn, database);
@@ -80,7 +79,7 @@ export class Replace {
     const tableSchemaModel = schemaModel.getTableSchemaModel(table);
 
     if (!tableSchemaModel) {
-      return Promise.reject(new Error(`Table '${table}' is not exists!`));
+      return Promise.reject(new Error(`表: '${table}' 不存在!`));
     }
 
     const tableName = Utils.getDbObjectName(database, pars.chema, table);
@@ -171,14 +170,14 @@ export class Replace {
       end`;
 
     const result = await request.query(sql);
-    const returnValue: { insertId: number } = {
-      insertId: undefined,
+    const returnValue: IInsertResult = {
+      identityValue: -1,
     };
     if (haveAutoIncrement) {
       const { recordset } = result;
       if (recordset && recordset.length > 0) {
         //有自增字段
-        returnValue.insertId = recordset[0]["insertId"];
+        returnValue.identityValue = recordset[0]["insertId"];
       }
     }
     return returnValue;

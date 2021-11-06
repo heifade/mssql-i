@@ -135,7 +135,7 @@ describe("Update", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal("pars.data can not be null or empty!");
+        expect(err.message).to.equal("pars.data 不能为空!");
       });
   });
 
@@ -148,7 +148,7 @@ describe("Update", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal("pars.data can not be null or empty!");
+        expect(err.message).to.equal("pars.data 不能为空!");
       });
   });
 
@@ -163,7 +163,7 @@ describe("Update", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal("pars.table can not be null or empty!");
+        expect(err.message).to.equal("pars.table 不能为空!");
       });
   });
 
@@ -178,11 +178,11 @@ describe("Update", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal("pars.table can not be null or empty!");
+        expect(err.message).to.equal("pars.table 不能为空!");
       });
   });
 
-  it("when table is not exists of update", async () => {
+  it("when table 不存在 of update", async () => {
     let insertValue = `value${Math.random()}`;
 
     let tableName = `tbl_not_exists`;
@@ -195,11 +195,11 @@ describe("Update", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
+        expect(err.message).to.equal(`表: '${tableName}' 不存在!`);
       });
   });
 
-  it("when table is not exists of updateByWhere", async () => {
+  it("when table 不存在 of updateByWhere", async () => {
     let insertValue = `value${Math.random()}`;
 
     let tableName = `tbl_not_exists`;
@@ -212,7 +212,7 @@ describe("Update", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message).to.equal(`Table '${tableName}' is not exists!`);
+        expect(err.message).to.equal(`表: '${tableName}' 不存在!`);
       });
   });
 

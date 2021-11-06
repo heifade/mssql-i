@@ -74,19 +74,19 @@ export class Update {
     const { onlyUpdateByPrimaryKey = true, data: row, updateBy, updateDate } = pars;
 
     if (!row) {
-      return Promise.reject(new Error(`pars.data can not be null or empty!`));
+      return Promise.reject(new Error(`pars.data 不能为空!`));
     }
 
     const table = pars.table;
     if (!table) {
-      return Promise.reject(new Error(`pars.table can not be null or empty!`));
+      return Promise.reject(new Error(`pars.table 不能为空!`));
     }
 
     const schemaModel = await Schema.getSchema(conn, database);
     const tableSchemaModel = schemaModel.getTableSchemaModel(table);
 
     if (!tableSchemaModel) {
-      return Promise.reject(new Error(`Table '${table}' is not exists!`));
+      return Promise.reject(new Error(`表: '${table}' 不存在!`));
     }
 
     let request: Request;
@@ -109,7 +109,7 @@ export class Update {
         })
         .map((n) => n.columnName);
       if (cannotBeNullFields.length) {
-        return Promise.reject(new Error(`Field: ${cannotBeNullFields.join(",")} can not be null!`));
+        return Promise.reject(new Error(`字段: ${cannotBeNullFields.join(", ")} 不能为空!`));
       }
     }
 
@@ -177,21 +177,21 @@ export class Update {
 
     const { data: row, updateBy, updateDate } = pars;
     if (!row) {
-      return Promise.reject(new Error(`pars.data can not be null or empty!`));
+      return Promise.reject(new Error(`pars.data 不能为空!`));
     }
 
     const where = pars.where;
 
     const table = pars.table;
     if (!table) {
-      return Promise.reject(new Error(`pars.table can not be null or empty!`));
+      return Promise.reject(new Error(`pars.table 不能为空!`));
     }
 
     const schemaModel = await Schema.getSchema(conn, database);
     const tableSchemaModel = schemaModel.getTableSchemaModel(table);
 
     if (!tableSchemaModel) {
-      return Promise.reject(new Error(`Table '${table}' is not exists!`));
+      return Promise.reject(new Error(`表: '${table}' 不存在!`));
     }
 
     let request: Request;
