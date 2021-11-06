@@ -3,6 +3,7 @@ import { Select } from "../Select";
 import { SchemaModel, TableSchemaModel, ColumnSchemaModel, ProcedureSchemaModel, ProcedureParSchemaModel } from "../model/SchemaModel";
 import { GlobalCache } from "../global/GlobalCache";
 import { ConnectionPool } from "mssql";
+import { IHash } from "../interface/iHash";
 
 /**
  * 数据库架构信息缓存
@@ -165,7 +166,7 @@ export class Schema {
         order by objId
       `;
 
-      let lists = await Select.selects(conn, [
+      let lists = await Select.selects<IHash>(conn, [
         { sql: sqlTables, where: [] }, //database
         { sql: sqlColumns, where: [] }, //database
         { sql: sqlProcedures, where: [] }, //database
