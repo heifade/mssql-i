@@ -1,12 +1,10 @@
 import { ConnectionPool } from "mssql";
 import { SaveType } from "./model/SaveType";
-import { Schema } from "./schema/Schema";
 import { Insert } from "./Insert";
 import { Update } from "./Update";
 import { Delete } from "./Delete";
 import { Replace } from "./Replace";
 import { Transaction } from "./Transaction";
-import { resolve } from "path";
 import { MssqlTransaction } from ".";
 import { ICreateBy, ICreateDate, IUpdateBy, IUpdateDate } from "./interface/iCreateBy";
 import { IHash } from "./interface/iHash";
@@ -71,7 +69,7 @@ export class Save {
   public static async save(
     conn: ConnectionPool,
     pars: {
-      data: {};
+      data: IHash;
       database?: string;
       table: string;
       saveType: SaveType;

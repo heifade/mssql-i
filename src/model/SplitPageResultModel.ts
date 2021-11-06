@@ -5,13 +5,13 @@
  * @export
  * @class SplitPageResultModel
  */
-export class SplitPageResultModel {
+export class SplitPageResultModel<T> {
   /**
    * 数据集列表
    *
    * @memberof SplitPageResultModel
    */
-  public list: Array<any>;
+  public list: Array<T>;
   /**
    * 总行数
    *

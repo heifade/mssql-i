@@ -1,5 +1,4 @@
 import { ConnectionPool } from "mssql";
-import { IHash } from "./interface/iHash";
 import { SelectParamsModel } from "./model/SelectParamsModel";
 import { SplitPageParamsModel } from "./model/SplitPageParamsModel";
 import { SplitPageResultModel } from "./model/SplitPageResultModel";
@@ -54,7 +53,7 @@ export class Select {
    * });
    * </pre>
    */
-  public static async select(conn: ConnectionPool, param: SelectParamsModel): Promise<IHash[]> {
+  public static async select<T>(conn: ConnectionPool, param: SelectParamsModel): Promise<T[]> {
     const result = await Select.selectBase(conn, param);
 
     return await readListFromResult(result.recordset);
@@ -86,7 +85,7 @@ export class Select {
    * }]);
    * </pre>
    */
-  public static async selects(conn: ConnectionPool, params: SelectParamsModel[]): Promise<IHash[][]> {
+  public static async selects<T>(conn: ConnectionPool, params: SelectParamsModel[]): Promise<T[][]> {
     const promises = new Array<Promise<any[]>>();
 
     params.map((param) => {
@@ -117,7 +116,7 @@ export class Select {
    * });
    * </pre>
    */
-  public static async selectTop1(conn: ConnectionPool, param: SelectParamsModel): Promise<IHash> {
+  public static async selectTop1<T>(conn: ConnectionPool, param: SelectParamsModel): Promise<T> {
     const result = await Select.selectBase(conn, param);
     if (result.recordset.length > 0) {
       return readListFromResult([result.recordset[0]])[0];
@@ -177,7 +176,7 @@ export class Select {
    * });
    * </pre>
    */
-  public static async selectSplitPage(conn: ConnectionPool, param: SplitPageParamsModel) {
+  public static async selectSplitPage<T>(conn: ConnectionPool, param: SplitPageParamsModel) {
     const countPromise = await Select.selectCount(conn, param);
 
     let index;
@@ -203,9 +202,9 @@ export class Select {
 
     const list = await Promise.all([countPromise, dataPromise]);
 
-    const result = new SplitPageResultModel();
+    const result = new SplitPageResultModel<T>();
     result.count = list[0];
-    result.list = list[1];
+    result.list = list[1] as any;
 
     return result;
   }
@@ -231,7 +230,7 @@ export class Select {
    * 结果，返回值为满足条件的第一条数据的f1字段值
    * </pre>
    */
-  public static async selectOneValue(conn: ConnectionPool, param: SelectParamsModel): Promise<any> {
+  public static async selectOneValue<T>(conn: ConnectionPool, param: SelectParamsModel): Promise<T> {
     const result = await Select.selectBase(conn, param);
     const v = result.recordset[0];
     if (v) {
