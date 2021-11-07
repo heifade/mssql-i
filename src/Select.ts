@@ -30,7 +30,7 @@ export class Select {
       return await request.query(sql);
     } catch (e) {
       const pars = param.where && param.where.length ? `, 参数: [${param.where.join(", ")}]` : ``;
-      throw new Error(`执行SQL: ${sql} 时${pars}出错!`);
+      throw new Error(`执行SQL: ${sql} 时${pars}出错! \n ${e.stack}`);
     }
   }
 
