@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
-import { ConnectionHelper, Save, Select, SaveType, ConnectionPool } from "../src/index";
+import { ConnectionHelper, Save, Select, SaveType, ConnectionPool, Transaction } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
 import { IHash } from "../src/interface/iHash";
 
@@ -185,6 +185,91 @@ describe("Save", function () {
       .catch((err) => {
         expect(err.code).to.equal(`EREQUEST`);
       });
+  });
+
+  it("saves with tran must be success", async () => {
+    let insertValue = `value${Math.random()}`;
+
+    const conn1 = await ConnectionHelper.create(getConnectionConfig());
+    const tran1 = await Transaction.begin(conn1);
+
+    await Save.saves(
+      conn1,
+      [
+        {
+          data: { id: 701, value: insertValue },
+          table: tableName,
+          saveType: SaveType.insert,
+        },
+        {
+          data: { id: 702, value: insertValue },
+          table: tableName,
+          saveType: SaveType.insert,
+        },
+        {
+          data: { id: 703, value: insertValue },
+          table: tableName,
+          saveType: SaveType.insert,
+        },
+      ],
+      tran1
+    );
+
+    await Transaction.commit(tran1);
+    await ConnectionHelper.close(conn1);
+
+    let rowData = await Select.selectTop1<IHash>(conn, {
+      sql: `select value from ${tableName} where id=?`,
+      where: [701],
+    });
+    expect(rowData.value).to.equal(insertValue);
+
+    insertValue = `value${Math.random()}_new1`;
+
+    const conn2 = await ConnectionHelper.create(getConnectionConfig());
+    const tran2 = await Transaction.begin(conn2);
+    await Save.saves(
+      conn2,
+      [
+        {
+          data: { id: 701, value: insertValue },
+          table: tableName,
+          saveType: SaveType.update,
+        },
+      ],
+      tran2
+    );
+
+    await Transaction.commit(tran2);
+    await ConnectionHelper.close(conn2);
+
+    rowData = await Select.selectTop1<IHash>(conn, {
+      sql: `select value from ${tableName} where id=?`,
+      where: [701],
+    });
+    expect(rowData.value).to.equal(insertValue);
+
+    const conn3 = await ConnectionHelper.create(getConnectionConfig());
+    const tran3 = await Transaction.begin(conn3);
+    await Save.saves(
+      conn3,
+      [
+        {
+          data: { id: 702 },
+          table: tableName,
+          saveType: SaveType.delete,
+        },
+      ],
+      tran3
+    );
+    await Transaction.commit(tran3);
+    await ConnectionHelper.close(conn3);
+
+    rowData = await Select.selectTop1<IHash>(conn, {
+      sql: `select value from ${tableName} where id=?`,
+      where: [702],
+    });
+    expect(rowData).to.be.null;
   });
 
   it("savesSeq must be success", async () => {
@@ -528,21 +613,6 @@ describe("Save", function () {
     expect(rowData[1].updateDate).to.equal("2021-11-16 11:11:36");
   });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   it("test2 当数据里指定 createBy, updateBy, createDate, updateDate时, 直接更新", async () => {
     const insertValue = `value${Math.random()}`;
     await Save.save(conn, {
@@ -834,7 +904,6 @@ describe("Save", function () {
     expect(list[0].createDate).to.equals(null);
     expect(list[0].updateBy).to.equals("djd2");
     expect(list[0].updateDate).to.equals("2021-01-01 00:00:00");
-
 
     await Save.save(conn, {
       data: {

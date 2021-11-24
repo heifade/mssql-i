@@ -175,13 +175,11 @@ export class Save {
     }>,
     tran?: MssqlTransaction
   ) {
-    const promiseList = new Array<Promise<any>>();
-
-    list.map((h) => {
-      promiseList.push(
-        Save.save(
-          conn,
-          {
+    if (tran) {
+      const resultList: any[] = [];
+      for (const h of list) {
+        resultList.push(
+          await Save.save(conn, {
             data: h.data,
             database: h.database,
             table: h.table,
@@ -190,13 +188,32 @@ export class Save {
             createDate: h.createDate,
             updateBy: h.updateBy,
             updateDate: h.updateDate,
-          },
-          tran
-        )
-      );
-    });
-
-    return await Promise.all(promiseList);
+          })
+        );
+      }
+      return resultList;
+    } else {
+      const promiseList = new Array<Promise<any>>();
+      list.map((h) => {
+        promiseList.push(
+          Save.save(
+            conn,
+            {
+              data: h.data,
+              database: h.database,
+              table: h.table,
+              saveType: h.saveType,
+              createBy: h.createBy,
+              createDate: h.createDate,
+              updateBy: h.updateBy,
+              updateDate: h.updateDate,
+            },
+            tran
+          )
+        );
+      });
+      return await Promise.all(promiseList);
+    }
   }
 
   // /**
