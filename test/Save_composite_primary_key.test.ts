@@ -3,6 +3,7 @@ import "mocha";
 import { initTable } from "./DataInit_composite_primary_key";
 import { ConnectionHelper, Save, Select, SaveType, ConnectionPool } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
+import { IHash } from "../src/interface/iHash";
 
 describe("Save_composite_primary_key", function () {
   let tableName = "tbl_test_save_composite_primary_key";
@@ -25,7 +26,7 @@ describe("Save_composite_primary_key", function () {
       saveType: SaveType.insert,
     });
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [10, 10, 10],
     });
@@ -38,7 +39,7 @@ describe("Save_composite_primary_key", function () {
       saveType: SaveType.update,
     });
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [10, 10, 10],
     });
@@ -50,7 +51,7 @@ describe("Save_composite_primary_key", function () {
       saveType: SaveType.delete,
     });
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [9, 9, 9],
     });
@@ -63,7 +64,7 @@ describe("Save_composite_primary_key", function () {
       saveType: SaveType.replace,
     });
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [8, 8, 8],
     });
@@ -91,7 +92,7 @@ describe("Save_composite_primary_key", function () {
       },
     ]);
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [11, 11, 11],
     });
@@ -106,7 +107,7 @@ describe("Save_composite_primary_key", function () {
       },
     ]);
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [11, 11, 11],
     });
@@ -120,7 +121,7 @@ describe("Save_composite_primary_key", function () {
       },
     ]);
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [7, 7, 7],
     });
@@ -135,7 +136,7 @@ describe("Save_composite_primary_key", function () {
       },
     ]);
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [6, 6, 6],
     });
@@ -179,7 +180,7 @@ describe("Save_composite_primary_key", function () {
       },
     ]);
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [12, 12, 12],
     });
@@ -194,7 +195,7 @@ describe("Save_composite_primary_key", function () {
       },
     ]);
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [12, 12, 12],
     });
@@ -208,7 +209,7 @@ describe("Save_composite_primary_key", function () {
       },
     ]);
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [5, 5, 5],
     });
@@ -223,7 +224,7 @@ describe("Save_composite_primary_key", function () {
       },
     ]);
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [4, 4, 4],
     });
@@ -250,7 +251,7 @@ describe("Save_composite_primary_key", function () {
       expect(err.code).to.equal(`EREQUEST`);
     }
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [200, 200, 200],
     });
@@ -277,13 +278,13 @@ describe("Save_composite_primary_key", function () {
       expect(err.code).to.equal(`EREQUEST`);
     }
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [400, 400, 400],
     });
     expect(rowData.value).to.equal(insertValue);
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [401, 401, 401],
     });
@@ -310,7 +311,7 @@ describe("Save_composite_primary_key", function () {
       expect(err.code).to.equal(`EREQUEST`);
     }
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where key1=? and key2=? and key3=?`,
       where: [402, 402, 402],
     });

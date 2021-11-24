@@ -3,6 +3,7 @@ import "mocha";
 import { initTableWith2PrimaryKey } from "./DataInit";
 import { ConnectionHelper, Update, Select, ConnectionPool, Transaction } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
+import { IHash } from "../src/interface/iHash";
 
 describe("Update with 2 primary key", function () {
   let tableName = "tbl_test_update_with_2primarykey";
@@ -23,7 +24,7 @@ describe("Update with 2 primary key", function () {
       table: tableName,
     });
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select * from ${tableName} where id1 = ? and id2 = ?`,
       where: [1, 1],
     });
@@ -38,7 +39,7 @@ describe("Update with 2 primary key", function () {
       where: { id1: 2, id2: 2 },
     });
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select * from ${tableName} where id1 = ? and id2 = ?`,
       where: [2, 2],
     });
@@ -54,7 +55,7 @@ describe("Update with 2 primary key", function () {
       updateDate: '2021-11-05 23:45:56'
     });
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select * from ${tableName} where id1 = ? and id2 = ?`,
       where: [2, 2],
     });
@@ -97,7 +98,7 @@ describe("Update with 2 primary key", function () {
       await Transaction.rollback(tran);
     }
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select * from ${tableName} where id1 = ? and id2 = ?`,
       where: [1, 1],
     });
@@ -124,7 +125,7 @@ describe("Update with 2 primary key", function () {
       await Transaction.rollback(tran);
     }
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select * from ${tableName} where id1 = ? and id2 = ?`,
       where: [2, 2],
     });
@@ -233,7 +234,7 @@ describe("Update with 2 primary key", function () {
       onlyUpdateByPrimaryKey: false,
     });
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select * from ${tableName}`,
     });
 

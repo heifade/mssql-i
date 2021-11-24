@@ -3,6 +3,7 @@ import "mocha";
 import { getConnectionConfig } from "./connectionConfig";
 import { initTable } from "./DataInit";
 import { ConnectionHelper, Replace, Select, ConnectionPool, Exec, Schema, Transaction, IInsertResult } from "../src/index";
+import { IHash } from "../src/interface/iHash";
 
 describe("Replace", function () {
   let tableName = "tbl_test_replace";
@@ -48,7 +49,7 @@ describe("Replace", function () {
       updateDate: "2021-11-05 15:00:23",
     });
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id = ?`,
       where: [1],
     });
@@ -74,7 +75,7 @@ describe("Replace", function () {
       updateDate: "2021-11-15 15:00:00",
     });
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id = ?`,
       where: [1],
     });
@@ -102,7 +103,7 @@ describe("Replace", function () {
       updateDate: "2021-11-05 15:00:23",
     });
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate from ${tableName} where id = ?`,
       where: [result.identityValue],
     });
@@ -127,7 +128,7 @@ describe("Replace", function () {
       updateDate: "2021-11-05 15:00:23",
     });
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate from ${tableName} where id=?`,
       where: [result.identityValue],
     });
@@ -152,7 +153,7 @@ describe("Replace", function () {
       updateDate: "2031-11-05 15:00:23",
     });
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate from ${tableName} where id=?`,
       where: [result.identityValue],
     });
@@ -181,7 +182,7 @@ describe("Replace", function () {
       updateDate: "2031-11-05 15:00:23",
     });
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id = ?`,
       where: [result.identityValue],
     });
@@ -215,7 +216,7 @@ describe("Replace", function () {
       await Transaction.rollback(tran);
     }
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [result.identityValue],
     });
@@ -332,7 +333,7 @@ describe("Replace", function () {
       table: tableName3,
     });
 
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 1`,
     });
 
@@ -362,7 +363,7 @@ describe("Replace", function () {
       table: tableName3,
     });
 
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 2`,
     });
 
@@ -386,7 +387,7 @@ describe("Replace", function () {
       updateDate: "2021-01-05",
       table: tableName3,
     });
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 3`,
     });
 
@@ -408,7 +409,7 @@ describe("Replace", function () {
       },
       table: tableName3,
     });
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 4`,
     });
 
@@ -435,7 +436,7 @@ describe("Replace", function () {
       table: tableName3,
     });
 
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 11`,
     });
 
@@ -464,7 +465,7 @@ describe("Replace", function () {
       table: tableName3,
     });
 
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 12`,
     });
 
@@ -487,7 +488,7 @@ describe("Replace", function () {
       updateDate: "2025-01-05",
       table: tableName3,
     });
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 13`,
     });
 
@@ -512,7 +513,7 @@ describe("Replace", function () {
       },
       table: tableName3,
     });
-    const list1 = await Select.select(conn, {
+    const list1 = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 14`,
     });
 
@@ -532,7 +533,7 @@ describe("Replace", function () {
       },
       table: tableName3,
     });
-    const list2 = await Select.select(conn, {
+    const list2 = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 14`,
     });
 
@@ -559,7 +560,7 @@ describe("Replace", function () {
       updateDate: "2025-01-05",
       table: tableName3,
     });
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 13`,
     });
 
@@ -586,7 +587,7 @@ describe("Replace", function () {
       updateDate: null,
       table: tableName3,
     });
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 13`,
     });
 
@@ -608,7 +609,7 @@ describe("Replace", function () {
       updateDate: null,
       table: tableName3,
     });
-    const list2 = await Select.select(conn, {
+    const list2 = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 13`,
     });
 

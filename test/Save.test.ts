@@ -3,6 +3,7 @@ import "mocha";
 import { initTable } from "./DataInit";
 import { ConnectionHelper, Save, Select, SaveType, ConnectionPool } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
+import { IHash } from "../src/interface/iHash";
 
 describe("Save", function () {
   let tableName = "tbl_test_save";
@@ -27,7 +28,7 @@ describe("Save", function () {
       saveType: SaveType.insert,
     });
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [10],
     });
@@ -93,7 +94,7 @@ describe("Save", function () {
       },
     ]);
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [11],
     });
@@ -108,7 +109,7 @@ describe("Save", function () {
       },
     ]);
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [11],
     });
@@ -122,7 +123,7 @@ describe("Save", function () {
       },
     ]);
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [7],
     });
@@ -137,7 +138,7 @@ describe("Save", function () {
       },
     ]);
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [6],
     });
@@ -207,7 +208,7 @@ describe("Save", function () {
       },
     ]);
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [12],
     });
@@ -222,7 +223,7 @@ describe("Save", function () {
       },
     ]);
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [12],
     });
@@ -236,7 +237,7 @@ describe("Save", function () {
       },
     ]);
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [5],
     });
@@ -251,7 +252,7 @@ describe("Save", function () {
       },
     ]);
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [4],
     });
@@ -278,7 +279,7 @@ describe("Save", function () {
       expect(err.code).to.equal(`EREQUEST`);
     }
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [200],
     });
@@ -305,13 +306,13 @@ describe("Save", function () {
       expect(err.code).to.equal(`EREQUEST`);
     }
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [400],
     });
     expect(rowData.value).to.equal(insertValue);
 
-    rowData = await Select.selectTop1(conn, {
+    rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [401],
     });
@@ -338,7 +339,7 @@ describe("Save", function () {
       expect(err.code).to.equal(`EREQUEST`);
     }
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [402],
     });
@@ -358,7 +359,7 @@ describe("Save", function () {
       updateDate: "2021-11-16 10:11:13",
     });
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id=?`,
       where: [601],
     });
@@ -382,7 +383,7 @@ describe("Save", function () {
       updateDate: "2021-11-16 10:11:16",
     });
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id=?`,
       where: [601],
     });
@@ -406,7 +407,7 @@ describe("Save", function () {
       updateDate: "2021-11-16 10:11:26",
     });
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id=?`,
       where: [601],
     });
@@ -430,7 +431,7 @@ describe("Save", function () {
       updateDate: "2021-11-16 10:11:36",
     });
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id=?`,
       where: [602],
     });
@@ -466,7 +467,7 @@ describe("Save", function () {
       },
     ]);
 
-    let rowData = await Select.select(conn, {
+    let rowData = await Select.select<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id in (?, ?) order by id`,
       where: [603, 604],
     });
@@ -509,7 +510,7 @@ describe("Save", function () {
       },
     ]);
 
-    let rowData = await Select.select(conn, {
+    let rowData = await Select.select<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id in (?, ?) order by id`,
       where: [605, 606],
     });
@@ -558,7 +559,7 @@ describe("Save", function () {
       table: tableName3,
     });
 
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 1`,
     });
 
@@ -589,7 +590,7 @@ describe("Save", function () {
       table: tableName3,
     });
 
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 2`,
     });
 
@@ -614,7 +615,7 @@ describe("Save", function () {
       updateDate: "2021-01-05",
       table: tableName3,
     });
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 3`,
     });
 
@@ -637,7 +638,7 @@ describe("Save", function () {
       saveType: SaveType.replace,
       table: tableName3,
     });
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 4`,
     });
 
@@ -665,7 +666,7 @@ describe("Save", function () {
       table: tableName3,
     });
 
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 11`,
     });
 
@@ -695,7 +696,7 @@ describe("Save", function () {
       table: tableName3,
     });
 
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 12`,
     });
 
@@ -719,7 +720,7 @@ describe("Save", function () {
       updateDate: "2025-01-05",
       table: tableName3,
     });
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 13`,
     });
 
@@ -745,7 +746,7 @@ describe("Save", function () {
       saveType: SaveType.replace,
       table: tableName3,
     });
-    const list1 = await Select.select(conn, {
+    const list1 = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 14`,
     });
 
@@ -766,7 +767,7 @@ describe("Save", function () {
       saveType: SaveType.replace,
       table: tableName3,
     });
-    const list2 = await Select.select(conn, {
+    const list2 = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 14`,
     });
 
@@ -794,7 +795,7 @@ describe("Save", function () {
       updateDate: "2025-01-05",
       table: tableName3,
     });
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 13`,
     });
 
@@ -822,7 +823,7 @@ describe("Save", function () {
       updateDate: null,
       table: tableName3,
     });
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 13`,
     });
 
@@ -846,7 +847,7 @@ describe("Save", function () {
       updateDate: null,
       table: tableName3,
     });
-    const list2 = await Select.select(conn, {
+    const list2 = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = 13`,
     });
 

@@ -4,6 +4,7 @@ import { initTable } from "./DataInit";
 import { ConnectionPool } from "mssql";
 import { ConnectionHelper, Select } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
+import { IHash } from "../src/interface/iHash";
 
 describe("Select", function() {
   let tableName = "tbl_test_select";
@@ -60,7 +61,7 @@ describe("Select", function() {
   });
 
   it("selects", async () => {
-    let results = await Select.selects(conn, [{ sql: `select * from ${tableName} where id=?`, where: [1] }, { sql: `select * from ${tableName} where id=?`, where: [2] }]);
+    let results = await Select.selects<IHash>(conn, [{ sql: `select * from ${tableName} where id=?`, where: [1] }, { sql: `select * from ${tableName} where id=?`, where: [2] }]);
 
     expect(results != null && results.length == 2 && results[0] != null && results[1] != null && results[0].length == 1 && results[1].length == 1).to.be.true;
   });
@@ -74,7 +75,7 @@ describe("Select", function() {
   });
 
   it("selectTop1 error", async () => {
-    await Select.selectTop1(conn, {
+    await Select.selectTop1<IHash>(conn, {
       sql: `select * from tbl_not_exists`
     })
       .then(() => {

@@ -3,6 +3,7 @@ import "mocha";
 import { initTable } from "./DataInit";
 import { ConnectionHelper, Insert, Select, ConnectionPool, Transaction } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
+import { IHash } from "../src/interface/iHash";
 
 describe("Insert", function () {
   let tableName = "tbl_test_insert";
@@ -33,7 +34,7 @@ describe("Insert", function () {
 
     let insertId = result.identityValue;
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id=?`,
       where: [insertId],
     });
@@ -69,7 +70,7 @@ describe("Insert", function () {
 
     let insertId = result.identityValue;
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where id=?`,
       where: [insertId],
     });
@@ -155,7 +156,7 @@ describe("Insert", function () {
     );
     await tran.commit();
 
-    let rowData = await Select.select(conn, {
+    let rowData = await Select.select<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where dateValue = '2021-11-05' `,
       where: [],
     });
@@ -184,7 +185,7 @@ describe("Insert", function () {
       updateDate: "2020-11-05 12:23:46",
     });
 
-    let rowData = await Select.select(conn, {
+    let rowData = await Select.select<IHash>(conn, {
       sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName} where dateValue = '2031-11-05' `,
       where: [],
     });
@@ -342,7 +343,7 @@ describe("Insert", function () {
       table: tableName2,
     });
 
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName2} where id = 11`,
     });
 
@@ -373,7 +374,7 @@ describe("Insert", function () {
       table: tableName2,
     });
 
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName2} where id = 12`,
     });
 
@@ -398,7 +399,7 @@ describe("Insert", function () {
       updateDate: "2021-01-05",
       table: tableName2,
     });
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName2} where id = 13`,
     });
 
@@ -419,7 +420,7 @@ describe("Insert", function () {
       },
       table: tableName2,
     });
-    const list = await Select.select(conn, {
+    const list = await Select.select<IHash>(conn, {
       sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName2} where id = 14`,
     });
 

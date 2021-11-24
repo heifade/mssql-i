@@ -3,6 +3,7 @@ import "mocha";
 import { initTable } from "./DataInit";
 import { ConnectionHelper, Save, Transaction, Select, SaveType, ConnectionPool } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
+import { IHash } from "../src/interface/iHash";
 
 describe("Transaction", function () {
   let tableName = "tbl_test_transaction";
@@ -33,7 +34,7 @@ describe("Transaction", function () {
 
     await Transaction.commit(tran);
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [10],
     });
@@ -70,7 +71,7 @@ describe("Transaction", function () {
       await Transaction.rollback(tran);
     }
 
-    let rowData = await Select.selectTop1(conn, {
+    let rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select value from ${tableName} where id=?`,
       where: [11],
     });

@@ -4,6 +4,7 @@ import { initTable } from "./DataInit";
 import { ConnectionHelper, Select, Procedure, Exec, Schema, ConnectionPool, Utils } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
 import { Transaction } from "../src/Transaction";
+import { IHash } from "../src/interface/iHash";
 
 describe("Procedure", function() {
   let tableName = "tbl_test_procedure";
@@ -82,7 +83,7 @@ describe("Procedure", function() {
 
     expect(result.output["pOut"]).to.equals("aaaabbbccc");
 
-    let row = await Select.selectTop1(conn, {
+    let row = await Select.selectTop1<IHash>(conn, {
       sql: `select * from ${tableName} where id=?`,
       where: [11]
     });
@@ -111,7 +112,7 @@ describe("Procedure", function() {
 
     expect(result && result.output["pOut"] == "aaaabbbccc").to.be.true;
 
-    let row = await Select.selectTop1(conn, {
+    let row = await Select.selectTop1<IHash>(conn, {
       sql: `select * from ${tableName} where id=?`,
       where: [111]
     });
@@ -170,7 +171,7 @@ describe("Procedure", function() {
       procedure: `${procedureName}_no_par`
     });
 
-    let row = await Select.selectTop1(conn, {
+    let row = await Select.selectTop1<IHash>(conn, {
       sql: `select * from ${tableName} where id=?`,
       where: [100]
     });
@@ -183,7 +184,7 @@ describe("Procedure", function() {
       procedure: `${procedureName}_no_par2`
     });
 
-    let row = await Select.selectTop1(conn, {
+    let row = await Select.selectTop1<IHash>(conn, {
       sql: `select * from ${tableName} where id=?`,
       where: [102]
     });
