@@ -4,25 +4,27 @@ import { initTable } from "./DataInit";
 import { ConnectionHelper, Insert, Select, ConnectionPool, Transaction } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
 import { IHash } from "../src/interface/iHash";
+import { getMillToNow } from "./utils";
 
 describe("Insert", function () {
-  let tableName = "tbl_test_insert";
-  let tableName2 = "tbl_test_insert2";
+  const tableName = "tbl_test_insert";
+  const tableName2 = "tbl_test_insert2";
+  const tableName3 = "tbl_test_insert3";
   let conn: ConnectionPool;
 
   before(async () => {
     conn = await ConnectionHelper.create(getConnectionConfig());
     await initTable(conn, tableName, true);
     await initTable(conn, tableName2, true);
+    await initTable(conn, tableName3, false);
   });
   after(async () => {
     await ConnectionHelper.close(conn);
   });
 
   it("insert must be success", async () => {
-    let insertValue = `value${Math.random()}`;
-
-    let result = await Insert.insert(conn, {
+    const insertValue = `value${Math.random()}`;
+    const result = await Insert.insert(conn, {
       data: { value: insertValue, value2: 1, id: 1 },
       table: tableName,
       createBy: "djd3",
@@ -45,6 +47,31 @@ describe("Insert", function () {
     expect(rowData.createDate).to.equal("2021-11-05 12:23:47");
     expect(rowData.updateBy).to.equal("djd4");
     expect(rowData.updateDate).to.equal("2021-11-05 12:23:48");
+  });
+
+  it("insert must be success use createDate, updateDate getdate", async () => {
+    const insertValue = `value${Math.random()}`;
+    const result = await Insert.insert(conn, {
+      data: { value: insertValue, value2: 1, id: 23 },
+      table: tableName3,
+      createBy: "djd3",
+      createDate: true,
+      updateBy: "djd4",
+      updateDate: true,
+      getIdentityValue: true,
+    });
+
+    let rowData = await Select.selectTop1<IHash>(conn, {
+      sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id=?`,
+      where: [23],
+    });
+
+    expect(rowData !== null).to.be.true;
+    expect(rowData.value).to.equal(insertValue);
+    expect(rowData.createBy).to.equal("djd3");
+    expect(getMillToNow(rowData.createDate)).to.lessThan(1000);
+    expect(rowData.updateBy).to.equal("djd4");
+    expect(getMillToNow(rowData.updateDate)).to.lessThan(1000);
   });
 
   it("insert with tran must be success", async () => {

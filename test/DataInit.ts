@@ -2,6 +2,7 @@ import { Save, Exec, SaveType, Schema, Utils, ConnectionPool } from "../src/inde
 
 export let initTable = async function (conn: ConnectionPool, tableName: string, autoIncrement: boolean) {
   await Exec.exec(conn, `if exists (select top 1 1 from sys.tables where name = '${tableName}') drop table ${tableName}`);
+
   await Exec.exec(
     conn,
     `create table ${tableName} (

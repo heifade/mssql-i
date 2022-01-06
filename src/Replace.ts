@@ -1,6 +1,6 @@
 import { ConnectionPool, Request } from "mssql";
 import { MssqlTransaction } from ".";
-import { CREATE_BY, CREATE_DATE } from "./const";
+import { CREATE_BY, CREATE_DATE, UPDATE_DATE } from "./const";
 import { ICreateBy, ICreateDate, IUpdateBy, IUpdateDate } from "./interface/iCreateBy";
 import { IHash } from "./interface/iHash";
 import { Schema } from "./schema/Schema";
@@ -100,37 +100,45 @@ export class Replace {
     const rowData = fillCreateByUpdateBy({ row, createBy, updateBy, createDate, updateDate });
 
     Object.getOwnPropertyNames(rowData).map((key, index) => {
-      let column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
+      const column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
-        let colName = column.columnName;
+        const { columnName, primaryKey, autoIncrement } = column;
 
-        if (column.primaryKey) {
-          request.input(`wparw${colName}`, rowData[colName]);
-          request.input(`wparu${colName}`, rowData[colName]);
+        if (primaryKey) {
+          request.input(`wparw${columnName}`, rowData[columnName]);
+          request.input(`wparu${columnName}`, rowData[columnName]);
 
-          sWhereSQLs.push(` ${colName} = @wparw${colName} `);
-          uWhereSQLs.push(` ${colName} = @wparu${colName} `);
+          sWhereSQLs.push(` ${columnName} = @wparw${columnName} `);
+          uWhereSQLs.push(` ${columnName} = @wparu${columnName} `);
         } else {
-          if ([CREATE_BY, CREATE_DATE].includes(colName)) {
-            if (Reflect.has(row, colName)) {
-              // 当字段为 createBy, createDate 时，只有当 源数据里有指写时才更新
-              request.input(`upar${colName}`, row[colName]);
-              updateFields.push(` ${colName} = @upar${colName} `);
+          if ([CREATE_BY, CREATE_DATE].includes(columnName)) {
+            if (Reflect.has(row, columnName)) {
+              // 当字段为 createBy, createDate 时，只有当 源数据里有指定时才更新
+              if (columnName === CREATE_DATE && row[columnName] === true) {
+                updateFields.push(` ${columnName} = getdate() `);
+              } else {
+                request.input(`upar${columnName}`, row[columnName]);
+                updateFields.push(` ${columnName} = @upar${columnName} `);
+              }
             }
           } else {
-            request.input(`upar${colName}`, rowData[colName]);
-            updateFields.push(` ${colName} = @upar${colName} `);
+            if (columnName === UPDATE_DATE && rowData[columnName] === true) {
+              updateFields.push(` ${columnName} = getdate() `);
+            } else {
+              request.input(`upar${columnName}`, rowData[columnName]);
+              updateFields.push(` ${columnName} = @upar${columnName} `);
+            }
           }
         }
 
-        if (!column.autoIncrement) {
-          if (Reflect.has(row, colName)) {
-            request.input(`ipar${colName}`, row[colName]);
+        if (!autoIncrement) {
+          if (Reflect.has(row, columnName)) {
+            request.input(`ipar${columnName}`, row[columnName]);
           } else {
-            request.input(`ipar${colName}`, rowData[colName]);
+            request.input(`ipar${columnName}`, rowData[columnName]);
           }
-          insertFields.push(colName);
-          insertValues.push(` @ipar${colName} `);
+          insertFields.push(columnName);
+          insertValues.push(` @ipar${columnName} `);
         }
       }
     });
@@ -149,13 +157,13 @@ export class Replace {
     const getIdentity = haveAutoIncrement ? "select @@IDENTITY as insertId" : "";
 
     const sql = `
-    if exists(select 1 from ${tableName} ${sWhereSQL})
+    if exists(select top 1 1 from ${tableName} ${sWhereSQL})
       begin
-        update ${tableName} set ${updateFields.join(",")} ${uWhereSQL};
+        update ${tableName} set ${updateFields.join(",")} ${uWhereSQL}
       end
     else
       begin
-        insert into ${tableName}(${insertFields.join(",")}) values(${insertValues.join(",")});
+        insert into ${tableName}(${insertFields.join(",")}) values(${insertValues.join(",")})
         ${getIdentity}
       end`;
 

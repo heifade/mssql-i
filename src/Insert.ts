@@ -194,12 +194,28 @@ export class Insert {
     Object.getOwnPropertyNames(row).map((key, index) => {
       const column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
-        if (!column.autoIncrement) {
-          //跳过自增字段
-          fields.push(column.columnName);
-          values.push(`@${column.columnName}`);
+        const { autoIncrement, columnName } = column;
+        //跳过自增字段
+        if (!autoIncrement) {
+          switch (columnName) {
+            case "createDate":
+            case "updateDate": {
+              // createDate, updateDate 当什为 true 时， 取自 getdate()
+              if (row[columnName] === true) {
+                values.push(`getdate()`);
+              } else {
+                values.push(`@${columnName}`);
+                request.input(columnName, row[columnName]);
+              }
+              break;
+            }
+            default: {
+              values.push(`@${columnName}`);
+              request.input(columnName, row[columnName]);
+            }
+          }
+          fields.push(columnName);
         }
-        request.input(column.columnName, row[column.columnName]);
       }
     });
 

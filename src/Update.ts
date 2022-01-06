@@ -118,13 +118,30 @@ export class Update {
     Object.getOwnPropertyNames(rowData).map((key, index) => {
       const column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
-        const colName = column.columnName;
-        if (column.primaryKey) {
-          whereSQLs.push(` ${colName} = @wpar${colName}`);
-          request.input(`wpar${colName}`, rowData[colName]);
+        const { columnName, primaryKey } = column;
+
+        if (primaryKey) {
+          whereSQLs.push(` ${columnName} = @wpar${columnName}`);
+          request.input(`wpar${columnName}`, rowData[columnName]);
         } else {
-          fieldSQLs.push(` ${colName} = @fpar${colName}`);
-          request.input(`fpar${colName}`, rowData[colName]);
+          switch (columnName) {
+            case "createDate":
+            case "updateDate": {
+              // createDate, updateDate 当什为 true 时， 取自 getdate()
+              if (rowData[columnName] === true) {
+                fieldSQLs.push(` ${columnName} = getdate()`);
+              } else {
+                fieldSQLs.push(` ${columnName} = @fpar${columnName}`);
+                request.input(`fpar${columnName}`, rowData[columnName]);
+              }
+              break;
+            }
+            default: {
+              fieldSQLs.push(` ${columnName} = @fpar${columnName}`);
+              request.input(`fpar${columnName}`, rowData[columnName]);
+              break;
+            }
+          }
         }
       }
     });
@@ -203,10 +220,26 @@ export class Update {
     Object.getOwnPropertyNames(rowData).map((key, index) => {
       let column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
-        let colName = column.columnName;
-        fieldSQLs.push(` ${colName} = @fpar${colName} `);
+        const { columnName } = column;
 
-        request.input(`fpar${colName}`, rowData[colName]);
+        switch (columnName) {
+          case "createDate":
+          case "updateDate": {
+            // createDate, updateDate 当什为 true 时， 取自 getdate()
+            if (rowData[columnName] === true) {
+              fieldSQLs.push(` ${columnName} = getdate()`);
+            } else {
+              fieldSQLs.push(` ${columnName} = @fpar${columnName}`);
+              request.input(`fpar${columnName}`, rowData[columnName]);
+            }
+            break;
+          }
+          default: {
+            fieldSQLs.push(` ${columnName} = @fpar${columnName}`);
+            request.input(`fpar${columnName}`, rowData[columnName]);
+            break;
+          }
+        }
       }
     });
 

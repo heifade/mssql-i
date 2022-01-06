@@ -4,15 +4,18 @@ import { initTable } from "./DataInit";
 import { ConnectionHelper, Update, Select, ConnectionPool, Transaction } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
 import { IHash } from "../src/interface/iHash";
+import { getMillToNow } from "./utils";
 
 describe("Update", function () {
-  let tableName = "tbl_test_update";
-  let tableName2 = "tbl_test_update2";
+  const tableName = "tbl_test_update";
+  const tableName2 = "tbl_test_update2";
+  const tableName3 = "tbl_test_update3";
   let conn: ConnectionPool;
   before(async () => {
     conn = await ConnectionHelper.create(getConnectionConfig());
     await initTable(conn, tableName, false);
     await initTable(conn, tableName2, false);
+    await initTable(conn, tableName3, false);
   });
   after(async () => {
     await ConnectionHelper.close(conn);
@@ -51,16 +54,67 @@ describe("Update", function () {
     newValue = `value${Math.random()}` + "_newValue3";
 
     await Update.update(conn, {
-      data: { id: 2, value: newValue },
+      data: { id: 3, value: newValue },
       table: tableName,
     });
 
     rowData = await Select.selectTop1<IHash>(conn, {
       sql: `select * from ${tableName} where id = ?`,
+      where: [3],
+    });
+
+    expect(rowData.value).to.equal(newValue);
+  });
+
+  it("update must be success use updateDate getdate", async () => {
+    let newValue = `value${Math.random()}` + "_newValue1";
+
+    let result = await Update.update(conn, {
+      data: { id: 1, value: newValue, createDate: true },
+      updateDate: true,
+      table: tableName3,
+    });
+
+    let rowData = await Select.selectTop1<IHash>(conn, {
+      sql: `select id, value, convert(char(19), createDate, 120) as createDate, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id=?`,
+      where: [1],
+    });
+
+    expect(rowData.value).to.equal(newValue);
+    expect(getMillToNow(rowData.updateDate)).to.lessThan(1000);
+
+    newValue = `value${Math.random()}` + "_newValue2";
+
+    result = await Update.updateByWhere(conn, {
+      data: { value: newValue },
+      updateDate: true,
+      table: tableName3,
+      where: { id: 2 },
+    });
+
+    rowData = await Select.selectTop1<IHash>(conn, {
+      sql: `select id, value, convert(char(19), createDate, 120) as createDate, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id=?`,
       where: [2],
     });
 
     expect(rowData.value).to.equal(newValue);
+    expect(getMillToNow(rowData.updateDate)).to.lessThan(1000);
+
+    newValue = `value${Math.random()}` + "_newValue3";
+
+    await Update.update(conn, {
+      data: { id: 3, value: newValue },
+      updateDate: true,
+      table: tableName3,
+    });
+
+    rowData = await Select.selectTop1<IHash>(conn, {
+      sql: `select id, value, convert(char(19), createDate, 120) as createDate, convert(char(19), updateDate, 120) as updateDate from ${tableName3} where id = ?`,
+      where: [3],
+    });
+
+    expect(rowData.value).to.equal(newValue);
+    expect(getMillToNow(rowData.updateDate)).to.lessThan(1000);
   });
 
   it("update with tran must be success", async () => {

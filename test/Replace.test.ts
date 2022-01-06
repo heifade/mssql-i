@@ -4,16 +4,19 @@ import { getConnectionConfig } from "./connectionConfig";
 import { initTable } from "./DataInit";
 import { ConnectionHelper, Replace, Select, ConnectionPool, Exec, Schema, Transaction, IInsertResult } from "../src/index";
 import { IHash } from "../src/interface/iHash";
+import { getMillToNow } from "./utils";
 
 describe("Replace", function () {
   let tableName = "tbl_test_replace";
   let tableName2 = "tbl_test_replace_noprimarykey";
   const tableName3 = "tbl_test_replace3";
+  const tableName4 = "tbl_test_replace4";
   let conn: ConnectionPool;
   before(async () => {
     conn = await ConnectionHelper.create(getConnectionConfig());
     await initTable(conn, tableName, true);
     await initTable(conn, tableName3, true);
+    await initTable(conn, tableName4, false);
 
     await Exec.exec(conn, `if exists (select top 1 1 from sys.tables where name = '${tableName2}') drop table ${tableName2}`);
 
@@ -58,6 +61,53 @@ describe("Replace", function () {
     expect(rowData.value).to.equal(insertValue);
     expect(rowData.createBy).to.equal(null);
     expect(rowData.createDate).to.equal(null);
+  });
+
+  it("replace must be success with primary key 01 use createDate, updateDate getdate", async () => {
+    const insertValue = `value${Math.random()}`;
+
+    await Replace.replace(conn, {
+      data: {
+        id: 1,
+        value: insertValue,
+      },
+      table: tableName4,
+      createBy: "djd2",
+      createDate: true,
+      updateBy: "djd1",
+      updateDate: true,
+    });
+
+    const rowData = await Select.selectTop1<IHash>(conn, {
+      sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName4} where id = ?`,
+      where: [1],
+    });
+
+    expect(rowData != null).to.be.true;
+    expect(rowData.value).to.equal(insertValue);
+    expect(rowData.createBy).to.equal(null);
+    expect(rowData.createDate).to.equal(null);
+    expect(getMillToNow(rowData.updateDate)).to.lessThan(1000);
+
+    await Replace.replace(conn, {
+      data: {
+        id: 2,
+        value: insertValue,
+        createBy: "djd2",
+        createDate: true,
+      },
+      table: tableName4,
+      updateBy: "djd1",
+      updateDate: true,
+    });
+
+    const rowData2 = await Select.selectTop1<IHash>(conn, {
+      sql: `select value, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName4} where id = ?`,
+      where: [2],
+    });
+    expect(rowData2 != null).to.be.true;
+    expect(rowData2.createBy).to.equal('djd2');
+    expect(getMillToNow(rowData2.createDate)).to.lessThan(1000);
   });
 
   it("replace must be success with primary key 02", async () => {
