@@ -51,7 +51,7 @@ describe("Insert", function () {
 
   it("insert must be success use createDate, updateDate getdate", async () => {
     const insertValue = `value${Math.random()}`;
-    const result = await Insert.insert(conn, {
+    await Insert.insert(conn, {
       data: { value: insertValue, value2: 1, id: 23 },
       table: tableName3,
       createBy: "djd3",
