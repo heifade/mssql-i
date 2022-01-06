@@ -97,8 +97,8 @@ export class Update {
       request = conn.request();
     }
 
-    let fieldSQL = ` `;
-    let whereSQL = ``;
+    const fieldSQLs: string[] = [];
+    const whereSQLs: string[] = [];
 
     if (onlyUpdateByPrimaryKey) {
       const cannotBeNullFields = tableSchemaModel.columns
@@ -120,23 +120,20 @@ export class Update {
       if (column) {
         const colName = column.columnName;
         if (column.primaryKey) {
-          whereSQL += ` ${colName} = @wpar${colName} and`;
+          whereSQLs.push(` ${colName} = @wpar${colName}`);
           request.input(`wpar${colName}`, rowData[colName]);
         } else {
-          fieldSQL += ` ${colName} = @fpar${colName},`;
+          fieldSQLs.push(` ${colName} = @fpar${colName}`);
           request.input(`fpar${colName}`, rowData[colName]);
         }
       }
     });
 
-    fieldSQL = fieldSQL.trim().replace(/\,$/, ""); //去掉最后面的','
-    if (whereSQL) {
-      whereSQL = ` where ` + whereSQL.replace(/and$/, "");
-    }
+    const whereSQL = whereSQLs.length ? ` where ${whereSQLs.join(" and ")} ` : "";
 
     const tableName = Utils.getDbObjectName(database, pars.chema, table);
 
-    const sql = `update ${tableName} set ${fieldSQL} ${whereSQL}`;
+    const sql = `update ${tableName} set ${fieldSQLs.join(",")} ${whereSQL}`;
 
     await request.query(sql);
     return true;
@@ -201,19 +198,17 @@ export class Update {
       request = conn.request();
     }
 
-    let fieldSQL = ` `;
+    const fieldSQLs: string[] = [];
     const rowData = fillCreateByUpdateBy({ row, updateBy, updateDate });
     Object.getOwnPropertyNames(rowData).map((key, index) => {
       let column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
         let colName = column.columnName;
-        fieldSQL += ` ${colName} = @fpar${colName},`;
+        fieldSQLs.push(` ${colName} = @fpar${colName} `);
 
         request.input(`fpar${colName}`, rowData[colName]);
       }
     });
-
-    fieldSQL = fieldSQL.trim().replace(/\,$/, ""); //去掉最后面的','
 
     const { whereSQL, wherePars } = Where.getWhereSQL(where, tableSchemaModel);
 
@@ -223,7 +218,7 @@ export class Update {
 
     const tableName = Utils.getDbObjectName(database, pars.chema, table);
 
-    const sql = `update ${tableName} set ${fieldSQL} ${whereSQL}`;
+    const sql = `update ${tableName} set ${fieldSQLs.join(",")} ${whereSQL}`;
 
     await request.query(sql);
     return true;

@@ -18,24 +18,20 @@ export class Where {
    * @memberof Where
    */
   public static getWhereSQL(where: IHash, tableSchemaModel: TableSchemaModel) {
-    let whereSQL = ``;
+    const whereSQLs: string[] = [];
     const whereList = new Array<any>();
     const wherePars: IHash = {};
 
     if (where != null) {
       Object.getOwnPropertyNames(where).map((key, index) => {
         if (tableSchemaModel.columns.filter((column) => column.columnName === key).length) {
-          whereSQL += ` ${key} = @wpar${key} and`;
+          whereSQLs.push(`${key} = @wpar${key}`);
           whereList.push(where[key]);
           wherePars[`wpar${key}`] = where[key];
         }
       });
     }
 
-    if (whereSQL) {
-      whereSQL = ` where` + whereSQL.replace(/and$/, "");
-    }
-
-    return { whereSQL, whereList, wherePars };
+    return { whereSQL: whereSQLs.length ? ` where ${whereSQLs.join(" and ")} ` : "", whereList, wherePars };
   }
 }

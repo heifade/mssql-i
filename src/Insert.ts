@@ -189,15 +189,15 @@ export class Insert {
 
   private static async _insert(pars: { row: IHash; tableSchemaModel: TableSchemaModel; request: Request; tableName: string; getIdentityValue?: boolean }): Promise<IInsertResult> {
     const { row, tableName, tableSchemaModel, request, getIdentityValue } = pars;
-    let fields = "";
-    let values = "";
+    const fields: string[] = [];
+    const values: string[] = [];
     Object.getOwnPropertyNames(row).map((key, index) => {
       const column = tableSchemaModel.columns.filter((column) => column.columnName === key)[0];
       if (column) {
         if (!column.autoIncrement) {
           //跳过自增字段
-          fields += `${column.columnName},`;
-          values += `@${column.columnName},`;
+          fields.push(column.columnName);
+          values.push(`@${column.columnName}`);
         }
         request.input(column.columnName, row[column.columnName]);
       }
@@ -205,11 +205,8 @@ export class Insert {
 
     const needGetIdentityValue = getIdentityValue && !!tableSchemaModel.columns.find((n) => n.autoIncrement);
 
-    fields = fields.replace(/\,$/, "");
-    values = values.replace(/\,$/, "");
-
     //是否需要返回自增字段
-    const sql = `insert into ${tableName}(${fields}) values(${values}) ${needGetIdentityValue ? ";select @@IDENTITY as insertId" : ""}`;
+    const sql = `insert into ${tableName}(${fields.join(",")}) values(${values.join(",")}) ${needGetIdentityValue ? ";select @@IDENTITY as insertId" : ""}`;
 
     const result = await request.query(sql);
     const returnValue: IInsertResult = {

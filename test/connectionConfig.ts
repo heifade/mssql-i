@@ -26,7 +26,7 @@ program
         let content = `{
         "server": "127.0.0.1",
         "password": "",
-        "port": 143
+        "port": 1433
       }`;
 
         fs.writeFileSync(configFile, content);

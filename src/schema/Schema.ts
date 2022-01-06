@@ -72,12 +72,14 @@ export class Schema {
    * @memberof Schema
    */
   public static async getSchema(conn: ConnectionPool, database: string): Promise<SchemaModel> {
-    let schemaModel = SchemaCache.get(database);
+    const v = SchemaCache.get(database);
+    if (v) {
+      return v;
+    }
 
-    if (!schemaModel) {
-      schemaModel = new SchemaModel();
+    const schemaModel = new SchemaModel();
 
-      let sqlTables = `
+    const sqlTables = `
         select
           obj.schema_id as schemaId,
           schms.name as schemaName,
@@ -91,7 +93,7 @@ export class Schema {
         where obj.type in('U')
       `;
 
-      let sqlColumns = `
+    const sqlColumns = `
         select
           sches.schema_id as schemaId,
           sches.name as schemaName,
@@ -130,7 +132,7 @@ export class Schema {
         order by tableName asc, sysCols.colid asc
       `;
 
-      let sqlProcedures = `
+    const sqlProcedures = `
         select
           obj.schema_id as schemaId,
           schms.name as schemaName,
@@ -146,7 +148,7 @@ export class Schema {
         order by schemaName asc, procedureName asc
       `;
 
-      let sqlProcedurePars = `
+    const sqlProcedurePars = `
         select
           pars.object_id as objId,
           REPLACE(pars.name, '@', '') as parameterName,
@@ -166,58 +168,55 @@ export class Schema {
         order by objId
       `;
 
-      let lists = await Select.selects<IHash>(conn, [
-        { sql: sqlTables, where: [] }, //database
-        { sql: sqlColumns, where: [] }, //database
-        { sql: sqlProcedures, where: [] }, //database
-        { sql: sqlProcedurePars, where: [] }, //database
-      ]);
+    const lists = await Select.selects<IHash>(conn, [
+      { sql: sqlTables, where: [] }, //database
+      { sql: sqlColumns, where: [] }, //database
+      { sql: sqlProcedures, where: [] }, //database
+      { sql: sqlProcedurePars, where: [] }, //database
+    ]);
 
-      let tableList = lists[0];
-      let columnList = lists[1];
-      schemaModel.tables = new Array<TableSchemaModel>();
-      tableList.map((table) => {
-        let tableModel = new TableSchemaModel();
-        tableModel.name = table["tableName"];
-        tableModel.columns = [];
-        schemaModel.tables.push(tableModel);
+    const tableList = lists[0];
+    const columnList = lists[1];
+    schemaModel.tables = new Array<TableSchemaModel>();
+    tableList.map((table) => {
+      const tableModel = new TableSchemaModel();
+      tableModel.name = table["tableName"];
+      tableModel.columns = [];
+      schemaModel.tables.push(tableModel);
 
-        columnList
-          .filter((column) => column["tableName"] === table["tableName"])
-          .map((column) => {
-            let columnModel = new ColumnSchemaModel();
-            columnModel.columnName = column["columnName"];
-            columnModel.primaryKey = column["primaryKey"] === 1;
-            columnModel.autoIncrement = column["isIdentity"] === 1;
+      columnList
+        .filter((column) => column["tableName"] === table["tableName"])
+        .map((column) => {
+          let columnModel = new ColumnSchemaModel();
+          columnModel.columnName = column["columnName"];
+          columnModel.primaryKey = column["primaryKey"] === 1;
+          columnModel.autoIncrement = column["isIdentity"] === 1;
 
-            tableModel.columns.push(columnModel);
-          });
-      });
+          tableModel.columns.push(columnModel);
+        });
+    });
 
-      let procedureList = lists[2];
-      let procedureParsList = lists[3];
-      schemaModel.procedures = new Array<ProcedureSchemaModel>();
-      procedureList.map((procedure) => {
-        let procedureModel = new ProcedureSchemaModel();
-        procedureModel.name = procedure["procedureName"];
-        procedureModel.pars = [];
-        schemaModel.procedures.push(procedureModel);
+    const procedureList = lists[2];
+    const procedureParsList = lists[3];
+    schemaModel.procedures = new Array<ProcedureSchemaModel>();
+    procedureList.map((procedure) => {
+      const procedureModel = new ProcedureSchemaModel();
+      procedureModel.name = procedure["procedureName"];
+      procedureModel.pars = [];
+      schemaModel.procedures.push(procedureModel);
 
-        procedureParsList
-          .filter((par) => par["objId"] === procedure["objId"])
-          .map((par) => {
-            let parModel = new ProcedureParSchemaModel();
-            parModel.name = par["parameterName"];
-            parModel.parameterMode = par["parameterMode"];
-            procedureModel.pars.push(parModel);
-          });
-      });
+      procedureParsList
+        .filter((par) => par["objId"] === procedure["objId"])
+        .map((par) => {
+          const parModel = new ProcedureParSchemaModel();
+          parModel.name = par["parameterName"];
+          parModel.parameterMode = par["parameterMode"];
+          procedureModel.pars.push(parModel);
+        });
+    });
 
-      SchemaCache.set(database, schemaModel);
+    SchemaCache.set(database, schemaModel);
 
-      return schemaModel;
-    } else {
-      return schemaModel;
-    }
+    return schemaModel;
   }
 }

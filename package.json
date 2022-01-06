@@ -40,7 +40,7 @@
     ]
   },
   "dependencies": {
-    "mssql": "^7.2.1"
+    "mssql": "^7.3.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.22",

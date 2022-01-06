@@ -89,7 +89,7 @@ export class Delete {
 
     const whereList = new Array<any>();
     const wherePars: IHash = {};
-    let whereSQL = ``;
+    const whereSQLs: string[] = [];
     const primaryKeyList = tableSchemaModel.columns.filter((column) => column.primaryKey);
     if (primaryKeyList.length < 1) {
       return Promise.reject(new Error(`表: '${table}' 没有主键, 不能通过此方法来删数据. 请尝试方法: 'deleteByWhere'!`));
@@ -116,18 +116,16 @@ export class Delete {
       })
       .map(({ columnName }) => {
         const value = data[columnName];
-        whereSQL += ` ${columnName} = @wpar${columnName} and`;
+        whereSQLs.push(` ${columnName} = @wpar${columnName} `);
         whereList.push(value);
         wherePars[`wpar${columnName}`] = value;
       });
 
-    if (whereSQL) {
-      whereSQL = ` where ` + whereSQL.replace(/and$/, "");
-    }
+    const whereSQL = whereSQLs.length ? ` where ${whereSQLs.join(" and ")} ` : "";
 
-    let tableName = Utils.getDbObjectName(database, pars.chema, table);
+    const tableName = Utils.getDbObjectName(database, pars.chema, table);
 
-    let sql = `delete from ${tableName} ${whereSQL}`;
+    const sql = `delete from ${tableName} ${whereSQL}`;
 
     let request: Request;
     if (tran) {

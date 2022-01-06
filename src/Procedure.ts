@@ -54,8 +54,6 @@ export class Procedure {
 
     const procedureName = Utils.getDbObjectName(database, pars.chema, procedure);
 
-    let parSQL = "";
-
     let request: Request;
     if (tran) {
       request = new Request(tran);
@@ -68,15 +66,12 @@ export class Procedure {
         const par = procedureSchemaModel.pars.filter((par) => par.name === key.replace(/^@/, ""))[0];
         if (par) {
           if (par.parameterMode === "out") {
-            parSQL += `${par.name},`;
             request.output(`${par.name}`, VarChar);
           } else {
-            parSQL += `${par.name},`;
             request.input(`${par.name}`, data[par.name]);
           }
         }
       });
-      parSQL = parSQL.replace(/\,$/, "");
     }
 
     const sql = `${procedureName}`;

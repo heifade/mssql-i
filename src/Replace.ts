@@ -91,11 +91,11 @@ export class Replace {
       request = conn.request();
     }
 
-    let sWhereSQL = "";
-    let uWhereSQL = "";
-    let updateFields = "";
-    let insertFields = "";
-    let insertValues = "";
+    const sWhereSQLs: string[] = [];
+    const uWhereSQLs: string[] = [];
+    const updateFields: string[] = [];
+    const insertFields: string[] = [];
+    const insertValues: string[] = [];
 
     const rowData = fillCreateByUpdateBy({ row, createBy, updateBy, createDate, updateDate });
 
@@ -108,18 +108,18 @@ export class Replace {
           request.input(`wparw${colName}`, rowData[colName]);
           request.input(`wparu${colName}`, rowData[colName]);
 
-          sWhereSQL += ` ${colName} = @wparw${colName} and`;
-          uWhereSQL += ` ${colName} = @wparu${colName} and`;
+          sWhereSQLs.push(` ${colName} = @wparw${colName} `);
+          uWhereSQLs.push(` ${colName} = @wparu${colName} `);
         } else {
           if ([CREATE_BY, CREATE_DATE].includes(colName)) {
             if (Reflect.has(row, colName)) {
               // 当字段为 createBy, createDate 时，只有当 源数据里有指写时才更新
               request.input(`upar${colName}`, row[colName]);
-              updateFields += ` ${colName} = @upar${colName},`;
+              updateFields.push(` ${colName} = @upar${colName} `);
             }
           } else {
             request.input(`upar${colName}`, rowData[colName]);
-            updateFields += ` ${colName} = @upar${colName},`;
+            updateFields.push(` ${colName} = @upar${colName} `);
           }
         }
 
@@ -129,24 +129,14 @@ export class Replace {
           } else {
             request.input(`ipar${colName}`, rowData[colName]);
           }
-          insertFields += ` ${colName},`;
-          insertValues += ` @ipar${colName},`;
+          insertFields.push(colName);
+          insertValues.push(` @ipar${colName} `);
         }
       }
     });
 
-    if (sWhereSQL) {
-      sWhereSQL = ` where ` + sWhereSQL.replace(/and$/, "");
-    } else {
-      sWhereSQL = ` where 1 = 2`; //当没有主键时，为插入操作
-    }
-    if (uWhereSQL) {
-      uWhereSQL = ` where ` + uWhereSQL.replace(/and$/, "");
-    }
-
-    updateFields = updateFields.trim().replace(/\,$/, ""); //去掉最后面的','
-    insertFields = insertFields.trim().replace(/\,$/, ""); //去掉最后面的','
-    insertValues = insertValues.trim().replace(/\,$/, ""); //去掉最后面的','
+    const sWhereSQL = sWhereSQLs.length ? ` where ${sWhereSQLs.join(" and ")}` : ` where 1 = 2`; //当没有主键时，为插入操作
+    const uWhereSQL = uWhereSQLs.length ? ` where ${uWhereSQLs.join(" and ")}` : "";
 
     let haveAutoIncrement = false; //是否有自增字段
 
@@ -161,11 +151,11 @@ export class Replace {
     const sql = `
     if exists(select 1 from ${tableName} ${sWhereSQL})
       begin
-        update ${tableName} set ${updateFields} ${uWhereSQL};
+        update ${tableName} set ${updateFields.join(",")} ${uWhereSQL};
       end
     else
       begin
-        insert into ${tableName}(${insertFields}) values(${insertValues});
+        insert into ${tableName}(${insertFields.join(",")}) values(${insertValues.join(",")});
         ${getIdentity}
       end`;
 
