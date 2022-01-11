@@ -3,13 +3,14 @@ import "mocha";
 import { initTable } from "./DataInit";
 import { ConnectionHelper, Insert, Select, ConnectionPool, Transaction } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
-import { IHash } from "../src/interface/iHash";
+import { DataType, IHash } from "../src/interface/iHash";
 import { getMillToNow } from "./utils";
 
 describe("Insert", function () {
   const tableName = "tbl_test_insert";
   const tableName2 = "tbl_test_insert2";
   const tableName3 = "tbl_test_insert3";
+  const tableName4 = "tbl_test_insert4";
   let conn: ConnectionPool;
 
   before(async () => {
@@ -17,6 +18,7 @@ describe("Insert", function () {
     await initTable(conn, tableName, true);
     await initTable(conn, tableName2, true);
     await initTable(conn, tableName3, false);
+    await initTable(conn, tableName4, false);
   });
   after(async () => {
     await ConnectionHelper.close(conn);
@@ -458,5 +460,20 @@ describe("Insert", function () {
     expect(list[0].createDate).to.equals(null);
     expect(list[0].updateBy).to.equals(null);
     expect(list[0].updateDate).to.equals(null);
+  });
+
+  it("insert getdate must be success", async () => {
+    const result = await Insert.insert(conn, {
+      data: { id: 11, dateValue: DataType.getdate },
+      table: tableName4,
+    });
+
+    let rowData = await Select.selectTop1<IHash>(conn, {
+      sql: `select value, convert(char(19), dateValue, 120) as dateValue from ${tableName4} where id=?`,
+      where: [11],
+    });
+
+    expect(rowData !== null).to.be.true;
+    expect(getMillToNow(rowData.dateValue)).to.lessThan(1000);
   });
 });

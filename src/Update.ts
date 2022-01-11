@@ -3,7 +3,7 @@ import { Schema } from "./schema/Schema";
 import { Where } from "./util/Where";
 import { Utils } from "./util/Utils";
 import { MssqlTransaction } from ".";
-import { IHash } from "./interface/iHash";
+import { DataType, IHash } from "./interface/iHash";
 import { IUpdateBy, IUpdateDate } from "./interface/iCreateBy";
 import { fillCreateByUpdateBy } from "./util/fillCreateByUpdateBy";
 
@@ -137,8 +137,12 @@ export class Update {
               break;
             }
             default: {
-              fieldSQLs.push(` ${columnName} = @fpar${columnName}`);
-              request.input(`fpar${columnName}`, rowData[columnName]);
+              if (rowData[columnName] === DataType.getdate) {
+                fieldSQLs.push(` ${columnName} = getdate()`);
+              } else {
+                fieldSQLs.push(` ${columnName} = @fpar${columnName}`);
+                request.input(`fpar${columnName}`, rowData[columnName]);
+              }
               break;
             }
           }

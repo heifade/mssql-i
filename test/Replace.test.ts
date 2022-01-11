@@ -2,8 +2,8 @@ import { expect } from "chai";
 import "mocha";
 import { getConnectionConfig } from "./connectionConfig";
 import { initTable } from "./DataInit";
-import { ConnectionHelper, Replace, Select, ConnectionPool, Exec, Schema, Transaction, IInsertResult } from "../src/index";
-import { IHash } from "../src/interface/iHash";
+import { ConnectionHelper, Replace, Select, ConnectionPool, Exec, Schema, Transaction, IInsertResult, Update } from "../src/index";
+import { DataType, IHash } from "../src/interface/iHash";
 import { getMillToNow } from "./utils";
 
 describe("Replace", function () {
@@ -11,12 +11,14 @@ describe("Replace", function () {
   let tableName2 = "tbl_test_replace_noprimarykey";
   const tableName3 = "tbl_test_replace3";
   const tableName4 = "tbl_test_replace4";
+  const tableName5 = "tbl_test_replace5";
   let conn: ConnectionPool;
   before(async () => {
     conn = await ConnectionHelper.create(getConnectionConfig());
     await initTable(conn, tableName, true);
     await initTable(conn, tableName3, true);
     await initTable(conn, tableName4, false);
+    await initTable(conn, tableName5, false);
 
     await Exec.exec(conn, `if exists (select top 1 1 from sys.tables where name = '${tableName2}') drop table ${tableName2}`);
 
@@ -106,7 +108,7 @@ describe("Replace", function () {
       where: [2],
     });
     expect(rowData2 != null).to.be.true;
-    expect(rowData2.createBy).to.equal('djd2');
+    expect(rowData2.createBy).to.equal("djd2");
     expect(getMillToNow(rowData2.createDate)).to.lessThan(1000);
   });
 
@@ -670,5 +672,33 @@ describe("Replace", function () {
     expect(list2[0].createDate).to.equals(null);
     expect(list2[0].updateBy).to.equals(null);
     expect(list2[0].updateDate).to.equals(null);
+  });
+
+  it("replace getdate must be success", async () => {
+    await Replace.replace(conn, {
+      data: { id: 0, dateValue: DataType.getdate },
+      table: tableName5,
+    });
+
+    const rowData1 = await Select.selectTop1<IHash>(conn, {
+      sql: `select value, convert(char(19), dateValue, 120) as dateValue from ${tableName5} where id=?`,
+      where: [0],
+    });
+
+    expect(rowData1 !== null).to.be.true;
+    expect(getMillToNow(rowData1.dateValue)).to.lessThan(1000);
+
+    await Replace.replace(conn, {
+      data: { id: 10, dateValue: DataType.getdate },
+      table: tableName5,
+    });
+
+    const rowData2 = await Select.selectTop1<IHash>(conn, {
+      sql: `select value, convert(char(19), dateValue, 120) as dateValue from ${tableName5} where id=?`,
+      where: [10],
+    });
+
+    expect(rowData2 !== null).to.be.true;
+    expect(getMillToNow(rowData2.dateValue)).to.lessThan(1000);
   });
 });

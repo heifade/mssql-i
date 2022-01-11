@@ -3,17 +3,20 @@ import "mocha";
 import { initTable } from "./DataInit";
 import { ConnectionHelper, Save, Select, SaveType, ConnectionPool, Transaction } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
-import { IHash } from "../src/interface/iHash";
+import { DataType, IHash } from "../src/interface/iHash";
+import { getMillToNow } from "./utils";
 
 describe("Save", function () {
   let tableName = "tbl_test_save";
   let tableName3 = "tbl_test_save3";
+  let tableName4 = "tbl_test_save4";
   let conn: ConnectionPool;
 
   before(async () => {
     conn = await ConnectionHelper.create(getConnectionConfig());
     await initTable(conn, tableName, false);
     await initTable(conn, tableName3, true);
+    await initTable(conn, tableName4, true);
   });
   after(async () => {
     await ConnectionHelper.close(conn);
@@ -927,5 +930,51 @@ describe("Save", function () {
     expect(list2[0].createDate).to.equals(null);
     expect(list2[0].updateBy).to.equals(null);
     expect(list2[0].updateDate).to.equals(null);
+  });
+
+  it("save getdate must be success", async () => {
+    await Save.save(conn, {
+      data: { id: 1, dateValue: DataType.getdate },
+      table: tableName4,
+      saveType: SaveType.update,
+    });
+
+    const rowData1 = await Select.selectTop1<IHash>(conn, {
+      sql: `select value, convert(char(19), dateValue, 120) as dateValue from ${tableName4} where id=?`,
+      where: [1],
+    });
+
+    expect(rowData1 !== null).to.be.true;
+    expect(getMillToNow(rowData1.dateValue)).to.lessThan(1000);
+
+
+    await Save.save(conn, {
+      data: { id: 11, dateValue: DataType.getdate },
+      table: tableName4,
+      saveType: SaveType.insert,
+    });
+
+    const rowData2 = await Select.selectTop1<IHash>(conn, {
+      sql: `select value, convert(char(19), dateValue, 120) as dateValue from ${tableName4} where id=?`,
+      where: [11],
+    });
+
+    expect(rowData2 !== null).to.be.true;
+    expect(getMillToNow(rowData2.dateValue)).to.lessThan(1000);
+
+
+    await Save.save(conn, {
+      data: { id: 9, dateValue: DataType.getdate },
+      table: tableName4,
+      saveType: SaveType.replace,
+    });
+
+    const rowData3 = await Select.selectTop1<IHash>(conn, {
+      sql: `select value, convert(char(19), dateValue, 120) as dateValue from ${tableName4} where id=?`,
+      where: [9],
+    });
+
+    expect(rowData3 !== null).to.be.true;
+    expect(getMillToNow(rowData3.dateValue)).to.lessThan(1000);
   });
 });

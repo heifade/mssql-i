@@ -3,19 +3,21 @@ import "mocha";
 import { initTable } from "./DataInit";
 import { ConnectionHelper, Update, Select, ConnectionPool, Transaction } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
-import { IHash } from "../src/interface/iHash";
+import { DataType, IHash } from "../src/interface/iHash";
 import { getMillToNow } from "./utils";
 
 describe("Update", function () {
   const tableName = "tbl_test_update";
   const tableName2 = "tbl_test_update2";
   const tableName3 = "tbl_test_update3";
+  const tableName4 = "tbl_test_update4";
   let conn: ConnectionPool;
   before(async () => {
     conn = await ConnectionHelper.create(getConnectionConfig());
     await initTable(conn, tableName, false);
     await initTable(conn, tableName2, false);
     await initTable(conn, tableName3, false);
+    await initTable(conn, tableName4, false);
   });
   after(async () => {
     await ConnectionHelper.close(conn);
@@ -559,5 +561,21 @@ describe("Update", function () {
     expect(list1[0].createDate).to.equals("2020-01-01 00:00:00");
     expect(list1[0].updateBy).to.equals("djd1");
     expect(list1[0].updateDate).to.equals("2020-01-01 00:00:00");
+  });
+
+
+  it("update getdate must be success", async () => {
+    const result = await Update.update(conn, {
+      data: { id: 0, dateValue: DataType.getdate },
+      table: tableName4,
+    });
+
+    let rowData = await Select.selectTop1<IHash>(conn, {
+      sql: `select value, convert(char(19), dateValue, 120) as dateValue from ${tableName4} where id=?`,
+      where: [0],
+    });
+
+    expect(rowData !== null).to.be.true;
+    expect(getMillToNow(rowData.dateValue)).to.lessThan(1000);
   });
 });

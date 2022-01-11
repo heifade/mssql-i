@@ -1,7 +1,7 @@
 import { ConnectionPool, Request } from "mssql";
 import { MssqlTransaction } from ".";
 import { ICreateBy, ICreateDate, IUpdateBy, IUpdateDate } from "./interface/iCreateBy";
-import { IHash } from "./interface/iHash";
+import { DataType, IHash } from "./interface/iHash";
 import { TableSchemaModel } from "./model/SchemaModel";
 import { Schema } from "./schema/Schema";
 import { fillCreateByUpdateBy } from "./util/fillCreateByUpdateBy";
@@ -210,8 +210,12 @@ export class Insert {
               break;
             }
             default: {
-              values.push(`@${columnName}`);
-              request.input(columnName, row[columnName]);
+              if (row[columnName] === DataType.getdate) {
+                values.push(`getdate()`);
+              } else {
+                values.push(`@${columnName}`);
+                request.input(columnName, row[columnName]);
+              }
             }
           }
           fields.push(columnName);

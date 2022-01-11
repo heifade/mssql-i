@@ -2,7 +2,7 @@ import { ConnectionPool, Request } from "mssql";
 import { MssqlTransaction } from ".";
 import { CREATE_BY, CREATE_DATE, UPDATE_DATE } from "./const";
 import { ICreateBy, ICreateDate, IUpdateBy, IUpdateDate } from "./interface/iCreateBy";
-import { IHash } from "./interface/iHash";
+import { DataType, IHash } from "./interface/iHash";
 import { Schema } from "./schema/Schema";
 import { fillCreateByUpdateBy } from "./util/fillCreateByUpdateBy";
 import { Utils } from "./util/Utils";
@@ -105,6 +105,7 @@ export class Replace {
         const { columnName, primaryKey, autoIncrement } = column;
 
         if (primaryKey) {
+          // 主键，放 where 条件
           request.input(`wparw${columnName}`, rowData[columnName]);
           request.input(`wparu${columnName}`, rowData[columnName]);
 
@@ -124,6 +125,8 @@ export class Replace {
           } else {
             if (columnName === UPDATE_DATE && rowData[columnName] === true) {
               updateFields.push(` ${columnName} = getdate() `);
+            } else if (rowData[columnName] === DataType.getdate) {
+              updateFields.push(` ${columnName} = getdate() `);
             } else {
               request.input(`upar${columnName}`, rowData[columnName]);
               updateFields.push(` ${columnName} = @upar${columnName} `);
@@ -132,13 +135,21 @@ export class Replace {
         }
 
         if (!autoIncrement) {
-          if (Reflect.has(row, columnName)) {
-            request.input(`ipar${columnName}`, row[columnName]);
+          // 非自增字段
+
+          if (rowData[columnName] === DataType.getdate) {
+            insertValues.push(` getdate() `);
           } else {
             request.input(`ipar${columnName}`, rowData[columnName]);
+            insertValues.push(` @ipar${columnName} `);
           }
+
+          // if (Reflect.has(row, columnName)) {
+          //   request.input(`ipar${columnName}`, row[columnName]);
+          // } else {
+          //   request.input(`ipar${columnName}`, rowData[columnName]);
+          // }
           insertFields.push(columnName);
-          insertValues.push(` @ipar${columnName} `);
         }
       }
     });
