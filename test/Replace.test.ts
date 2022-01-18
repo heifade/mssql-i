@@ -75,9 +75,9 @@ describe("Replace", function () {
       },
       table: tableName4,
       createBy: "djd2",
-      createDate: true,
+      createDate: DataType.getdate,
       updateBy: "djd1",
-      updateDate: true,
+      updateDate: DataType.getdate,
     });
 
     const rowData = await Select.selectTop1<IHash>(conn, {
@@ -96,11 +96,11 @@ describe("Replace", function () {
         id: 2,
         value: insertValue,
         createBy: "djd2",
-        createDate: true,
+        createDate: DataType.getdate,
       },
       table: tableName4,
       updateBy: "djd1",
-      updateDate: true,
+      updateDate: DataType.getdate,
     });
 
     const rowData2 = await Select.selectTop1<IHash>(conn, {

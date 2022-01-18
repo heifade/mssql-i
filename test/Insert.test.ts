@@ -57,9 +57,9 @@ describe("Insert", function () {
       data: { value: insertValue, value2: 1, id: 23 },
       table: tableName3,
       createBy: "djd3",
-      createDate: true,
+      createDate: DataType.getdate,
       updateBy: "djd4",
-      updateDate: true,
+      updateDate: DataType.getdate,
       getIdentityValue: true,
     });
 

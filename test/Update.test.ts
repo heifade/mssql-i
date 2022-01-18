@@ -73,7 +73,7 @@ describe("Update", function () {
 
     let result = await Update.update(conn, {
       data: { id: 1, value: newValue, createDate: true },
-      updateDate: true,
+      updateDate: DataType.getdate,
       table: tableName3,
     });
 
@@ -89,7 +89,7 @@ describe("Update", function () {
 
     result = await Update.updateByWhere(conn, {
       data: { value: newValue },
-      updateDate: true,
+      updateDate: DataType.getdate,
       table: tableName3,
       where: { id: 2 },
     });
@@ -106,7 +106,7 @@ describe("Update", function () {
 
     await Update.update(conn, {
       data: { id: 3, value: newValue },
-      updateDate: true,
+      updateDate: DataType.getdate,
       table: tableName3,
     });
 

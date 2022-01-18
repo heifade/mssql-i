@@ -115,7 +115,7 @@ export class Replace {
           if ([CREATE_BY, CREATE_DATE].includes(columnName)) {
             if (Reflect.has(row, columnName)) {
               // 当字段为 createBy, createDate 时，只有当 源数据里有指定时才更新
-              if (columnName === CREATE_DATE && row[columnName] === true) {
+              if (columnName === CREATE_DATE && row[columnName] === DataType.getdate) {
                 updateFields.push(` ${columnName} = getdate() `);
               } else {
                 request.input(`upar${columnName}`, row[columnName]);
@@ -123,7 +123,7 @@ export class Replace {
               }
             }
           } else {
-            if (columnName === UPDATE_DATE && rowData[columnName] === true) {
+            if (columnName === UPDATE_DATE && rowData[columnName] === DataType.getdate) {
               updateFields.push(` ${columnName} = getdate() `);
             } else if (rowData[columnName] === DataType.getdate) {
               updateFields.push(` ${columnName} = getdate() `);

@@ -200,8 +200,7 @@ export class Insert {
           switch (columnName) {
             case "createDate":
             case "updateDate": {
-              // createDate, updateDate 当什为 true 时， 取自 getdate()
-              if (row[columnName] === true) {
+              if (row[columnName] === DataType.getdate) {
                 values.push(`getdate()`);
               } else {
                 values.push(`@${columnName}`);

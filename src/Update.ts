@@ -127,8 +127,7 @@ export class Update {
           switch (columnName) {
             case "createDate":
             case "updateDate": {
-              // createDate, updateDate 当什为 true 时， 取自 getdate()
-              if (rowData[columnName] === true) {
+              if (rowData[columnName] === DataType.getdate) {
                 fieldSQLs.push(` ${columnName} = getdate()`);
               } else {
                 fieldSQLs.push(` ${columnName} = @fpar${columnName}`);
@@ -229,8 +228,7 @@ export class Update {
         switch (columnName) {
           case "createDate":
           case "updateDate": {
-            // createDate, updateDate 当什为 true 时， 取自 getdate()
-            if (rowData[columnName] === true) {
+            if (rowData[columnName] === DataType.getdate) {
               fieldSQLs.push(` ${columnName} = getdate()`);
             } else {
               fieldSQLs.push(` ${columnName} = @fpar${columnName}`);
