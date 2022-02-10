@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import "mocha";
 import { getConnectionConfig } from "./connectionConfig";
-import { initTable } from "./DataInit";
+import { initTable, initTableWith2PrimaryKeyAndCreateBy } from "./DataInit";
 import { ConnectionHelper, Replace, Select, ConnectionPool, Exec, Schema, Transaction, IInsertResult, Update } from "../src/index";
 import { DataType, IHash } from "../src/interface/iHash";
 import { getMillToNow } from "./utils";
@@ -12,6 +12,7 @@ describe("Replace", function () {
   const tableName3 = "tbl_test_replace3";
   const tableName4 = "tbl_test_replace4";
   const tableName5 = "tbl_test_replace5";
+  const tableName6 = "tbl_test_replace6";
   let conn: ConnectionPool;
   before(async () => {
     conn = await ConnectionHelper.create(getConnectionConfig());
@@ -19,6 +20,7 @@ describe("Replace", function () {
     await initTable(conn, tableName3, true);
     await initTable(conn, tableName4, false);
     await initTable(conn, tableName5, false);
+    await initTableWith2PrimaryKeyAndCreateBy(conn, tableName6);
 
     await Exec.exec(conn, `if exists (select top 1 1 from sys.tables where name = '${tableName2}') drop table ${tableName2}`);
 
@@ -702,7 +704,7 @@ describe("Replace", function () {
     expect(getMillToNow(rowData2.dateValue)).to.lessThan(1000);
   });
 
-  it("replace getdate must be success", async () => {
+  it("replace getdate must be success2", async () => {
     await Replace.replace(conn, {
       data: { id: 11, dateValue: DataType.getdate },
       table: tableName5,
@@ -720,7 +722,7 @@ describe("Replace", function () {
     expect(getMillToNow(rowData1.createDate)).to.lessThan(1000);
 
     await Replace.replace(conn, {
-      data: { id: 11, dateValue: DataType.getdate },
+      data: { id: 11 },
       table: tableName5,
       createBy: "abcd", // 不应该更新成 abcd。 应该还是 abc
       createDate: DataType.getdate,
@@ -739,5 +741,46 @@ describe("Replace", function () {
 
     expect(rowData2.updateBy).equals("abcde");
     expect(getMillToNow(rowData2.updateDate)).to.lessThan(1000);
+  });
+
+  it("replace getdate must be success3", async () => {
+    await Replace.replace(conn, {
+      data: { id1: 11, id2: 11 },
+      table: tableName6,
+      createBy: "abc",
+      createDate: DataType.getdate,
+      updateBy: "abc1",
+      updateDate: DataType.getdate,
+    });
+
+    const rowData1 = await Select.selectTop1<IHash>(conn, {
+      sql: `select id1, id2, createBy, convert(char(19), createDate, 120) as createDate from ${tableName6} where id1=? and id2=?`,
+      where: [11, 11],
+    });
+
+    expect(rowData1 !== null).to.be.true;
+    expect(rowData1.createBy).equals("abc");
+    expect(getMillToNow(rowData1.createDate)).to.lessThan(1000);
+
+    // await Replace.replace(conn, {
+    //   data: { id1: 11, id2: 11 },
+    //   table: tableName6,
+    //   createBy: "abcd", // 不应该更新成 abcd。 应该还是 abc
+    //   createDate: DataType.getdate,
+    //   updateBy: "abcde", // 应该更新成 abcde
+    //   updateDate: DataType.getdate,
+    // });
+
+    // const rowData2 = await Select.selectTop1<IHash>(conn, {
+    //   sql: `select id1, id2, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName6} where id1=? and id2=?`,
+    //   where: [11, 11],
+    // });
+
+    // expect(rowData2 !== null).to.be.true;
+    // expect(rowData2.createBy).equals("abc");
+    // expect(getMillToNow(rowData2.createDate)).to.lessThan(1000);
+
+    // expect(rowData2.updateBy).equals("abcde");
+    // expect(getMillToNow(rowData2.updateDate)).to.lessThan(1000);
   });
 });

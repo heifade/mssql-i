@@ -123,9 +123,7 @@ export class Replace {
               }
             }
           } else {
-            if (columnName === UPDATE_DATE && rowData[columnName] === DataType.getdate) {
-              updateFields.push(` ${columnName} = getdate() `);
-            } else if (rowData[columnName] === DataType.getdate) {
+            if (rowData[columnName] === DataType.getdate) {
               updateFields.push(` ${columnName} = getdate() `);
             } else {
               request.input(`upar${columnName}`, rowData[columnName]);
