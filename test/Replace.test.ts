@@ -701,4 +701,43 @@ describe("Replace", function () {
     expect(rowData2 !== null).to.be.true;
     expect(getMillToNow(rowData2.dateValue)).to.lessThan(1000);
   });
+
+  it("replace getdate must be success", async () => {
+    await Replace.replace(conn, {
+      data: { id: 11, dateValue: DataType.getdate },
+      table: tableName5,
+      createBy: "abc",
+      createDate: DataType.getdate,
+    });
+
+    const rowData1 = await Select.selectTop1<IHash>(conn, {
+      sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate from ${tableName5} where id=?`,
+      where: [11],
+    });
+
+    expect(rowData1 !== null).to.be.true;
+    expect(rowData1.createBy).equals("abc");
+    expect(getMillToNow(rowData1.createDate)).to.lessThan(1000);
+
+    await Replace.replace(conn, {
+      data: { id: 11, dateValue: DataType.getdate },
+      table: tableName5,
+      createBy: "abcd", // 不应该更新成 abcd。 应该还是 abc
+      createDate: DataType.getdate,
+      updateBy: "abcde", // 应该更新成 abcde
+      updateDate: DataType.getdate,
+    });
+
+    const rowData2 = await Select.selectTop1<IHash>(conn, {
+      sql: `select value, convert(char(19), dateValue, 120) as dateValue, createBy, convert(char(19), createDate, 120) as createDate, updateBy, convert(char(19), updateDate, 120) as updateDate from ${tableName5} where id=?`,
+      where: [11],
+    });
+
+    expect(rowData2 !== null).to.be.true;
+    expect(rowData2.createBy).equals("abc");
+    expect(getMillToNow(rowData2.createDate)).to.lessThan(1000);
+
+    expect(rowData2.updateBy).equals("abcde");
+    expect(getMillToNow(rowData2.updateDate)).to.lessThan(1000);
+  });
 });
