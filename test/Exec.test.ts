@@ -4,7 +4,7 @@ import { initTable } from "./DataInit";
 import { ConnectionHelper, Select, Exec, ConnectionPool, Transaction } from "../src/index";
 import { getConnectionConfig } from "./connectionConfig";
 
-describe("Exec", function() {
+describe("Exec", function () {
   let tableName = "tbl_test_exec";
   let conn: ConnectionPool;
 
@@ -24,20 +24,20 @@ describe("Exec", function() {
 
     await Select.selectTop1(conn, {
       sql: `select * from ${tableName} where id=?`,
-      where: [1]
-    }).then(result => {
+      where: [1],
+    }).then((result) => {
       expect(result).to.be.null;
     });
 
-    await Exec.exec(conn, `delete from ${tableName} where id1=1`).catch(err => {
+    await Exec.exec(conn, `delete from ${tableName} where id1=1`).catch((err) => {
       expect(err.code).to.equal(`EREQUEST`);
     });
 
-    await Exec.execs(conn, [`delete from ${tableName} where id1=1`]).catch(err => {
+    await Exec.execs(conn, [`delete from ${tableName} where id1=1`]).catch((err) => {
       expect(err.code).to.equal(`EREQUEST`);
     });
 
-    await Exec.execsSeq(conn, [`delete from ${tableName} where id1=1`]).catch(err => {
+    await Exec.execsSeq(conn, [`delete from ${tableName} where id1=1`]).catch((err) => {
       expect(err.code).to.equal(`EREQUEST`);
     });
   });
@@ -58,7 +58,7 @@ describe("Exec", function() {
 
     let result = await Select.selectTop1(conn, {
       sql: `select * from ${tableName} where id=?`,
-      where: [6]
+      where: [6],
     });
     expect(result).to.be.null;
 
@@ -76,9 +76,29 @@ describe("Exec", function() {
 
     let result2 = await Select.selectTop1(conn, {
       sql: `select * from ${tableName} where id=?`,
-      where: [9]
+      where: [9],
     });
 
     expect(result2).not.to.be.null;
+  });
+
+  it("execWithPars with tran", async () => {
+    let tran;
+    try {
+      tran = await Transaction.begin(conn);
+
+      await Exec.execWithPars(conn, `insert into ${tableName} (id, value) values(@id, @value)`, { id: 10, value: "10" });
+      await Exec.execWithPars(conn, `insert into ${tableName} (id, value) values(@id, @value)`, { id: 11, value: "11" });
+
+      await Transaction.commit(tran);
+    } catch (err) {
+      await Transaction.rollback(tran);
+    }
+
+    let result = await Select.selectOneValue<number>(conn, {
+      sql: `select count(*) from ${tableName} where id=?`,
+      where: [10],
+    });
+    expect(result).to.equals(1);
   });
 });

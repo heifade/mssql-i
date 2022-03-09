@@ -57,6 +57,52 @@ export class Exec {
 
   /**
    * <pre>
+   * 执行单个SQL语句
+   * 注意：如需事务处理，请传入tran参数。
+   * </pre>
+   *
+   * @static
+   * @param {Connection} conn - 数据库连接对象
+   * @param {string} sql - SQL语句
+   * @param {IHash} pars - 参数，如: { f1: '1', f2: '2' }
+   * @param {MssqlTransaction} [tran] - 事务对象（可选），当需要事务处理时，必须传入此对象
+   * @returns Promise对象
+   * @memberof Exec
+   * @example
+   * <pre>
+   * await Exec.exec(conn, `drop table if exists tbl2`);
+   * await Exec.exec(
+   *   conn,
+   *   `create table tbl2 (
+   *      id int not null auto_increment primary key,
+   *      value varchar(50)
+   *    )`
+   * );
+   * </pre>
+   */
+  public static async execWithPars(conn: ConnectionPool, sql: string, pars: { [key: string]: any }, tran?: MssqlTransaction) {
+    let request: Request;
+    if (tran) {
+      request = new Request(tran);
+    } else {
+      request = conn.request();
+    }
+
+    Object.getOwnPropertyNames(pars).map((key) => {
+      request.input(key, pars[key]);
+    });
+
+    try {
+      await request.query(sql);
+    } catch (e) {
+      const error: any = new Error(`执行过程时出错: ${sql} ${getParameters(request)}\n${e}`);
+      error.code = e.code;
+      throw error;
+    }
+  }
+
+  /**
+   * <pre>
    * 并发执行多个SQL语句。
    * 所有SQL执行成功时，返回Promise为成功，如果其中一个SQL执行出错，返回的Promise为失败。
    * 注意：此方法不提供事务。如需开启事务，见 {@link execsSeq}
