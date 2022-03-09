@@ -4,6 +4,7 @@ import { Where } from "./util/Where";
 import { Utils } from "./util/Utils";
 import { MssqlTransaction } from ".";
 import { IHash } from "./interface/iHash";
+import { getParameters } from "./util/getParameters";
 
 /**
  * 删除数据
@@ -138,7 +139,13 @@ export class Delete {
       request.input(m, wherePars[m]);
     });
 
-    await request.query(sql);
+    try {
+      await request.query(sql);
+    } catch (e) {
+      const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}`);
+      error.code = e.code;
+      throw error;
+    }
   }
 
   /**
@@ -229,6 +236,12 @@ export class Delete {
       request.input(m, wherePars[m]);
     });
 
-    await request.query(sql);
+    try {
+      await request.query(sql);
+    } catch (e) {
+      const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
+      error.code = e.code;
+      throw error;
+    }
   }
 }

@@ -7,7 +7,7 @@ import { Utils } from "../src/util/Utils";
 import { Replace } from "../src/Replace";
 import { Transaction } from "../src/Transaction";
 
-describe("Delete", function() {
+describe("Delete", function () {
   let tableName = "tbl_test_delete";
   let tableNoPrimaryKey = "tbl_test_noprimarykey";
   let conn: ConnectionPool;
@@ -37,36 +37,36 @@ describe("Delete", function() {
     let deleteId = 1;
     let count = await Select.selectCount(conn, {
       sql: `select * from ${tableName} where id=?`,
-      where: [deleteId]
+      where: [deleteId],
     });
     expect(count).to.equal(1);
 
     await Delete.deleteByWhere(conn, {
       where: { id: deleteId },
-      table: tableName
+      table: tableName,
     });
 
     count = await Select.selectCount(conn, {
       sql: `select * from ${tableName} where id=?`,
-      where: [deleteId]
+      where: [deleteId],
     });
     expect(count).to.equal(0);
 
     deleteId = 2;
     count = await Select.selectCount(conn, {
       sql: `select * from ${tableName} where id=?`,
-      where: [deleteId]
+      where: [deleteId],
     });
     expect(count).to.equal(1);
 
     await Delete.delete(conn, {
       data: { id: deleteId },
-      table: tableName
+      table: tableName,
     });
 
     count = await Select.selectCount(conn, {
       sql: `select * from ${tableName} where id=?`,
-      where: [deleteId]
+      where: [deleteId],
     });
     expect(count).to.equal(0);
   });
@@ -77,7 +77,7 @@ describe("Delete", function() {
 
     let count = await Select.selectCount(conn, {
       sql: `select * from ${tableName} where id in (?,?)`,
-      where: [deleteId1, deleteId2]
+      where: [deleteId1, deleteId2],
     });
     expect(count).to.equal(2);
 
@@ -88,7 +88,7 @@ describe("Delete", function() {
         conn,
         {
           where: { id: deleteId1 },
-          table: tableName
+          table: tableName,
         },
         tran
       );
@@ -97,7 +97,7 @@ describe("Delete", function() {
         conn,
         {
           data: { id: deleteId2 },
-          table: tableName
+          table: tableName,
         },
         tran
       );
@@ -108,7 +108,7 @@ describe("Delete", function() {
 
     count = await Select.selectCount(conn, {
       sql: `select * from ${tableName} where id in (?,?)`,
-      where: [deleteId1, deleteId2]
+      where: [deleteId1, deleteId2],
     });
     expect(count).to.equal(0);
   });
@@ -116,23 +116,23 @@ describe("Delete", function() {
   it("when pars.table is null", async () => {
     await Delete.deleteByWhere(conn, {
       where: { id: 1 },
-      table: null
+      table: null,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal("pars.table 不能为空!");
       });
 
     await Delete.delete(conn, {
       data: { id: 1 },
-      table: null
+      table: null,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal("pars.table 不能为空!");
       });
   });
@@ -144,23 +144,23 @@ describe("Delete", function() {
 
     await Delete.deleteByWhere(conn, {
       where: { id: 1 },
-      table: tableName
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal(`表: '${tableName}' 不存在!`);
       });
 
     await Delete.delete(conn, {
       data: { id: 1 },
-      table: tableName
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal(`表: '${tableName}' 不存在!`);
       });
   });
@@ -170,12 +170,12 @@ describe("Delete", function() {
 
     await Delete.delete(conn, {
       data: null,
-      table: tableName
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal(`pars.data 不能为空!`);
       });
   });
@@ -185,12 +185,12 @@ describe("Delete", function() {
 
     await Delete.delete(conn, {
       data: {},
-      table: tableName
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal(`字段: id 不能为空!`);
       });
   });
@@ -200,12 +200,12 @@ describe("Delete", function() {
 
     await Delete.delete(conn, {
       data: { id: 1 },
-      table: tableNoPrimaryKey
+      table: tableNoPrimaryKey,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.message).to.equal(`表: '${tableNoPrimaryKey}' 没有主键, 不能通过此方法来删数据. 请尝试方法: 'deleteByWhere'!`);
       });
   });
@@ -213,23 +213,23 @@ describe("Delete", function() {
   it("when error", async () => {
     await Delete.deleteByWhere(conn, {
       where: { id: "Hellow" },
-      table: tableName
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.code).to.equal(`EREQUEST`);
       });
 
     await Delete.delete(conn, {
       data: { id: "Hellow" },
-      table: tableName
+      table: tableName,
     })
       .then(() => {
         expect(true).to.be.false; // 进到这里就有问题
       })
-      .catch(err => {
+      .catch((err) => {
         expect(err.code).to.equal(`EREQUEST`);
       });
   });

@@ -1,12 +1,13 @@
-import { ConnectionPool, Request } from "mssql";
+import { ConnectionPool, IResult, Request } from "mssql";
 import { MssqlTransaction } from ".";
-import { CREATE_BY, CREATE_DATE, UPDATE_DATE } from "./const";
+import { CREATE_BY, CREATE_DATE } from "./const";
 import { ICreateBy, ICreateDate, IUpdateBy, IUpdateDate } from "./interface/iCreateBy";
 import { DataType, IHash } from "./interface/iHash";
 import { Schema } from "./schema/Schema";
 import { fillCreateByUpdateBy } from "./util/fillCreateByUpdateBy";
 import { Utils } from "./util/Utils";
 import { IInsertResult } from "./interface/iInsertResult";
+import { getParameters } from "./util/getParameters";
 
 /**
  * 替换
@@ -176,7 +177,14 @@ export class Replace {
         ${getIdentity}
       end`;
 
-    const result = await request.query(sql);
+    let result: IResult<any>;
+    try {
+      result = await request.query(sql);
+    } catch (e) {
+      const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
+      error.code = e.code;
+      throw error;
+    }
     const returnValue: IInsertResult = {
       identityValue: -1,
     };

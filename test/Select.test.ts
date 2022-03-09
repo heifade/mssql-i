@@ -35,7 +35,7 @@ describe("Select", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message.substr(0, 40)).to.equal(`执行SQL: select * from tbl_not_exists 时出错!`);
+        expect(err.message.substr(0, 40)).to.equal(`执行 SQL 时出错: select * from tbl_not_exists`);
       });
   });
 
@@ -56,7 +56,7 @@ describe("Select", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message.substr(0, 79)).to.equal(`执行SQL: select count(*) as value from (select * from tbl_not_exists) tCount 时出错!`);
+        expect(err.message.substr(0, 79)).to.equal(`执行 SQL 时出错: select count(*) as value from (select * from tbl_not_exists) tCount`);
       });
   });
 
@@ -85,7 +85,7 @@ describe("Select", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message.substr(0, 40)).to.equal(`执行SQL: select * from tbl_not_exists 时出错!`);
+        expect(err.message.substr(0, 40)).to.equal(`执行 SQL 时出错: select * from tbl_not_exists`);
       });
   });
 
@@ -116,7 +116,7 @@ describe("Select", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message.substr(0, 40)).to.be.equal("执行SQL: select  from tbl_test_select 时出错!");
+        expect(err.message.substr(0, 40)).to.be.equal("执行 SQL 时出错: select  from tbl_test_select");
       });
   });
 
@@ -153,7 +153,7 @@ describe("Select", function () {
         expect(true).to.be.false; // 进到这里就有问题
       })
       .catch((err) => {
-        expect(err.message.substr(0, 150)).to.equal(`执行SQL: select count(*) as value from (select *, ROW_NUMBER() over(order by id) as row_number from tbl_not_exists where id=@wpar0) tCount 时, 参数: [1]出错!`);
+        expect(err.message.substr(0, 150)).to.equal(`执行 SQL 时出错: select count(*) as value from (select *, ROW_NUMBER() over(order by id) as row_number from tbl_not_exists where id=@wpar0) tCount  pars: {`);
       });
   });
 });

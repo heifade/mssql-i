@@ -1,5 +1,6 @@
 import { ConnectionPool, Request } from "mssql";
 import { MssqlTransaction } from ".";
+import { getParameters } from "./util/getParameters";
 
 /**
  * 执行SQL
@@ -45,7 +46,13 @@ export class Exec {
       request = conn.request();
     }
 
-    await request.query(sql);
+    try {
+      await request.query(sql);
+    } catch (e) {
+      const error: any = new Error(`执行过程时出错: ${sql} ${getParameters(request)}\n${e}`);
+      error.code = e.code;
+      throw error;
+    }
   }
 
   /**
@@ -73,7 +80,7 @@ export class Exec {
   public static async execs(conn: ConnectionPool, sqls: string[]) {
     const promiseList = new Array<Promise<void>>();
 
-    sqls.map(sql => {
+    sqls.map((sql) => {
       promiseList.push(Exec.exec(conn, sql));
     });
 

@@ -2,6 +2,7 @@ import { ConnectionPool } from "mssql";
 import { SelectParamsModel } from "./model/SelectParamsModel";
 import { SplitPageParamsModel } from "./model/SplitPageParamsModel";
 import { SplitPageResultModel } from "./model/SplitPageResultModel";
+import { getParameters } from "./util/getParameters";
 
 let readListFromResult = (result: any) => {
   return result.map((h: any) => {
@@ -19,18 +20,19 @@ let readListFromResult = (result: any) => {
 export class Select {
   private static async selectBase(conn: ConnectionPool, param: SelectParamsModel) {
     let sql = param.sql;
+    const request = conn.request();
+    if (param.where) {
+      param.where.map((w, index) => {
+        request.input(`wpar${index}`, w);
+        sql = sql.replace("?", `@wpar${index}`);
+      });
+    }
     try {
-      const request = conn.request();
-      if (param.where) {
-        param.where.map((w, index) => {
-          request.input(`wpar${index}`, w);
-          sql = sql.replace("?", `@wpar${index}`);
-        });
-      }
       return await request.query(sql);
     } catch (e) {
-      const pars = param.where && param.where.length ? `, 参数: [${param.where.join(", ")}]` : ``;
-      throw new Error(`执行SQL: ${sql} 时${pars}出错! \n ${e.stack}`);
+      const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
+      error.code = e.code;
+      throw error;
     }
   }
 

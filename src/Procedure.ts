@@ -3,6 +3,7 @@ import { Schema } from "./schema/Schema";
 import { Utils } from "./util/Utils";
 import { MssqlTransaction } from ".";
 import { IHash } from "./interface/iHash";
+import { getParameters } from "./util/getParameters";
 
 export interface ProcedureResult extends IProcedureResult<any> {}
 
@@ -76,7 +77,15 @@ export class Procedure {
 
     const sql = `${procedureName}`;
 
-    const result: ProcedureResult = await request.execute(sql);
+    let result: ProcedureResult;
+
+    try {
+      result = await request.execute(sql);
+    } catch (e) {
+      const error: any = new Error(`执行过程时出错: ${sql} ${getParameters(request)}\n${e}`);
+      error.code = e.code;
+      throw error;
+    }
     return result;
   }
 }

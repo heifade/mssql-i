@@ -1,4 +1,4 @@
-import { ConnectionPool, Request } from "mssql";
+import { ConnectionPool, IResult, Request } from "mssql";
 import { MssqlTransaction } from ".";
 import { ICreateBy, ICreateDate, IUpdateBy, IUpdateDate } from "./interface/iCreateBy";
 import { DataType, IHash } from "./interface/iHash";
@@ -7,6 +7,7 @@ import { Schema } from "./schema/Schema";
 import { fillCreateByUpdateBy } from "./util/fillCreateByUpdateBy";
 import { Utils } from "./util/Utils";
 import { IInsertResult } from "./interface/iInsertResult";
+import { getParameters } from "./util/getParameters";
 
 /**
  * 向数据库插入数据
@@ -227,7 +228,15 @@ export class Insert {
     //是否需要返回自增字段
     const sql = `insert into ${tableName}(${fields.join(",")}) values(${values.join(",")}) ${needGetIdentityValue ? ";select @@IDENTITY as insertId" : ""}`;
 
-    const result = await request.query(sql);
+    let result: IResult<any>;
+
+    try {
+      result = await request.query(sql);
+    } catch (e) {
+      const error: any = new Error(`执行过程时出错: ${sql} ${getParameters(request)}\n${e}`);
+      error.code = e.code;
+      throw error;
+    }
     const returnValue: IInsertResult = {
       identityValue: -1,
     };

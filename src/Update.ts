@@ -6,6 +6,7 @@ import { MssqlTransaction } from ".";
 import { DataType, IHash } from "./interface/iHash";
 import { IUpdateBy, IUpdateDate } from "./interface/iCreateBy";
 import { fillCreateByUpdateBy } from "./util/fillCreateByUpdateBy";
+import { getParameters } from "./util/getParameters";
 
 /**
  * 更新数据
@@ -155,7 +156,13 @@ export class Update {
 
     const sql = `update ${tableName} set ${fieldSQLs.join(",")} ${whereSQL}`;
 
-    await request.query(sql);
+    try {
+      await request.query(sql);
+    } catch (e) {
+      const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
+      error.code = e.code;
+      throw error;
+    }
     return true;
   }
 
@@ -255,7 +262,14 @@ export class Update {
 
     const sql = `update ${tableName} set ${fieldSQLs.join(",")} ${whereSQL}`;
 
-    await request.query(sql);
+    try {
+      await request.query(sql);
+    } catch (e) {
+      const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
+      error.code = e.code;
+      throw error;
+    }
+
     return true;
   }
 }
