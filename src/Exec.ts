@@ -49,7 +49,7 @@ export class Exec {
     try {
       await request.query(sql);
     } catch (e) {
-      const error: any = new Error(`执行过程时出错: ${sql} ${getParameters(request)}\n${e}`);
+      const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
       error.code = e.code;
       throw error;
     }
@@ -64,21 +64,12 @@ export class Exec {
    * @static
    * @param {Connection} conn - 数据库连接对象
    * @param {string} sql - SQL语句
-   * @param {IHash} pars - 参数，如: { f1: '1', f2: '2' }
+   * @param {IHash} pars - 参数
    * @param {MssqlTransaction} [tran] - 事务对象（可选），当需要事务处理时，必须传入此对象
    * @returns Promise对象
    * @memberof Exec
    * @example
-   * <pre>
-   * await Exec.exec(conn, `drop table if exists tbl2`);
-   * await Exec.exec(
-   *   conn,
-   *   `create table tbl2 (
-   *      id int not null auto_increment primary key,
-   *      value varchar(50)
-   *    )`
-   * );
-   * </pre>
+   * await Exec.execWithPars(conn, `delete from table where id = @id and name = @name`, { id: '1', name: 'b' });
    */
   public static async execWithPars(conn: ConnectionPool, sql: string, pars: { [key: string]: any }, tran?: MssqlTransaction) {
     let request: Request;
@@ -95,7 +86,7 @@ export class Exec {
     try {
       await request.query(sql);
     } catch (e) {
-      const error: any = new Error(`执行过程时出错: ${sql} ${getParameters(request)}\n${e}`);
+      const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
       error.code = e.code;
       throw error;
     }

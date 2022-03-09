@@ -87,8 +87,8 @@ describe("Exec", function () {
     try {
       tran = await Transaction.begin(conn);
 
-      await Exec.execWithPars(conn, `insert into ${tableName} (id, value) values(@id, @value)`, { id: 10, value: "10" });
-      await Exec.execWithPars(conn, `insert into ${tableName} (id, value) values(@id, @value)`, { id: 11, value: "11" });
+      await Exec.execWithPars(conn, `insert into ${tableName} (id, value) values(@id, @value)`, { id: 10, value: "10" }, tran);
+      await Exec.execWithPars(conn, `insert into ${tableName} (id, value) values(@id, @value)`, { id: 11, value: "11" }, tran);
 
       await Transaction.commit(tran);
     } catch (err) {
@@ -100,5 +100,23 @@ describe("Exec", function () {
       where: [10],
     });
     expect(result).to.equals(1);
+  });
+
+  it("execWithPars", async () => {
+    await Exec.execWithPars(conn, `insert into ${tableName} (id) values(@id1),(@id2),(@id3) `, { id1: 100, id2: 101, id3: 102 });
+
+    let result = await Select.selectOneValue<number>(conn, {
+      sql: `select count(*) from ${tableName} where id >= 100`,
+    });
+    expect(result).to.equals(3);
+  });
+
+  it("execWithPars with error", async () => {
+    try {
+      await Exec.execWithPars(conn, `insert into ${tableName}11111 (id) values(@id1),(@id2),(@id3) `, { id1: 100, id2: 101, id3: 102 });
+      expect(true).to.equal(false); // 不能进这里
+    } catch (e) {
+      expect(e.message.substr(0, 114)).to.equals('执行 SQL 时出错: insert into tbl_test_exec11111 (id) values(@id1),(@id2),(@id3)   pars: {"id1":100,"id2":101,"id3":102}');
+    }
   });
 });
