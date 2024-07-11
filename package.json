@@ -1,6 +1,6 @@
 {
   "name": "mssql-i",
-  "version": "5.1.7",
+  "version": "5.1.8",
   "description": "sqlserver interface, base on mssql",
   "main": "./es/index.js",
   "module": "./es/index.js",
@@ -41,7 +41,7 @@
     "timeout": 60000
   },
   "dependencies": {
-    "mssql": "^10.0.2"
+    "mssql": "^11.0.1"
   },
   "devDependencies": {
     "@types/chai": "^4.2.22",
