@@ -40,7 +40,7 @@ export class SchemaCache {
    * @returns
    * @memberof SchemaCache
    */
-  public static set(database: string, value: SchemaModel) {
+  public static set(database: string, value: SchemaModel | null | undefined) {
     return Reflect.set(SchemaCache.getHash(), database, value);
   }
 }
@@ -60,7 +60,7 @@ export class Schema {
    * @memberof SchemaCache
    */
   public static clear(database: string) {
-    SchemaCache.set(database, null as any);
+    SchemaCache.set(database, null);
   }
   /**
    * 获取数据库架构信息

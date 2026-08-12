@@ -17,7 +17,7 @@ export class Where {
    * @returns
    * @memberof Where
    */
-  public static getWhereSQL(where: IHash, tableSchemaModel: TableSchemaModel) {
+  public static getWhereSQL(where: IHash | null | undefined, tableSchemaModel: TableSchemaModel) {
     const whereSQLs: string[] = [];
     const whereList = new Array<any>();
     const wherePars: IHash = {};

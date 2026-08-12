@@ -152,7 +152,7 @@ export class Update {
 
     const whereSQL = whereSQLs.length ? ` where ${whereSQLs.join(" and ")} ` : "";
 
-    const tableName = Utils.getDbObjectName(database, pars.schema!, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema, table);
 
     const sql = `update ${tableName} set ${fieldSQLs.join(",")} ${whereSQL}`;
 
@@ -252,13 +252,13 @@ export class Update {
       }
     });
 
-    const { whereSQL, wherePars } = Where.getWhereSQL(where || {}, tableSchemaModel);
+    const { whereSQL, wherePars } = Where.getWhereSQL(where, tableSchemaModel);
 
     Object.getOwnPropertyNames(wherePars).map((m) => {
       request.input(m, wherePars[m]);
     });
 
-    const tableName = Utils.getDbObjectName(database, pars.schema!, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema, table);
 
     const sql = `update ${tableName} set ${fieldSQLs.join(",")} ${whereSQL}`;
 

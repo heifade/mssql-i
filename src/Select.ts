@@ -259,9 +259,9 @@ export class Select {
    * @memberof Select
    */
   public static async selectGUID(conn: ConnectionPool) {
-    const result = await Select.selectOneValue(conn, {
+    const result = await Select.selectOneValue<string>(conn, {
       sql: `select upper(newid()) as GUID`,
     });
-    return result as string;
+    return result;
   }
 }
