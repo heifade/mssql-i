@@ -16,6 +16,6 @@ import { Where } from "./util/Where";
 import { Utils } from "./util/Utils";
 import { MssqlTransaction } from "./MssqlTransaction";
 import { IInsertResult } from "./interface/iInsertResult";
-import { DataType } from "./interface/iHash";
+import { DataType, IHash } from "./interface/iHash";
 
-export { Insert, Update, Delete, Replace, Save, Select, Exec, Transaction, ConnectionPool, ConnectionHelper, SaveType, Procedure, Schema, Where, Utils, MssqlTransaction, IOptions, IInsertResult, DataType };
+export { Insert, Update, Delete, Replace, Save, Select, Exec, Transaction, ConnectionPool, ConnectionHelper, SaveType, Procedure, Schema, Where, Utils, MssqlTransaction, IOptions, IInsertResult, DataType, IHash };
