@@ -183,7 +183,7 @@ export class Select {
    * </pre>
    */
   public static async selectSplitPage<T>(conn: ConnectionPool, param: SplitPageParamsModel) {
-    const countPromise = await Select.selectCount(conn, param);
+    const count = await Select.selectCount(conn, param);
 
     let index;
     if (param.index < 1) {
@@ -192,25 +192,29 @@ export class Select {
       index = param.index;
     }
 
-    const startIndex = param.pageSize * (index - 1);
-    const endIndex = param.pageSize * index;
+    const pageSize = Number(param.pageSize);
+    const pageNum = Number(index);
+    if (isNaN(pageSize) || isNaN(pageNum)) {
+      throw new Error(`pageSize 和 index 必须为数字`);
+    }
+
+    const startIndex = pageSize * (pageNum - 1);
+    const endIndex = pageSize * pageNum;
 
     const sql = `select * from
       (${param.sql}) tsplit
-      where tsplit.row_number > ${startIndex}
-        and tsplit.row_number <= ${endIndex}
+      where tsplit.row_number > ?
+        and tsplit.row_number <= ?
     `;
 
-    const dataPromise = await Select.select(conn, {
+    const data = await Select.select(conn, {
       sql: sql,
-      where: param.where,
+      where: [...(param.where || []), startIndex, endIndex],
     });
 
-    const list = await Promise.all([countPromise, dataPromise]);
-
     const result = new SplitPageResultModel<T>();
-    result.count = list[0];
-    result.list = list[1] as any;
+    result.count = count;
+    result.list = data as any;
 
     return result;
   }

@@ -63,7 +63,7 @@ export class Update {
     pars: {
       data: IHash;
       database?: string;
-      chema?: string;
+      schema?: string;
       table: string;
       onlyUpdateByPrimaryKey?: boolean;
       updateBy?: IUpdateBy;
@@ -152,7 +152,7 @@ export class Update {
 
     const whereSQL = whereSQLs.length ? ` where ${whereSQLs.join(" and ")} ` : "";
 
-    const tableName = Utils.getDbObjectName(database, pars.chema, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema, table);
 
     const sql = `update ${tableName} set ${fieldSQLs.join(",")} ${whereSQL}`;
 
@@ -177,7 +177,7 @@ export class Update {
    *       data: {};
    *       where?: {};
    *       database?: string;
-   *       chema?: string;
+   *       schema?: string;
    *       table: string;
    *     }} pars
    * @param {MssqlTransaction} [tran] - 事务对象（可选），当需要事务处理时，必须传入此对象
@@ -190,7 +190,7 @@ export class Update {
       data: IHash;
       where?: {};
       database?: string;
-      chema?: string;
+      schema?: string;
       table: string;
       updateBy?: IUpdateBy;
       updateDate?: IUpdateDate;
@@ -258,7 +258,7 @@ export class Update {
       request.input(m, wherePars[m]);
     });
 
-    const tableName = Utils.getDbObjectName(database, pars.chema, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema, table);
 
     const sql = `update ${tableName} set ${fieldSQLs.join(",")} ${whereSQL}`;
 

@@ -12,20 +12,20 @@ export class Utils {
    *
    * @static
    * @param {string} database - 数据库名称
-   * @param {string} chema - 架构 如 dbo
+   * @param {string} schema - 架构 如 dbo
    * @param {string} objectName - 对象名称
    * @returns 数据库.对象
    * @memberof Utils
    */
-  public static getDbObjectName(database: string, chema: string, objectName: string) {
-    if (!database && !chema) {
+  public static getDbObjectName(database: string, schema: string, objectName: string) {
+    if (!database && !schema) {
       return `[${objectName}]`;
-    } else if (!chema) {
+    } else if (!schema) {
       return `[${database}]..[${objectName}]`;
     } else if (!database) {
-      return `[${chema}].[${objectName}]`;
+      return `[${schema}].[${objectName}]`;
     }
-    return `[${database}].[${chema}].[${objectName}]`;
+    return `[${database}].[${schema}].[${objectName}]`;
   }
   /**
    * 从连接对象中获取数据库名称

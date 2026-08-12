@@ -35,9 +35,9 @@ export class Insert {
        */
       database?: string;
       /**
-       * 加构名称: dbo
+       * 架构名称: dbo
        */
-      chema?: string;
+      schema?: string;
       /**
        * 表名称
        */
@@ -88,7 +88,7 @@ export class Insert {
       return Promise.reject(new Error(`表: '${table}' 不存在!`));
     }
 
-    const tableName = Utils.getDbObjectName(database, pars.chema, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema, table);
 
     for (const row of data) {
       const request = tran ? new Request(tran) : conn.request();
@@ -124,9 +124,9 @@ export class Insert {
        */
       database?: string;
       /**
-       * 加构名称: dbo
+       * 架构名称: dbo
        */
-      chema?: string;
+      schema?: string;
       /**
        * 表名称
        */
@@ -177,7 +177,7 @@ export class Insert {
       return Promise.reject(new Error(`表: '${table}' 不存在!`));
     }
 
-    const tableName = Utils.getDbObjectName(database, pars.chema, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema, table);
     const request = tran ? new Request(tran) : conn.request();
     return await this._insert({
       row: fillCreateByUpdateBy({ row: data, createBy, updateBy, createDate, updateDate }),

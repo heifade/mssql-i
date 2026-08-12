@@ -71,6 +71,7 @@ export class Save {
     pars: {
       data: IHash;
       database?: string;
+      schema?: string;
       table: string;
       saveType: SaveType;
       createBy?: ICreateBy;
@@ -88,6 +89,7 @@ export class Save {
           {
             data: pars.data,
             database: pars.database,
+            schema: pars.schema,
             table: pars.table,
             createBy: pars.createBy,
             createDate: pars.createDate,
@@ -104,6 +106,7 @@ export class Save {
           {
             data: pars.data,
             database: pars.database,
+            schema: pars.schema,
             table: pars.table,
             updateBy: pars.updateBy,
             updateDate: pars.updateDate,
@@ -118,6 +121,7 @@ export class Save {
           {
             data: pars.data,
             database: pars.database,
+            schema: pars.schema,
             table: pars.table,
           },
           tran
@@ -130,6 +134,7 @@ export class Save {
           {
             data: pars.data,
             database: pars.database,
+            schema: pars.schema,
             table: pars.table,
             createBy: pars.createBy,
             createDate: pars.createDate,
@@ -166,6 +171,7 @@ export class Save {
     list: Array<{
       data: IHash;
       database?: string;
+      schema?: string;
       table: string;
       saveType: SaveType;
       createBy?: ICreateBy;
@@ -179,16 +185,21 @@ export class Save {
       const resultList: any[] = [];
       for (const h of list) {
         resultList.push(
-          await Save.save(conn, {
-            data: h.data,
-            database: h.database,
-            table: h.table,
-            saveType: h.saveType,
-            createBy: h.createBy,
-            createDate: h.createDate,
-            updateBy: h.updateBy,
-            updateDate: h.updateDate,
-          })
+          await Save.save(
+            conn,
+            {
+              data: h.data,
+              database: h.database,
+              schema: h.schema,
+              table: h.table,
+              saveType: h.saveType,
+              createBy: h.createBy,
+              createDate: h.createDate,
+              updateBy: h.updateBy,
+              updateDate: h.updateDate,
+            },
+            tran
+          )
         );
       }
       return resultList;
@@ -201,6 +212,7 @@ export class Save {
             {
               data: h.data,
               database: h.database,
+              schema: h.schema,
               table: h.table,
               saveType: h.saveType,
               createBy: h.createBy,
@@ -208,7 +220,6 @@ export class Save {
               updateBy: h.updateBy,
               updateDate: h.updateDate,
             },
-            tran
           )
         );
       });
@@ -277,6 +288,7 @@ export class Save {
     list: Array<{
       data: IHash;
       database?: string;
+      schema?: string;
       table: string;
       saveType: SaveType;
       createBy?: ICreateBy;
@@ -313,6 +325,7 @@ export class Save {
     list: Array<{
       data: IHash;
       database?: string;
+      schema?: string;
       table: string;
       saveType: SaveType;
       createBy?: ICreateBy;

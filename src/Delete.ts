@@ -59,7 +59,7 @@ export class Delete {
     pars: {
       data: IHash;
       database?: string;
-      chema?: string;
+      schema?: string;
       table: string;
       /**
        * 是否需要在 data 里指定所有主键值才能删除.
@@ -124,7 +124,7 @@ export class Delete {
 
     const whereSQL = whereSQLs.length ? ` where ${whereSQLs.join(" and ")} ` : "";
 
-    const tableName = Utils.getDbObjectName(database, pars.chema, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema, table);
 
     const sql = `delete from ${tableName} ${whereSQL}`;
 
@@ -142,7 +142,7 @@ export class Delete {
     try {
       await request.query(sql);
     } catch (e) {
-      const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}`);
+      const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
       error.code = e.code;
       throw error;
     }
@@ -198,7 +198,7 @@ export class Delete {
     pars: {
       where?: {};
       database?: string;
-      chema?: string;
+      schema?: string;
       table: string;
     },
     tran?: MssqlTransaction
@@ -221,7 +221,7 @@ export class Delete {
 
     const { whereSQL, whereList, wherePars } = Where.getWhereSQL(where, tableSchemaModel);
 
-    const tableName = Utils.getDbObjectName(database, pars.chema, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema, table);
 
     const sql = `delete from ${tableName} ${whereSQL}`;
 

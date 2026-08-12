@@ -53,7 +53,7 @@ export class Replace {
     conn: ConnectionPool,
     pars: {
       data: IHash;
-      chema?: string;
+      schema?: string;
       database?: string;
       table: string;
       createBy?: ICreateBy;
@@ -83,7 +83,7 @@ export class Replace {
       return Promise.reject(new Error(`表: '${table}' 不存在!`));
     }
 
-    const tableName = Utils.getDbObjectName(database, pars.chema, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema, table);
 
     let request: Request;
     if (tran) {
