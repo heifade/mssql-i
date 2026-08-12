@@ -156,4 +156,43 @@ describe("Select", function () {
         expect(err.message.substr(0, 150)).to.equal(`执行 SQL 时出错: select count(*) as value from (select *, ROW_NUMBER() over(order by id) as row_number from tbl_not_exists where id=@wpar0) tCount  pars: {`);
       });
   });
+
+  it("selectSplitPage with non-numeric pageSize should throw", async () => {
+    await Select.selectSplitPage(conn, {
+      sql: `select *, ROW_NUMBER() over(order by id) as row_number from ${tableName}`,
+      pageSize: "abc" as any,
+      index: 1,
+    })
+      .then(() => {
+        expect(true).to.be.false;
+      })
+      .catch((err) => {
+        expect(err.message).to.equal("pageSize 和 index 必须为数字");
+      });
+  });
+
+  it("selectSplitPage with non-numeric index should throw", async () => {
+    await Select.selectSplitPage(conn, {
+      sql: `select *, ROW_NUMBER() over(order by id) as row_number from ${tableName}`,
+      pageSize: 10,
+      index: "xyz" as any,
+    })
+      .then(() => {
+        expect(true).to.be.false;
+      })
+      .catch((err) => {
+        expect(err.message).to.equal("pageSize 和 index 必须为数字");
+      });
+  });
+
+  it("selectSplitPage without where param", async () => {
+    let splitResult = await Select.selectSplitPage(conn, {
+      sql: `select *, ROW_NUMBER() over(order by id) as row_number from ${tableName}`,
+      pageSize: 10,
+      index: 1,
+    });
+
+    expect(splitResult.count).to.equal(10);
+    expect(splitResult.list != null && splitResult.list.length == 10).to.be.true;
+  });
 });

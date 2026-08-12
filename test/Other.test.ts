@@ -1,7 +1,8 @@
 import { expect } from "chai";
 import "mocha";
 import { initTable } from "./DataInit";
-import { Schema, Utils, Exec, Where, ConnectionHelper, ConnectionPool } from "../src/index";
+import { Schema, Utils, Exec, Where, ConnectionHelper, ConnectionPool, DataType, MssqlTransaction } from "../src/index";
+import { getParameters } from "../src/util/getParameters";
 import { getConnectionConfig } from "./connectionConfig";
 
 describe("Other", function() {
@@ -31,7 +32,7 @@ describe("Other", function() {
 
   it("Where.getWhereSQL", async () => {
     await Schema.getSchema(conn, "test").then(schemaModel => {
-      let tableSchemaModel = schemaModel.getTableSchemaModel(tableName);
+      let tableSchemaModel = schemaModel.getTableSchemaModel(tableName)!;
 
       let { whereSQL: whereSQL1, whereList: whereList1 } = Where.getWhereSQL({ id1: 1, id2: 2 }, tableSchemaModel);
 
@@ -62,5 +63,26 @@ describe("Other", function() {
 
     value = Utils.getDbObjectName("a", "", "c");
     expect(value).to.equal("[a]..[c]");
+  });
+
+  it("getParameters returns empty string for falsy or parameterless request", () => {
+    expect(getParameters(null as any)).to.equal("");
+    expect(getParameters(undefined as any)).to.equal("");
+    expect(getParameters({} as any)).to.equal("");
+    expect(getParameters({ parameters: {} } as any)).to.equal(" pars: {}");
+  });
+
+  it("DataType enum is accessible via index", () => {
+    expect(DataType).to.not.be.undefined;
+    expect(DataType.getdate).to.equal("mssql-i-getdate");
+  });
+
+  it("MssqlTransaction is accessible via index", () => {
+    expect(MssqlTransaction).to.not.be.undefined;
+  });
+
+  it("ConnectionPool is accessible via index as a value", () => {
+    expect(ConnectionPool).to.not.be.undefined;
+    expect(typeof ConnectionPool).to.equal("function");
   });
 });
