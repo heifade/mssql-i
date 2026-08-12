@@ -60,7 +60,7 @@ export class Schema {
    * @memberof SchemaCache
    */
   public static clear(database: string) {
-    SchemaCache.set(database, null);
+    SchemaCache.set(database, null as any);
   }
   /**
    * 获取数据库架构信息

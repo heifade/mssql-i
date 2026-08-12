@@ -152,15 +152,15 @@ export class Update {
 
     const whereSQL = whereSQLs.length ? ` where ${whereSQLs.join(" and ")} ` : "";
 
-    const tableName = Utils.getDbObjectName(database, pars.schema, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema!, table);
 
     const sql = `update ${tableName} set ${fieldSQLs.join(",")} ${whereSQL}`;
 
     try {
       await request.query(sql);
-    } catch (e) {
+    } catch (e: any) {
       const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
-      error.code = e.code;
+      error.code = (e as any).code;
       throw error;
     }
     return true;
@@ -252,21 +252,21 @@ export class Update {
       }
     });
 
-    const { whereSQL, wherePars } = Where.getWhereSQL(where, tableSchemaModel);
+    const { whereSQL, wherePars } = Where.getWhereSQL(where || {}, tableSchemaModel);
 
     Object.getOwnPropertyNames(wherePars).map((m) => {
       request.input(m, wherePars[m]);
     });
 
-    const tableName = Utils.getDbObjectName(database, pars.schema, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema!, table);
 
     const sql = `update ${tableName} set ${fieldSQLs.join(",")} ${whereSQL}`;
 
     try {
       await request.query(sql);
-    } catch (e) {
+    } catch (e: any) {
       const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
-      error.code = e.code;
+      error.code = (e as any).code;
       throw error;
     }
 

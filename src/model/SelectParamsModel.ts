@@ -11,7 +11,7 @@ export class SelectParamsModel {
    * @type {string}
    * @memberof SelectParamsModel
    */
-  public sql: string;
+  public sql!: string;
   /**
    * 条件数组
    *

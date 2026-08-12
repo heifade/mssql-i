@@ -334,7 +334,7 @@ export class Save {
       updateDate?: IUpdateDate;
     }>
   ) {
-    let tran;
+    let tran: MssqlTransaction | undefined;
     try {
       tran = await Transaction.begin(conn);
 
@@ -343,7 +343,9 @@ export class Save {
       }
       await Transaction.commit(tran);
     } catch (err) {
-      await Transaction.rollback(tran);
+      if (tran) {
+        await Transaction.rollback(tran);
+      }
       return Promise.reject(err);
     }
   }

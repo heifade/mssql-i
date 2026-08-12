@@ -14,12 +14,12 @@ export class SplitPageParamsModel extends SelectParamsModel {
    * @type {number}
    * @memberof SplitPageParamsModel
    */
-  public pageSize: number;
+  public pageSize!: number;
   /**
    * 当前页号，以1为始
    *
    * @type {number}
    * @memberof SplitPageParamsModel
    */
-  public index: number;
+  public index!: number;
 }

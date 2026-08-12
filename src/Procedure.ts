@@ -53,7 +53,7 @@ export class Procedure {
       return Promise.reject(new Error(`存储过程: '${procedure}' 不存在!`));
     }
 
-    const procedureName = Utils.getDbObjectName(database, pars.schema, procedure);
+    const procedureName = Utils.getDbObjectName(database, pars.schema!, procedure);
 
     let request: Request;
     if (tran) {
@@ -81,9 +81,9 @@ export class Procedure {
 
     try {
       result = await request.execute(sql);
-    } catch (e) {
+    } catch (e: any) {
       const error: any = new Error(`执行过程时出错: ${sql} ${getParameters(request)}\n${e}`);
-      error.code = e.code;
+      error.code = (e as any).code;
       throw error;
     }
     return result;

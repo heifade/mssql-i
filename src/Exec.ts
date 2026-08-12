@@ -48,9 +48,9 @@ export class Exec {
 
     try {
       await request.query(sql);
-    } catch (e) {
+    } catch (e: any) {
       const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
-      error.code = e.code;
+      error.code = (e as any).code;
       throw error;
     }
   }
@@ -85,9 +85,9 @@ export class Exec {
 
     try {
       await request.query(sql);
-    } catch (e) {
+    } catch (e: any) {
       const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
-      error.code = e.code;
+      error.code = (e as any).code;
       throw error;
     }
   }

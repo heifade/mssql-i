@@ -83,7 +83,7 @@ export class Replace {
       return Promise.reject(new Error(`表: '${table}' 不存在!`));
     }
 
-    const tableName = Utils.getDbObjectName(database, pars.schema, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema!, table);
 
     let request: Request;
     if (tran) {
@@ -180,9 +180,9 @@ export class Replace {
     let result: IResult<any>;
     try {
       result = await request.query(sql);
-    } catch (e) {
+    } catch (e: any) {
       const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
-      error.code = e.code;
+      error.code = (e as any).code;
       throw error;
     }
     const returnValue: IInsertResult = {

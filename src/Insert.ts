@@ -88,7 +88,7 @@ export class Insert {
       return Promise.reject(new Error(`表: '${table}' 不存在!`));
     }
 
-    const tableName = Utils.getDbObjectName(database, pars.schema, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema!, table);
 
     for (const row of data) {
       const request = tran ? new Request(tran) : conn.request();
@@ -177,7 +177,7 @@ export class Insert {
       return Promise.reject(new Error(`表: '${table}' 不存在!`));
     }
 
-    const tableName = Utils.getDbObjectName(database, pars.schema, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema!, table);
     const request = tran ? new Request(tran) : conn.request();
     return await this._insert({
       row: fillCreateByUpdateBy({ row: data, createBy, updateBy, createDate, updateDate }),
@@ -232,9 +232,9 @@ export class Insert {
 
     try {
       result = await request.query(sql);
-    } catch (e) {
+    } catch (e: any) {
       const error: any = new Error(`执行过程时出错: ${sql} ${getParameters(request)}\n${e}`);
-      error.code = e.code;
+      error.code = (e as any).code;
       throw error;
     }
     const returnValue: IInsertResult = {

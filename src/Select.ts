@@ -29,9 +29,9 @@ export class Select {
     }
     try {
       return await request.query(sql);
-    } catch (e) {
+    } catch (e: any) {
       const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
-      error.code = e.code;
+      error.code = (e as any).code;
       throw error;
     }
   }
@@ -122,7 +122,7 @@ export class Select {
    * });
    * </pre>
    */
-  public static async selectTop1<T>(conn: ConnectionPool, param: SelectParamsModel): Promise<T> {
+  public static async selectTop1<T>(conn: ConnectionPool, param: SelectParamsModel): Promise<T | null> {
     const result = await Select.selectBase(conn, param);
     if (result.recordset.length > 0) {
       return readListFromResult([result.recordset[0]])[0];
@@ -240,7 +240,7 @@ export class Select {
    * 结果，返回值为满足条件的第一条数据的f1字段值
    * </pre>
    */
-  public static async selectOneValue<T>(conn: ConnectionPool, param: SelectParamsModel): Promise<T> {
+  public static async selectOneValue<T>(conn: ConnectionPool, param: SelectParamsModel): Promise<T | null> {
     const result = await Select.selectBase(conn, param);
     const v = result.recordset[0];
     if (v) {

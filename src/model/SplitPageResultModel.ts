@@ -11,12 +11,12 @@ export class SplitPageResultModel<T> {
    *
    * @memberof SplitPageResultModel
    */
-  public list: Array<T>;
+  public list!: Array<T>;
   /**
    * 总行数
    *
    * @type {number}
    * @memberof SplitPageResultModel
    */
-  public count: number;
+  public count!: number;
 }

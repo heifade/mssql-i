@@ -124,7 +124,7 @@ export class Delete {
 
     const whereSQL = whereSQLs.length ? ` where ${whereSQLs.join(" and ")} ` : "";
 
-    const tableName = Utils.getDbObjectName(database, pars.schema, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema!, table);
 
     const sql = `delete from ${tableName} ${whereSQL}`;
 
@@ -141,9 +141,9 @@ export class Delete {
 
     try {
       await request.query(sql);
-    } catch (e) {
+    } catch (e: any) {
       const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
-      error.code = e.code;
+      error.code = (e as any).code;
       throw error;
     }
   }
@@ -219,9 +219,9 @@ export class Delete {
       return Promise.reject(new Error(`表: '${table}' 不存在!`));
     }
 
-    const { whereSQL, whereList, wherePars } = Where.getWhereSQL(where, tableSchemaModel);
+    const { whereSQL, whereList, wherePars } = Where.getWhereSQL(where || {}, tableSchemaModel);
 
-    const tableName = Utils.getDbObjectName(database, pars.schema, table);
+    const tableName = Utils.getDbObjectName(database, pars.schema!, table);
 
     const sql = `delete from ${tableName} ${whereSQL}`;
 
@@ -238,9 +238,9 @@ export class Delete {
 
     try {
       await request.query(sql);
-    } catch (e) {
+    } catch (e: any) {
       const error: any = new Error(`执行 SQL 时出错: ${sql} ${getParameters(request)}\n${e}`);
-      error.code = e.code;
+      error.code = (e as any).code;
       throw error;
     }
   }
