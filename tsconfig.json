@@ -1,14 +1,15 @@
 {
   "include": ["./src/**/*"],
   "compilerOptions": {
+    "rootDir": "./src",
     "outDir": "./es/",
     "removeComments": true,
     "types": ["node"],
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
     "target": "esnext",
-    "module": "commonjs",
+    "module": "nodenext",
     "declaration": true,
     "resolveJsonModule": true,
     "sourceMap": true
