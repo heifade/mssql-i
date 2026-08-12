@@ -1,335 +1,351 @@
 # mssql-i
 
-[![NPM version][npm-image]][npm-url]
-[![NPM Downloads][downloads-image]][npm-url]
-[![Build Status](https://travis-ci.org/heifade/mssql-i.svg?branch=master)](https://travis-ci.org/heifade/mssql-i)
-[![Coverage Status](https://coveralls.io/repos/github/heifade/mssql-i/badge.svg?branch=master)](https://coveralls.io/github/heifade/mssql-i?branch=master)
+[![NPM version](https://img.shields.io/npm/v/mssql-i.svg?style=flat-square)](https://npmjs.org/package/mssql-i)
+[![NPM Downloads](https://img.shields.io/npm/dm/mssql-i.svg?style=flat-square)](https://npmjs.org/package/mssql-i)
+[![License](https://img.shields.io/npm/l/mssql-i.svg?style=flat-square)](https://github.com/heifade/mssql-i/blob/master/LICENSE)
 
-[npm-image]: https://img.shields.io/npm/v/mssql-i.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/mssql-i
-[downloads-image]: https://img.shields.io/npm/dm/mssql-i.svg
+基于 [mssql](https://www.npmjs.com/package/mssql) 的 SQL Server 高层封装，提供简洁的 Promise API，让 Node.js 操作 SQL Server 更简单。
 
-# 源代码及文档
-[源代码](https://github.com/heifade/mssql-i)
-[开发文档](https://heifade.github.io/mssql-i/)
+## 特性
 
-# 安装
+- **简单易用** — 增删改查一行代码搞定，无需手写 SQL
+- **基于 Promise** — 全面支持 async/await，告别回调地狱
+- **事务支持** — 简单直观的事务封装，支持多种隔离级别
+- **类型安全** — 内置 TypeScript 类型声明
+- **参数化查询** — 自动参数绑定，防止 SQL 注入
+- **连接池管理** — 内置连接池，开箱即用
+- **存储过程** — 支持输入/输出参数及返回值
+
+## 安装
+
 ```bash
 npm install mssql-i
 ```
 
-# 介绍
-mssql-i的主要特点：
-* 1.提供简单的插入,修改,删除,替换,查询,分页查询等功能
-* 2.事务封装
-* 3.基于Promise的写法
+## 快速开始
 
+```javascript
+const { ConnectionHelper, Exec, Save, SaveType, Select } = require("mssql-i");
 
-# 方法总览
-> Insert 插入
->
-> > insert 插入一条数据
->
-> Update 更新
->
-> > update 根据主键更新一条数据
->
-> > updateByWhere 根据条件更新一条或多条数据
->
-> Delete 删除
->
-> > delete 根据主键删除一条数据
->
-> > deleteByWhere 根据条件删除一条或多条数据
->
-> Replace 替换
->
-> > replace 根据主键替换一条数据（如果存在则更新，如果不存在则插入）
->
-> Save 保存数据
->
-> > save 保存一条数据
->
-> > saves 保存多条数据，并发执行
->
-> > savesSeq 保存多条数据，顺序执行
->
-> > savesSeqWithTran 保存多条数据，顺序执行(事务)
->
-> Exec 执行SQL
->
-> > exec 执行一条SQL语句
->
-> > execs 执行多条SQL语句（并发）
->
-> > execsSeq 执行多条SQL语句（顺序）
->
-> Procedure 存储过程
->
-> > exec 执行一个存储过程
->
-> Select 查询
->
-> > select 查询一个SQL语句
->
-> > selects 查询多个SQL语句
->
-> > selectTop1 查询一个SQL语句，取返回的第一行数据
->
-> > selectOneValue 查询一个SQL语句，取返回的第一行的第一个字段值
->
-> > selectCount 查询一个SQL语句，取返回的行数。相当于select count(*) from (sql)
->
-> > selectSplitPage 分页查询，返回总行数与指定页的数据集
->
-> > selectGUID 获取一个GUID
->
-> Transaction 事务
->
-> > begin 开启一个事务
->
-> > commit 提交一个事务
->
-> > rollback 回滚一个事务
->
-> ConnectionHelper 连接
->
-> > create 创建一个连接
->
-> > close 关闭一个连接
+async function main() {
+  // 1. 创建连接
+  const conn = await ConnectionHelper.create({
+    server: "localhost",
+    user: "sa",
+    password: "your_password",
+    database: "your_db",
+    port: 1433,
+  });
 
-
-# 例子
-例子1 创建一张表tbl_test
-```js
-const mssqli = require("mssql-i");
-const { ConnectionHelper, Exec } = mssqli;
-
-async function run() {
-  let conn;
   try {
-    // 第一步：创建连接
-    conn = await ConnectionHelper.create({
-      server: "localhost",
-      user: "",
-      password: "",
-      database: "",
-      port: 1433
+    // 2. 建表
+    await Exec.exec(conn, `
+      CREATE TABLE tbl_test (
+        id    INT PRIMARY KEY,
+        value VARCHAR(255)
+      )
+    `);
+
+    // 3. 插入数据
+    await Save.save(conn, {
+      table: "tbl_test",
+      data: { id: 1, value: "hello" },
+      saveType: SaveType.insert,
     });
 
-    // 第二步：执行创建表的SQL
-    await Exec.exec(
-      conn,
-      `create table tbl_test (
-        id int primary key,
-        value varchar(255)
-      )`
-    );
-  } catch (err) {
-    throw err;
+    // 4. 查询数据
+    const rows = await Select.select(conn, {
+      sql: "SELECT * FROM tbl_test WHERE id = ?",
+      where: [1],
+    });
+    console.log(rows); // [{ id: 1, value: 'hello' }]
   } finally {
-    // 第三步：关闭连接
-    await ConnectionHelper.close(conn); // conn 可以为空，空时不报错
+    // 5. 关闭连接
+    await ConnectionHelper.close(conn);
   }
 }
 
-run()
-  .then(() => {
-    console.log("完成");
-  })
-  .catch(err => {
-    console.log(err);
-  });
+main();
 ```
 
+## 连接配置
 
-例子2 插入一条数据
-```js
-const mssqli = require("mssql-i");
-const { Save, SaveType } = mssqli;
-...
-await Save.save(conn, {
-  data: { id: 1, value: "1" }, // 插入的数据{ id: 1, value: "1" }
-  table: "tbl_test", // 表名
-  saveType: SaveType.insert //插入
+`ConnectionHelper.create()` 接收 [mssql 连接池配置](https://www.npmjs.com/package/mssql#general-same-for-all-drivers)，常用参数如下：
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `server` | `string` | 数据库服务器地址 |
+| `port` | `number` | 端口号，默认 `1433` |
+| `user` | `string` | 用户名 |
+| `password` | `string` | 密码 |
+| `database` | `string` | 数据库名 |
+| `options.encrypt` | `boolean` | 是否启用加密（Azure 需设为 `true`） |
+| `pool.max` | `number` | 连接池最大连接数，默认 `10` |
+| `pool.min` | `number` | 连接池最小连接数，默认 `0` |
+| `pool.idleTimeoutMillis` | `number` | 空闲连接超时时间（毫秒） |
+
+```javascript
+const conn = await ConnectionHelper.create({
+  server: "localhost",
+  user: "sa",
+  password: "your_password",
+  database: "your_db",
+  options: { encrypt: false },
+  pool: { max: 10, min: 0, idleTimeoutMillis: 30000 },
 });
-...
-
 ```
-此操作相当于执行SQL： insert into tbl_test(id, value) values(1, '1');
 
+> 💡 `ConnectionHelper.close(conn)` 可安全传入 `null` 或 `undefined`，不会抛出异常。
 
-例子3 根据主键更新一条数据
-```js
-...
+## API 一览
+
+### Insert — 插入
+
+| 方法 | 说明 |
+|------|------|
+| `Insert.insert(conn, { table, data })` | 插入一条数据，返回插入的记录 |
+
+### Update — 更新
+
+| 方法 | 说明 |
+|------|------|
+| `Update.update(conn, { table, data })` | 根据主键更新一条数据 |
+| `Update.updateByWhere(conn, { table, data, where })` | 根据条件更新一条或多条数据 |
+
+### Delete — 删除
+
+| 方法 | 说明 |
+|------|------|
+| `Delete.delete(conn, { table, data })` | 根据主键删除一条数据 |
+| `Delete.deleteByWhere(conn, { table, where })` | 根据条件删除一条或多条数据 |
+
+### Replace — 替换
+
+| 方法 | 说明 |
+|------|------|
+| `Replace.replace(conn, { table, data })` | 根据主键替换数据（存在则更新，不存在则插入） |
+
+### Save — 保存（统一入口）
+
+| 方法 | 说明 |
+|------|------|
+| `Save.save(conn, { table, data, saveType })` | 保存一条数据 |
+| `Save.saves(conn, items[])` | 保存多条数据（**并发**执行） |
+| `Save.savesSeq(conn, items[])` | 保存多条数据（**顺序**执行） |
+| `Save.savesSeqWithTran(conn, items[])` | 保存多条数据（顺序执行，**事务**包裹） |
+
+`saveType` 取值：`SaveType.insert` / `SaveType.update` / `SaveType.delete` / `SaveType.replace`
+
+### Select — 查询
+
+| 方法 | 说明 |
+|------|------|
+| `Select.select(conn, { sql, where })` | 执行查询，返回结果集 |
+| `Select.selects(conn, queries[])` | 执行多个查询（并发） |
+| `Select.selectTop1(conn, { sql, where })` | 查询并返回**第一行**数据 |
+| `Select.selectOneValue(conn, { sql, where })` | 查询并返回第一行的**第一个字段值** |
+| `Select.selectCount(conn, { sql, where })` | 查询结果的总行数 |
+| `Select.selectSplitPage(conn, { sql, where, pageSize, index })` | 分页查询，返回总行数与当前页数据 |
+| `Select.selectGUID(conn)` | 获取一个 GUID |
+
+### Exec — 执行 SQL
+
+| 方法 | 说明 |
+|------|------|
+| `Exec.exec(conn, sql)` | 执行一条 SQL 语句 |
+| `Exec.execs(conn, sqls[])` | 执行多条 SQL 语句（**并发**） |
+| `Exec.execsSeq(conn, sqls[])` | 执行多条 SQL 语句（**顺序**） |
+
+### Procedure — 存储过程
+
+| 方法 | 说明 |
+|------|------|
+| `Procedure.exec(conn, { procedure, data })` | 执行存储过程，支持输入/输出参数 |
+
+### Transaction — 事务
+
+| 方法 | 说明 |
+|------|------|
+| `Transaction.begin(conn)` | 开启事务 |
+| `Transaction.commit(tran)` | 提交事务 |
+| `Transaction.rollback(tran)` | 回滚事务 |
+
+### ConnectionHelper — 连接管理
+
+| 方法 | 说明 |
+|------|------|
+| `ConnectionHelper.create(config)` | 创建连接池 |
+| `ConnectionHelper.close(conn)` | 关闭连接池 |
+
+---
+
+## 使用示例
+
+### 插入数据
+
+```javascript
 await Save.save(conn, {
-  data: { id: 1, value: "2" }, // 更新的数据{ id: 1, value: "2" }
-  table: "tbl_test", // 表名
-  saveType: SaveType.update //更新
+  table: "tbl_test",
+  data: { id: 1, value: "hello" },
+  saveType: SaveType.insert,
 });
-...
+// 等效 SQL: INSERT INTO tbl_test (id, value) VALUES (1, 'hello')
 ```
-此操作相当于执行SQL： update tbl_test set value='2' where id = 1;
 
-例子4 删除一条数据
-```js
-...
+### 根据主键更新
+
+```javascript
 await Save.save(conn, {
-  data: { id: 1 }, // 删除的数据{ id: 1 }
-  table: "tbl_test", // 表名
-  saveType: SaveType.delete //删除
+  table: "tbl_test",
+  data: { id: 1, value: "world" },
+  saveType: SaveType.update,
 });
-...
+// 等效 SQL: UPDATE tbl_test SET value='world' WHERE id=1
 ```
-此操作相当于执行SQL： delete from tbl_test where id = 1;
 
-例子5 替换一条数据
-```js
-...
+### 根据条件更新
+
+```javascript
+await Update.updateByWhere(conn, {
+  table: "tbl_test",
+  data: { value: "updated" },
+  where: { id: 1 },
+});
+// 等效 SQL: UPDATE tbl_test SET value='updated' WHERE id=1
+```
+
+### 删除数据
+
+```javascript
 await Save.save(conn, {
-  data: { id: 1, value: "3" }, // 替换的数据{ id: 1, value: "3" }
-  table: "tbl_test", // 表名
-  saveType: SaveType.replace //替换
+  table: "tbl_test",
+  data: { id: 1 },
+  saveType: SaveType.delete,
 });
-...
+// 等效 SQL: DELETE FROM tbl_test WHERE id=1
 ```
-此操作相当于执行SQL： replace into tbl_test(id, value) values(1, '2');
 
+### 替换数据（存在则更新，不存在则插入）
 
-例子6 多条数据并发操作（注意：先后顺序不一定）
-```js
-...
+```javascript
+await Save.save(conn, {
+  table: "tbl_test",
+  data: { id: 1, value: "replaced" },
+  saveType: SaveType.replace,
+});
+```
+
+### 批量操作
+
+```javascript
+// 并发执行（无顺序保证）
 await Save.saves(conn, [
-  {
-    data: { id: 1, value: "11" },
-    table: "tbl_test",
-    saveType: SaveType.insert //插入
-  },
-  {
-    data: { id: 1, value: "22" },
-    table: "tbl_test",
-    saveType: SaveType.update //更新
-  },
-  {
-    data: { id: 3, value: "33" },
-    table: "tbl_test",
-    saveType: SaveType.replace //替换
-  },
-  {
-    data: { id: 3 },
-    table: "tbl_test",
-    saveType: SaveType.delete //删除
-  }
+  { table: "tbl_test", data: { id: 1, value: "a" }, saveType: SaveType.insert },
+  { table: "tbl_test", data: { id: 2, value: "b" }, saveType: SaveType.insert },
 ]);
-...
-```
 
-例子7 多条数据顺序操作（注意，按照顺序执行）
-```js
-...
+// 顺序执行
 await Save.savesSeq(conn, [
-  {
-    data: { id: 1, value: "11" },
-    table: "tbl_test",
-    saveType: SaveType.insert //插入
-  },
-  {
-    data: { id: 1, value: "22" },
-    table: "tbl_test",
-    saveType: SaveType.update //更新
-  },
-  {
-    data: { id: 2, value: "33" },
-    table: "tbl_test",
-    saveType: SaveType.insert //替换
-  },
-  {
-    data: { id: 2 },
-    table: "tbl_test",
-    saveType: SaveType.delete //删除
-  }
+  { table: "tbl_test", data: { id: 1, value: "a" }, saveType: SaveType.insert },
+  { table: "tbl_test", data: { id: 1, value: "b" }, saveType: SaveType.update },
 ]);
-...
 ```
 
-例子8 事务操作
-```js
-const mssqli = require("mssql-i");
-const { Save, SaveType, Transaction } = mssqli;
-...
+### 事务操作
+
+```javascript
+const { Transaction, Save, SaveType } = require("mssql-i");
+
 let tran;
 try {
   tran = await Transaction.begin(conn);
+
   await Save.savesSeq(
     conn,
     [
-      {
-        data: { id: 1, value: "1" },
-        table: "tbl_test",
-        saveType: SaveType.insert
-      },
-      {
-        data: { id: 2, value: "2" },
-        table: "tbl_test",
-        saveType: SaveType.insert
-      },
-      {
-        data: { id: 3, value: "3" },
-        table: "tbl_test",
-        saveType: SaveType.insert
-      },
-      {
-        data: { id: 4, value: "4" },
-        table: "tbl_test",
-        saveType: SaveType.insert
-      }
+      { table: "tbl_test", data: { id: 1, value: "a" }, saveType: SaveType.insert },
+      { table: "tbl_test", data: { id: 2, value: "b" }, saveType: SaveType.insert },
     ],
     tran
   );
+
   await Transaction.commit(tran);
 } catch (err) {
   await Transaction.rollback(tran);
+  throw err;
 }
-...
 ```
 
-例子9 查询
-```js
-...
-const mssqli = require("mssql-i");
-const { Select } = mssqli;
-...
-let result = await Select.select(conn, {
-  sql: "select * from tbl_test where id=?", //SQL语句
-  where: ["1"] // 条件
-});
-console.log(result);
+### 查询
 
-result = await Select.selects(conn, [
-  { sql: "select * from tbl_test where id = ?", where: ["1"] },
-  { sql: "select * from tbl_test where value like '%1%'" }
-]);
-console.log(result);
+```javascript
+const { Select } = require("mssql-i");
 
-result = await Select.selectSplitPage(conn, {
-  sql: "select *, row_number() over(order by id) as row_number from tbl_test where id=?", //需要提供 row_number 字段，根据此字段来分页
-  where: [1], // 条件
-  pageSize: 2,
-  index: 1
+// 普通查询
+const rows = await Select.select(conn, {
+  sql: "SELECT * FROM tbl_test WHERE id = ?",
+  where: [1],
 });
-console.log(result);
-...
+
+// 查询单个值
+const count = await Select.selectOneValue(conn, {
+  sql: "SELECT COUNT(*) FROM tbl_test",
+});
+
+// 分页查询
+const page = await Select.selectSplitPage(conn, {
+  sql: "SELECT *, ROW_NUMBER() OVER(ORDER BY id) AS row_number FROM tbl_test",
+  pageSize: 10,
+  index: 1, // 第 1 页
+});
+console.log(page.totalCount); // 总行数
+console.log(page.data);       // 当前页数据
 ```
 
-例子10 执行存储过程
-```js
-const mssqli = require("mssql-i");
-const { Procedure } = mssqli;
-...
-let result = await Procedure.exec(conn, {
+### 执行存储过程
+
+```javascript
+const { Procedure } = require("mssql-i");
+
+const result = await Procedure.exec(conn, {
   procedure: "p_insert",
-  data: {par1: '1', par2: '2'}, // 参数
+  data: { par1: "value1", par2: "value2" },
 });
-console.log(JSON.stringify(result));
-...
+console.log(result);
 ```
+
+## TypeScript 使用
+
+```typescript
+import { ConnectionHelper, Save, SaveType, Select, IOptions } from "mssql-i";
+
+async function main() {
+  const config: IOptions = {
+    server: "localhost",
+    user: "sa",
+    password: "your_password",
+    database: "your_db",
+  };
+
+  const conn = await ConnectionHelper.create(config);
+  try {
+    await Save.save(conn, {
+      table: "tbl_test",
+      data: { id: 1, value: "hello" },
+      saveType: SaveType.insert,
+    });
+
+    const rows = await Select.select(conn, {
+      sql: "SELECT * FROM tbl_test WHERE id = ?",
+      where: [1],
+    });
+    console.log(rows);
+  } finally {
+    await ConnectionHelper.close(conn);
+  }
+}
+```
+
+## 许可证
+
+[MIT](https://github.com/heifade/mssql-i/blob/master/LICENSE)
